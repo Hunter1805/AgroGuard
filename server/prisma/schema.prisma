@@ -1,0 +1,56 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Organization {
+  id        String    @id @default(uuid()) @db.Uuid
+  code      String    @unique
+  name      String
+  status    String    @default("ativo")
+  createdAt DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime  @updatedAt @db.Timestamptz(6)
+  archivedAt DateTime? @db.Timestamptz(6)
+  deletedAt  DateTime? @db.Timestamptz(6)
+
+  @@map("organizations")
+}
+
+model User {
+  id          String    @id @default(uuid()) @db.Uuid
+  name        String
+  email       String    @unique
+  employeeCode String?
+  type        String    @default("interno")
+  status      String    @default("ativo")
+  createdAt   DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime  @updatedAt @db.Timestamptz(6)
+  archivedAt  DateTime? @db.Timestamptz(6)
+  deletedAt   DateTime? @db.Timestamptz(6)
+
+  @@map("users")
+}
+
+model AuditLog {
+  id             String   @id @default(uuid()) @db.Uuid
+  organizationId String?  @db.Uuid
+  actorUserId    String?  @db.Uuid
+  actorName      String?
+  module         String
+  entityType     String
+  entityId       String
+  action         String
+  previousData   Json?
+  newData        Json?
+  reason         String?
+  requestId      String?
+  ipAddress      String?
+  userAgent      String?
+  createdAt      DateTime @default(now()) @db.Timestamptz(6)
+
+  @@map("audit_logs")
+}

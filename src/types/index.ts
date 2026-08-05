@@ -1,0 +1,20 @@
+export * from './equipment';
+export * from './maintenance';
+export * from './maintenance-plan';
+export * from './maintenance-schedule';
+export * from './checklist';
+export * from './order';
+export * from './dashboard';
+export * from './user';
+export * from './users';
+export * from './roles';
+export * from './permissions';
+export * from './user-preferences';
+export * from './system-settings';
+export * from './admin-audit';
+export * from './supplier';
+export * from './tools';
+export * from './systems';
+// Rotas e ActiveTab centralizados em routes.ts
+export type { ActiveTab, AppRoute } from './routes';
+export { ROUTES, ACTIVE_TAB_TO_ROUTE } from './routes';
