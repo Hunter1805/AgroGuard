@@ -29,7 +29,7 @@ export function errorHandler(error: FastifyError | AppError | Error, request: Fa
     const responsePayload: ApiErrorResponse = {
       error: {
         code: 'VALIDATION_ERROR',
-        message: 'Dados de entrada inválidos.',
+        message: 'Dados de entrada inválidos na requisição.',
         fieldErrors,
         requestId,
       },
@@ -42,7 +42,7 @@ export function errorHandler(error: FastifyError | AppError | Error, request: Fa
   const responsePayload: ApiErrorResponse = {
     error: {
       code: 'INTERNAL_ERROR',
-      message: 'Erro interno no servidor.',
+      message: 'Erro interno não esperado no servidor.',
       requestId,
     },
   };

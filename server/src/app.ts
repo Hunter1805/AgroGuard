@@ -4,7 +4,14 @@ import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
 import { env } from './config/env';
 import { errorHandler } from './shared/middleware/errorHandler';
+import { requestActorMiddleware } from './shared/http/RequestActor';
 import { healthRoutes } from './modules/health/health.routes';
+import { organizationRoutes } from './modules/organizations/organization.routes';
+import { masterDataRoutes } from './modules/master-data/master-data.routes';
+import { userRoutes } from './modules/users/user.routes';
+import { equipmentRoutes } from './modules/equipment/equipment.routes';
+import { workOrderRoutes } from './modules/work-orders/work-order.routes';
+import { stockRoutes } from './modules/stock/stock.routes';
 import type { ApiErrorResponse } from './shared/http/ApiResponse';
 
 export async function buildApp() {
@@ -15,9 +22,12 @@ export async function buildApp() {
     requestIdHeader: 'x-request-id',
   });
 
+  // Middlewares globais
+  app.addHook('onRequest', requestActorMiddleware);
+
   // CORS
   await app.register(cors, {
-    origin: true, // Permitir requisições da SPA frontend
+    origin: true,
     credentials: true,
   });
 
@@ -62,8 +72,14 @@ export async function buildApp() {
     reply.status(404).send(responsePayload);
   });
 
-  // Registro de Rotas Iniciais
+  // Registro de Rotas da API v1
   await app.register(healthRoutes);
+  await app.register(organizationRoutes);
+  await app.register(masterDataRoutes);
+  await app.register(userRoutes);
+  await app.register(equipmentRoutes);
+  await app.register(workOrderRoutes);
+  await app.register(stockRoutes);
 
   return app;
 }

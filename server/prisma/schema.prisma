@@ -7,32 +7,581 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// ==========================================
+// 1. NÚCLEO ORGANIZACIONAL
+// ==========================================
+
 model Organization {
-  id        String    @id @default(uuid()) @db.Uuid
-  code      String    @unique
-  name      String
-  status    String    @default("ativo")
-  createdAt DateTime  @default(now()) @db.Timestamptz(6)
-  updatedAt DateTime  @updatedAt @db.Timestamptz(6)
-  archivedAt DateTime? @db.Timestamptz(6)
-  deletedAt  DateTime? @db.Timestamptz(6)
+  id         String    @id @default(uuid()) @db.Uuid
+  code       String    @unique
+  name       String
+  status     String    @default("ativo")
+  createdAt  DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt  DateTime  @updatedAt @db.Timestamptz(3)
+  archivedAt DateTime? @db.Timestamptz(3)
+  deletedAt  DateTime? @db.Timestamptz(3)
+
+  companies  Company[]
+  units      Unit[]
+  farms      Farm[]
+  equipments Equipment[]
+  workOrders WorkOrder[]
+  stockItems StockItem[]
+  tires      Tire[]
+  tools      Tool[]
+  auditLogs  AuditLog[]
+  legacyMaps LegacyIdMap[]
 
   @@map("organizations")
 }
 
-model User {
-  id          String    @id @default(uuid()) @db.Uuid
+model Company {
+  id             String   @id @default(uuid()) @db.Uuid
+  organizationId String   @db.Uuid
+  code           String
+  name           String
+  corporateName  String?
+  tradeName      String?
+  cnpj           String?
+  status         String   @default("ativo")
+  createdAt      DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt      DateTime @updatedAt @db.Timestamptz(3)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  units        Unit[]
+  farms        Farm[]
+  equipments   Equipment[]
+
+  @@unique([organizationId, code])
+  @@map("companies")
+}
+
+model Unit {
+  id             String   @id @default(uuid()) @db.Uuid
+  organizationId String   @db.Uuid
+  companyId      String   @db.Uuid
+  code           String
+  name           String
+  type           String   @default("matriz")
+  city           String?
+  state          String?
+  status         String   @default("ativo")
+  createdAt      DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt      DateTime @updatedAt @db.Timestamptz(3)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  company      Company      @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  farms        Farm[]
+  sectors      Sector[]
+  equipments   Equipment[]
+
+  @@unique([organizationId, code])
+  @@map("units")
+}
+
+model Farm {
+  id                String   @id @default(uuid()) @db.Uuid
+  organizationId    String   @db.Uuid
+  companyId         String   @db.Uuid
+  unitId            String   @db.Uuid
+  code              String
+  name              String
+  totalAreaHectares Decimal? @db.Decimal(12, 2)
+  status            String   @default("ativo")
+  createdAt         DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime @updatedAt @db.Timestamptz(3)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  company      Company      @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  unit         Unit         @relation(fields: [unitId], references: [id], onDelete: Restrict)
+  sectors      Sector[]
+  equipments   Equipment[]
+
+  @@unique([organizationId, code])
+  @@map("farms")
+}
+
+model Sector {
+  id        String   @id @default(uuid()) @db.Uuid
+  unitId    String   @db.Uuid
+  farmId    String?  @db.Uuid
+  code      String
+  name      String
+  status    String   @default("ativo")
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  unit Unit  @relation(fields: [unitId], references: [id], onDelete: Restrict)
+  farm Farm? @relation(fields: [farmId], references: [id], onDelete: SetNull)
+
+  @@map("sectors")
+}
+
+model LocationItem {
+  id               String   @id @default(uuid()) @db.Uuid
+  code             String
+  name             String
+  type             String   @default("patio")
+  parentLocationId String?  @db.Uuid
+  status           String   @default("ativo")
+  createdAt        DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt        DateTime @updatedAt @db.Timestamptz(3)
+
+  parentLocation LocationItem?  @relation("LocationHierarchy", fields: [parentLocationId], references: [id], onDelete: SetNull)
+  subLocations   LocationItem[] @relation("LocationHierarchy")
+
+  @@map("locations")
+}
+
+model CostCenter {
+  id        String   @id @default(uuid()) @db.Uuid
+  code      String   @unique
+  name      String
+  status    String   @default("ativo")
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  @@map("cost_centers")
+}
+
+model Workshop {
+  id        String   @id @default(uuid()) @db.Uuid
+  code      String   @unique
+  name      String
+  type      String   @default("interna")
+  status    String   @default("ativo")
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  workOrders WorkOrder[]
+
+  @@map("workshops")
+}
+
+model Warehouse {
+  id        String   @id @default(uuid()) @db.Uuid
+  code      String   @unique
+  name      String
+  status    String   @default("ativo")
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  stockBalances StockBalance[]
+
+  @@map("warehouses")
+}
+
+model Team {
+  id        String   @id @default(uuid()) @db.Uuid
+  code      String   @unique
+  name      String
+  type      String   @default("mecanica")
+  status    String   @default("ativo")
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  @@map("teams")
+}
+
+// ==========================================
+// 2. MASTER DATA / TABELAS AUXILIARES
+// ==========================================
+
+model EquipmentType {
+  id        String   @id @default(uuid()) @db.Uuid
+  code      String   @unique
+  name      String
+  status    String   @default("ativo")
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  equipments Equipment[]
+
+  @@map("equipment_types")
+}
+
+model Brand {
+  id        String   @id @default(uuid()) @db.Uuid
+  code      String   @unique
+  name      String
+  status    String   @default("ativo")
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  models Model[]
+
+  @@map("brands")
+}
+
+model Model {
+  id        String   @id @default(uuid()) @db.Uuid
+  brandId   String   @db.Uuid
+  code      String
+  name      String
+  powerHp   Int?
+  status    String   @default("ativo")
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  brand      Brand       @relation(fields: [brandId], references: [id], onDelete: Restrict)
+  equipments Equipment[]
+
+  @@map("models")
+}
+
+model TechnicalSystem {
+  id          String   @id @default(uuid()) @db.Uuid
+  code        String   @unique
   name        String
-  email       String    @unique
+  description String?
+  status      String   @default("ativo")
+  createdAt   DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime @updatedAt @db.Timestamptz(3)
+
+  subsystems TechnicalSubsystem[]
+
+  @@map("technical_systems")
+}
+
+model TechnicalSubsystem {
+  id        String   @id @default(uuid()) @db.Uuid
+  systemId  String   @db.Uuid
+  code      String
+  name      String
+  status    String   @default("ativo")
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  system     TechnicalSystem      @relation(fields: [systemId], references: [id], onDelete: Restrict)
+  components TechnicalComponent[]
+
+  @@map("technical_subsystems")
+}
+
+model TechnicalComponent {
+  id          String   @id @default(uuid()) @db.Uuid
+  subsystemId String   @db.Uuid
+  code        String
+  name        String
+  status      String   @default("ativo")
+  createdAt   DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime @updatedAt @db.Timestamptz(3)
+
+  subsystem TechnicalSubsystem @relation(fields: [subsystemId], references: [id], onDelete: Restrict)
+
+  @@map("technical_components")
+}
+
+model Supplier {
+  id             String   @id @default(uuid()) @db.Uuid
+  code           String   @unique
+  name           String
+  corporateName  String?
+  documentNumber String?
+  phone          String?
+  email          String?
+  status         String   @default("ativo")
+  createdAt      DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt      DateTime @updatedAt @db.Timestamptz(3)
+
+  @@map("suppliers")
+}
+
+model UnitMeasure {
+  id        String   @id @default(uuid()) @db.Uuid
+  code      String   @unique
+  name      String
+  symbol    String
+  status    String   @default("ativo")
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  stockItems StockItem[]
+
+  @@map("unit_measures")
+}
+
+// ==========================================
+// 3. ADMINISTRAÇÃO E USUÁRIOS
+// ==========================================
+
+model User {
+  id           String    @id @default(uuid()) @db.Uuid
+  name         String
+  email        String    @unique
+  phone        String?
   employeeCode String?
-  type        String    @default("interno")
-  status      String    @default("ativo")
-  createdAt   DateTime  @default(now()) @db.Timestamptz(6)
-  updatedAt   DateTime  @updatedAt @db.Timestamptz(6)
-  archivedAt  DateTime? @db.Timestamptz(6)
-  deletedAt   DateTime? @db.Timestamptz(6)
+  type         String    @default("interno")
+  status       String    @default("ativo")
+  createdAt    DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime  @updatedAt @db.Timestamptz(3)
+  archivedAt   DateTime? @db.Timestamptz(3)
+  deletedAt    DateTime? @db.Timestamptz(3)
+
+  userRoles        UserRole[]
+  workOrdersOpened WorkOrder[]    @relation("WorkOrderOpener")
+  meterReadings    MeterReading[]
+  auditLogs        AuditLog[]
 
   @@map("users")
+}
+
+model Role {
+  id          String   @id @default(uuid()) @db.Uuid
+  code        String   @unique
+  name        String
+  description String?
+  systemRole  Boolean  @default(false)
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime @updatedAt @db.Timestamptz(3)
+
+  userRoles UserRole[]
+
+  @@map("roles")
+}
+
+model UserRole {
+  userId    String   @db.Uuid
+  roleId    String   @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roleId])
+  @@map("user_roles")
+}
+
+// ==========================================
+// 4. EQUIPAMENTOS, MEDIDORES E LEITURAS
+// ==========================================
+
+model Equipment {
+  id              String    @id @default(uuid()) @db.Uuid
+  organizationId  String    @db.Uuid
+  companyId       String    @db.Uuid
+  unitId          String    @db.Uuid
+  farmId          String?   @db.Uuid
+  equipmentTypeId String    @db.Uuid
+  modelId         String    @db.Uuid
+  code            String
+  name            String
+  serialNumber    String?
+  manufactureYear Int?
+  status          String    @default("operacional")
+  version         Int       @default(1)
+  createdAt       DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt       DateTime  @updatedAt @db.Timestamptz(3)
+  archivedAt      DateTime? @db.Timestamptz(3)
+
+  organization  Organization  @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  company       Company       @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  unit          Unit          @relation(fields: [unitId], references: [id], onDelete: Restrict)
+  farm          Farm?         @relation(fields: [farmId], references: [id], onDelete: SetNull)
+  equipmentType EquipmentType @relation(fields: [equipmentTypeId], references: [id], onDelete: Restrict)
+  model         Model         @relation(fields: [modelId], references: [id], onDelete: Restrict)
+
+  meters        EquipmentMeter[]
+  meterReadings MeterReading[]
+  workOrders    WorkOrder[]
+  tirePositions TirePosition[]
+
+  @@unique([organizationId, code])
+  @@map("equipments")
+}
+
+model EquipmentMeter {
+  id           String   @id @default(uuid()) @db.Uuid
+  equipmentId  String   @db.Uuid
+  meterType    String   @default("horimetro")
+  currentValue Decimal  @default(0) @db.Decimal(16, 3)
+  unit         String   @default("h")
+  version      Int      @default(1)
+  createdAt    DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime @updatedAt @db.Timestamptz(3)
+
+  equipment     Equipment      @relation(fields: [equipmentId], references: [id], onDelete: Cascade)
+  meterReadings MeterReading[]
+
+  @@map("equipment_meters")
+}
+
+model MeterReading {
+  id           String   @id @default(uuid()) @db.Uuid
+  equipmentId  String   @db.Uuid
+  meterId      String   @db.Uuid
+  readingValue Decimal  @db.Decimal(16, 3)
+  readingDate  DateTime @db.Timestamptz(3)
+  readByUserId String?  @db.Uuid
+  createdAt    DateTime @default(now()) @db.Timestamptz(3)
+
+  equipment  Equipment      @relation(fields: [equipmentId], references: [id], onDelete: Restrict)
+  meter      EquipmentMeter @relation(fields: [meterId], references: [id], onDelete: Restrict)
+  readByUser User?          @relation(fields: [readByUserId], references: [id], onDelete: SetNull)
+
+  @@map("meter_readings")
+}
+
+// ==========================================
+// 5. ORDENS DE SERVIÇO (WORK ORDERS)
+// ==========================================
+
+model WorkOrder {
+  id             String    @id @default(uuid()) @db.Uuid
+  organizationId String    @db.Uuid
+  workshopId     String?   @db.Uuid
+  equipmentId    String    @db.Uuid
+  openedByUserId String?   @db.Uuid
+  code           String
+  type           String    @default("corretiva")
+  priority       String    @default("media")
+  status         String    @default("aberta")
+  description    String
+  totalCost      Decimal   @default(0) @db.Decimal(14, 2)
+  version        Int       @default(1)
+  openedAt       DateTime  @default(now()) @db.Timestamptz(3)
+  closedAt       DateTime? @db.Timestamptz(3)
+  createdAt      DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt      DateTime  @updatedAt @db.Timestamptz(3)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  workshop     Workshop?    @relation(fields: [workshopId], references: [id], onDelete: SetNull)
+  equipment    Equipment    @relation(fields: [equipmentId], references: [id], onDelete: Restrict)
+  openedByUser User?        @relation("WorkOrderOpener", fields: [openedByUserId], references: [id], onDelete: SetNull)
+
+  stockMovements StockMovement[]
+
+  @@unique([organizationId, code])
+  @@map("work_orders")
+}
+
+// ==========================================
+// 6. PNEUS E RODADOS
+// ==========================================
+
+model Tire {
+  id             String   @id @default(uuid()) @db.Uuid
+  organizationId String   @db.Uuid
+  code           String
+  serialNumber   String?
+  brand          String
+  model          String
+  size           String
+  currentDepthMm Decimal  @default(15.0) @db.Decimal(10, 3)
+  status         String   @default("em_estoque")
+  createdAt      DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt      DateTime @updatedAt @db.Timestamptz(3)
+
+  organization Organization   @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  positions    TirePosition[]
+
+  @@unique([organizationId, code])
+  @@map("tires")
+}
+
+model TirePosition {
+  id           String   @id @default(uuid()) @db.Uuid
+  equipmentId  String   @db.Uuid
+  tireId       String   @db.Uuid
+  positionCode String
+  installedAt  DateTime @default(now()) @db.Timestamptz(3)
+
+  equipment Equipment @relation(fields: [equipmentId], references: [id], onDelete: Restrict)
+  tire      Tire      @relation(fields: [tireId], references: [id], onDelete: Restrict)
+
+  @@map("tire_positions")
+}
+
+// ==========================================
+// 7. FERRAMENTAS E KITS
+// ==========================================
+
+model Tool {
+  id             String   @id @default(uuid()) @db.Uuid
+  organizationId String   @db.Uuid
+  code           String
+  name           String
+  serialNumber   String?
+  status         String   @default("disponivel")
+  createdAt      DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt      DateTime @updatedAt @db.Timestamptz(3)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+
+  @@unique([organizationId, code])
+  @@map("tools")
+}
+
+// ==========================================
+// 8. ESTOQUE E MATERIAL
+// ==========================================
+
+model StockItem {
+  id             String   @id @default(uuid()) @db.Uuid
+  organizationId String   @db.Uuid
+  unitMeasureId  String   @db.Uuid
+  code           String
+  name           String
+  partNumber     String?
+  minQuantity    Decimal  @default(0) @db.Decimal(16, 3)
+  status         String   @default("ativo")
+  createdAt      DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt      DateTime @updatedAt @db.Timestamptz(3)
+
+  organization Organization    @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  unitMeasure  UnitMeasure     @relation(fields: [unitMeasureId], references: [id], onDelete: Restrict)
+  balances     StockBalance[]
+  movements    StockMovement[]
+
+  @@unique([organizationId, code])
+  @@map("stock_items")
+}
+
+model StockBalance {
+  id          String   @id @default(uuid()) @db.Uuid
+  warehouseId String   @db.Uuid
+  stockItemId String   @db.Uuid
+  quantity    Decimal  @default(0) @db.Decimal(16, 3)
+  version     Int      @default(1)
+  updatedAt   DateTime @updatedAt @db.Timestamptz(3)
+
+  warehouse Warehouse @relation(fields: [warehouseId], references: [id], onDelete: Restrict)
+  stockItem StockItem @relation(fields: [stockItemId], references: [id], onDelete: Cascade)
+
+  @@unique([warehouseId, stockItemId])
+  @@map("stock_balances")
+}
+
+model StockMovement {
+  id           String   @id @default(uuid()) @db.Uuid
+  stockItemId  String   @db.Uuid
+  workOrderId  String?  @db.Uuid
+  type         String // entrada, saide, ajuste
+  quantity     Decimal  @db.Decimal(16, 3)
+  unitCost     Decimal  @default(0) @db.Decimal(14, 2)
+  movementDate DateTime @default(now()) @db.Timestamptz(3)
+
+  stockItem StockItem  @relation(fields: [stockItemId], references: [id], onDelete: Restrict)
+  workOrder WorkOrder? @relation(fields: [workOrderId], references: [id], onDelete: SetNull)
+
+  @@map("stock_movements")
+}
+
+// ==========================================
+// 9. INFRAESTRUTURA, NUMERAÇÃO E AUDITORIA
+// ==========================================
+
+model NumberSequence {
+  id          String   @id @default(uuid()) @db.Uuid
+  entityType  String   @unique
+  prefix      String
+  nextValue   Int      @default(1)
+  digitsCount Int      @default(5)
+  version     Int      @default(1)
+  updatedAt   DateTime @updatedAt @db.Timestamptz(3)
+
+  @@map("number_sequences")
 }
 
 model AuditLog {
@@ -50,7 +599,25 @@ model AuditLog {
   requestId      String?
   ipAddress      String?
   userAgent      String?
-  createdAt      DateTime @default(now()) @db.Timestamptz(6)
+  createdAt      DateTime @default(now()) @db.Timestamptz(3)
+
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  actorUser    User?         @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
 
   @@map("audit_logs")
+}
+
+model LegacyIdMap {
+  id             String   @id @default(uuid()) @db.Uuid
+  organizationId String?  @db.Uuid
+  module         String
+  entityType     String
+  legacyId       String
+  newUuid        String   @db.Uuid
+  createdAt      DateTime @default(now()) @db.Timestamptz(3)
+
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([module, legacyId])
+  @@map("legacy_id_maps")
 }
