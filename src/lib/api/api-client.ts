@@ -1,4 +1,5 @@
 import type { ApiResponse, ApiErrorResponse } from './api-types';
+import { supabase } from '../supabase/supabase-client';
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3333/api/v1';
 
@@ -26,10 +27,9 @@ export async function apiClient<T>(
     ...(options.headers as Record<string, string>),
   };
 
-  // Injeção do Ator Mockado Provisório em ambiente de desenvolvimento
-  if (import.meta.env.DEV) {
-    headers['X-Mock-User-Id'] = 'e5eebc99-9c0b-4ef8-bb6d-6bb9bd380bb1';
-    headers['X-Mock-Organization-Id'] = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11';
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session?.access_token) {
+    headers['Authorization'] = `Bearer ${session.access_token}`;
   }
 
   const response = await fetch(url, {

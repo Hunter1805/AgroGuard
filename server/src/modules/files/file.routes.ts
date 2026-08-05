@@ -22,12 +22,13 @@ export async function fileRoutes(app: FastifyInstance) {
       throw new AppError(`Tipo de arquivo '${data.mimetype}' não permitido.`, 422, 'VALIDATION_ERROR');
     }
 
+    const orgId = request.actor?.organizationId || 'default-org';
     const buffer = await data.toBuffer();
     const stored = await storage.upload({
       filename: data.filename,
       mimeType: data.mimetype,
       buffer,
-      folder: 'attachments',
+      folder: `${orgId}/attachments`,
     });
 
     const fileMeta = {

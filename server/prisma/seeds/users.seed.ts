@@ -27,6 +27,25 @@ export async function seedUsers(prisma: PrismaClient) {
     },
   });
 
-  console.log('✅ Seeds de Usuários criados/atualizados!');
+  const adminRole = await prisma.role.findUnique({ where: { code: 'ADMIN' } });
+  const mecanicoRole = await prisma.role.findUnique({ where: { code: 'MECANICO' } });
+
+  if (adminRole) {
+    await prisma.userRole.upsert({
+      where: { userId_roleId: { userId: adminUser.id, roleId: adminRole.id } },
+      update: {},
+      create: { userId: adminUser.id, roleId: adminRole.id },
+    });
+  }
+
+  if (mecanicoRole) {
+    await prisma.userRole.upsert({
+      where: { userId_roleId: { userId: mecanicoUser.id, roleId: mecanicoRole.id } },
+      update: {},
+      create: { userId: mecanicoUser.id, roleId: mecanicoRole.id },
+    });
+  }
+
+  console.log('✅ Seeds de Usuários e Perfis vinculados criados/atualizados!');
   return { adminUser, mecanicoUser };
 }

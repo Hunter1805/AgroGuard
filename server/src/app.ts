@@ -15,14 +15,37 @@ import { workOrderRoutes } from './modules/work-orders/work-order.routes';
 import { stockRoutes } from './modules/stock/stock.routes';
 import { fileRoutes } from './modules/files/file.routes';
 import { importRoutes } from './modules/imports/import.routes';
+import { jobRoutes } from './modules/jobs/job.routes';
 import type { ApiErrorResponse } from './shared/http/ApiResponse';
+
+import helmet from '@fastify/helmet';
+import rateLimit from '@fastify/rate-limit';
 
 export async function buildApp() {
   const app = fastify({
     logger: {
       level: env.LOG_LEVEL,
+      redact: ['headers.authorization', 'body.password', 'body.token', 'body.serviceRoleKey'],
     },
     requestIdHeader: 'x-request-id',
+  });
+
+  // Security Headers e Helmet
+  await app.register(helmet, {
+    contentSecurityPolicy: false,
+  });
+
+  // Rate Limiting Global (100 requisições por minuto por IP)
+  await app.register(rateLimit, {
+    max: 100,
+    timeWindow: '1 minute',
+    errorResponseBuilder: (request, context) => ({
+      error: {
+        code: 'RATE_LIMIT_EXCEEDED',
+        message: `Limite de requisições excedido. Tente novamente em ${context.after}.`,
+        requestId: (request.headers['x-request-id'] as string) || request.id,
+      },
+    }),
   });
 
   // Middlewares e Plugins Globais
@@ -34,9 +57,9 @@ export async function buildApp() {
     },
   });
 
-  // CORS
+  // CORS Restritivo
   await app.register(cors, {
-    origin: true,
+    origin: env.CORS_ORIGIN || true,
     credentials: true,
   });
 
@@ -91,6 +114,7 @@ export async function buildApp() {
   await app.register(stockRoutes);
   await app.register(fileRoutes);
   await app.register(importRoutes);
+  await app.register(jobRoutes);
 
   return app;
 }

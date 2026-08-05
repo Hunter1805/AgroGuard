@@ -11,8 +11,9 @@ export function getFileStorageProvider(): FileStorageProvider {
     const bucket = process.env.SUPABASE_STORAGE_BUCKET || 'agroguard-files';
 
     if (!supabaseUrl || !serviceRoleKey) {
-      console.warn('⚠️ SUPABASE_URL ou SUPABASE_SERVICE_ROLE_KEY ausentes. Utilizando LocalFileStorageProvider como fallback de segurança.');
-      return new LocalFileStorageProvider(process.env.UPLOAD_PATH || './uploads');
+      throw new Error(
+        'Configuração obrigatória para o provider Supabase Storage ausente: SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY devem ser configuradas.'
+      );
     }
 
     return new SupabaseStorageProvider(supabaseUrl, serviceRoleKey, bucket);
