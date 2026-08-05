@@ -1,5 +1,6 @@
 import fastify from 'fastify';
 import cors from '@fastify/cors';
+import multipart from '@fastify/multipart';
 import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
 import { env } from './config/env';
@@ -12,6 +13,8 @@ import { userRoutes } from './modules/users/user.routes';
 import { equipmentRoutes } from './modules/equipment/equipment.routes';
 import { workOrderRoutes } from './modules/work-orders/work-order.routes';
 import { stockRoutes } from './modules/stock/stock.routes';
+import { fileRoutes } from './modules/files/file.routes';
+import { importRoutes } from './modules/imports/import.routes';
 import type { ApiErrorResponse } from './shared/http/ApiResponse';
 
 export async function buildApp() {
@@ -22,8 +25,14 @@ export async function buildApp() {
     requestIdHeader: 'x-request-id',
   });
 
-  // Middlewares globais
+  // Middlewares e Plugins Globais
   app.addHook('onRequest', requestActorMiddleware);
+
+  await app.register(multipart, {
+    limits: {
+      fileSize: 20 * 1024 * 1024, // 20 MB max por arquivo
+    },
+  });
 
   // CORS
   await app.register(cors, {
@@ -80,6 +89,8 @@ export async function buildApp() {
   await app.register(equipmentRoutes);
   await app.register(workOrderRoutes);
   await app.register(stockRoutes);
+  await app.register(fileRoutes);
+  await app.register(importRoutes);
 
   return app;
 }
