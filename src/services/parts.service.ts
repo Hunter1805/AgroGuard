@@ -1,5 +1,7 @@
 import type { StockItem, StockDashboardStats, StockItemFilter, StockHistoryLog } from '../types/parts';
 import { stockCalculationService } from './stock-calculation.service';
+import { dataSourceConfig } from '../config/data-source.config';
+import { fetchStockItemsFromApi } from './api-gateways/stock.gateway';
 
 let stockItemsStore: StockItem[] = [
   {
@@ -215,6 +217,40 @@ export const partsService = {
   },
 
   async getStockItems(filters?: StockItemFilter): Promise<StockItem[]> {
+    if (dataSourceConfig.stock === 'api') {
+      const items = await fetchStockItemsFromApi(filters?.search);
+      return items.map(i => ({
+        id: i.id,
+        internalCode: i.code,
+        name: i.name,
+        description: i.name,
+        type: 'peca' as any,
+        categoryName: 'Peça de Estoque',
+        controlUnit: i.unitMeasure,
+        allowsFractionalQuantity: false,
+        currentQuantity: i.quantity,
+        reservedQuantity: 0,
+        availableQuantity: i.quantity,
+        minimumQuantity: i.minQuantity,
+        maximumQuantity: i.minQuantity * 5,
+        reorderPoint: i.minQuantity,
+        averageCost: 50.00,
+        totalStockValue: i.quantity * 50.00,
+        location: {
+          warehouseId: 'wh-01',
+          warehouseName: 'Almoxarifado Central',
+          shelf: 'A1',
+          detailedLocation: 'Almoxarifado Central - A1',
+        },
+        controlsLot: false,
+        controlsExpiration: false,
+        requiresWorkOrderLink: false,
+        compatibleEquipmentNames: [],
+        status: (i.status as any) || 'em_estoque',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }));
+    }
     let items = [...stockItemsStore];
 
     if (filters?.search) {

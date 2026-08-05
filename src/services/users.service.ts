@@ -1,4 +1,6 @@
 import type { SystemUser, UserStatus } from '../types/users';
+import { dataSourceConfig } from '../config/data-source.config';
+import { fetchUsersFromApi, createUserInApi } from './api-gateways/user.gateway';
 
 let mockUsers: SystemUser[] = [
   {
@@ -119,6 +121,9 @@ let mockUsers: SystemUser[] = [
 
 export const usersService = {
   async getUsers(query?: string, filters?: any): Promise<SystemUser[]> {
+    if (dataSourceConfig.masterData === 'api') {
+      return fetchUsersFromApi(query);
+    }
     let result = [...mockUsers];
     if (query) {
       const q = query.toLowerCase();
@@ -133,10 +138,17 @@ export const usersService = {
   },
 
   async getUserById(id: string): Promise<SystemUser | undefined> {
+    if (dataSourceConfig.masterData === 'api') {
+      const users = await fetchUsersFromApi();
+      return users.find((u: SystemUser) => u.id === id);
+    }
     return mockUsers.find(u => u.id === id);
   },
 
   async createUser(data: Partial<SystemUser>): Promise<SystemUser> {
+    if (dataSourceConfig.masterData === 'api') {
+      return createUserInApi(data);
+    }
     const newUser: SystemUser = {
       id: `usr-${Date.now()}`,
       name: data.name || 'Novo Usuário',

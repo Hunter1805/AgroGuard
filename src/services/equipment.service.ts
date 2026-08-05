@@ -5,6 +5,8 @@ import type {
   MeterConfig,
 } from '../types/equipment';
 import type { EquipmentFormData } from '../types/equipment-form';
+import { dataSourceConfig } from '../config/data-source.config';
+import { fetchEquipmentsFromApi } from './api-gateways/equipment.gateway';
 
 const DRAFT_STORAGE_KEY = 'agroguard_equipment_draft';
 
@@ -169,11 +171,18 @@ const mockEquipments: Equipment[] = [
 
 export const equipmentService = {
   async getAllEquipments(includeArchived = false): Promise<Equipment[]> {
+    if (dataSourceConfig.equipment === 'api') {
+      return fetchEquipmentsFromApi();
+    }
     const list = includeArchived ? mockEquipments : mockEquipments.filter((e) => !e.isArchived);
     return Promise.resolve([...list]);
   },
 
   async getEquipmentById(id: string): Promise<Equipment | undefined> {
+    if (dataSourceConfig.equipment === 'api') {
+      const list = await fetchEquipmentsFromApi();
+      return list.find(e => e.id === id);
+    }
     const item = mockEquipments.find((e) => e.id === id);
     return Promise.resolve(item ? { ...item } : undefined);
   },

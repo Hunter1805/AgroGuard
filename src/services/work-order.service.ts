@@ -1,5 +1,7 @@
 import type { WorkOrder, WorkOrderTimelineEvent, WorkOrderStatus } from '../types/work-order';
 import type { WorkOrderExecutionData } from '../types/work-order-execution';
+import { dataSourceConfig } from '../config/data-source.config';
+import { fetchWorkOrdersFromApi, createWorkOrderInApi } from './api-gateways/work-order.gateway';
 
 // Mock DB
 let workOrders: WorkOrder[] = [];
@@ -9,12 +11,18 @@ let timelines: Record<string, WorkOrderTimelineEvent[]> = {};
 export const workOrderService = {
   // ─── Consultas ─────────────────────────────────────────────────────────────
   async getWorkOrders(): Promise<WorkOrder[]> {
+    if (dataSourceConfig.workOrders === 'api') {
+      return fetchWorkOrdersFromApi();
+    }
     await new Promise(resolve => setTimeout(resolve, 300));
-    // Simular filtro no futuro
     return [...workOrders].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   },
 
   async getWorkOrderById(id: string): Promise<WorkOrder | undefined> {
+    if (dataSourceConfig.workOrders === 'api') {
+      const list = await fetchWorkOrdersFromApi();
+      return list.find(wo => wo.id === id);
+    }
     await new Promise(resolve => setTimeout(resolve, 200));
     return workOrders.find(wo => wo.id === id);
   },
@@ -31,6 +39,9 @@ export const workOrderService = {
 
   // ─── Ações de Ciclo de Vida ────────────────────────────────────────────────
   async createWorkOrder(data: Partial<WorkOrder>): Promise<WorkOrder> {
+    if (dataSourceConfig.workOrders === 'api') {
+      return createWorkOrderInApi(data);
+    }
     await new Promise(resolve => setTimeout(resolve, 400));
     const newId = `OS-${Date.now().toString().slice(-6)}`;
     
