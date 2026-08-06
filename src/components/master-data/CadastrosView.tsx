@@ -69,8 +69,7 @@ export const CadastrosView: React.FC = () => {
     .filter((g) => g.items.length > 0);
 
   return (
-    <div className="flex-1 overflow-y-auto p-6 space-y-6">
-      <div className="max-w-7xl mx-auto space-y-6 pb-12">
+    <div className="space-y-6 pb-12">
         {/* Cabeçalho */}
         <PageHeader
           title="Cadastros Auxiliares"
@@ -115,7 +114,6 @@ export const CadastrosView: React.FC = () => {
             </div>
           ))
         )}
-      </div>
     </div>
   );
 };

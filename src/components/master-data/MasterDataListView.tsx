@@ -96,8 +96,7 @@ export const MasterDataListView: React.FC<MasterDataListViewProps> = ({
   };
 
   return (
-    <div className="flex-1 overflow-y-auto p-6 space-y-6">
-      <div className="max-w-7xl mx-auto space-y-6 pb-12">
+    <div className="space-y-6 pb-12">
         {/* Voltar para a Central de Cadastros */}
         <button
           onClick={() => navigate('/cadastros')}
@@ -179,7 +178,6 @@ export const MasterDataListView: React.FC<MasterDataListViewProps> = ({
           onViewDependencies={handleOpenDependencies}
           onSetReplacement={(rec) => setReplModalRecord(rec)}
         />
-      </div>
 
       {/* Modais e Drawers Globais */}
       {FormComponent && (

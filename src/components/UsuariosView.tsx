@@ -9,7 +9,7 @@ export const UsuariosView: React.FC = () => {
   ];
 
   return (
-    <div className="flex-1 overflow-y-auto p-6 space-y-6">
+    <div className="space-y-6 pb-12">
       <div className="flex justify-between items-center">
         <div>
           <h2 className="font-title-md text-[24px] font-semibold text-on-surface tracking-tight">Usuários & Permissões</h2>

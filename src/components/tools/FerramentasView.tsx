@@ -67,7 +67,7 @@ export const FerramentasView: React.FC<FerramentasViewProps> = ({ initialTab = '
       />
 
       {/* Abas de Navegação Mapeadas */}
-      <div className="border-b border-gray-200 dark:border-gray-800 bg-white/50 dark:bg-gray-900/50 backdrop-blur-md rounded-2xl px-4 pt-2 flex items-center gap-6 overflow-x-auto shadow-sm">
+      <div className="border-b border-[var(--color-border)] bg-[var(--color-surface)] rounded-xl px-4 pt-2 flex items-center gap-2 overflow-x-auto shadow-sm">
         {tabs.map(tab => {
           const Icon = tab.icon;
           const isSelected = activeTab === tab.id;
@@ -75,16 +75,20 @@ export const FerramentasView: React.FC<FerramentasViewProps> = ({ initialTab = '
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`flex items-center gap-2 pb-3 pt-1 px-3 border-b-2 font-bold text-xs transition-all whitespace-nowrap ${
+              className={`flex items-center gap-2 pb-2.5 pt-1.5 px-3 border-b-2 font-semibold text-xs transition-all whitespace-nowrap cursor-pointer ${
                 isSelected
-                  ? 'border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400'
-                  : 'border-transparent text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200'
+                  ? 'border-[var(--color-brand)] text-[var(--color-brand)] font-bold'
+                  : 'border-transparent text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:border-[var(--color-border)]'
               }`}
             >
-              <Icon className={`w-4 h-4 ${isSelected ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400'}`} />
+              <Icon className={`w-4 h-4 ${isSelected ? 'text-[var(--color-brand)]' : 'text-[var(--color-text-muted)]'}`} />
               {tab.label}
               {tab.count !== undefined && (
-                <span className="text-[10px] px-1.5 py-0.5 rounded-full font-bold bg-surface-container text-on-surface">
+                <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
+                  isSelected
+                    ? 'bg-[var(--color-brand-light)] text-[var(--color-brand)]'
+                    : 'bg-[var(--color-surface-secondary)] text-[var(--color-text-secondary)] border border-[var(--color-border)]'
+                }`}>
                   {tab.count}
                 </span>
               )}

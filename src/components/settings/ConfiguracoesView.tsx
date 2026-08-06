@@ -20,7 +20,7 @@ export const ConfiguracoesView: React.FC<ViewProps> = ({ initialTab = 'visao_ger
   const [activeSection, setActiveSection] = useState(initialTab);
 
   return (
-    <div className="flex-1 overflow-y-auto p-6 space-y-5">
+    <div className="space-y-5 pb-12">
       {/* Header da Página */}
       <div className="flex items-center gap-3">
         <div className="p-2.5 rounded-xl bg-primary/10 text-primary border border-primary/20">

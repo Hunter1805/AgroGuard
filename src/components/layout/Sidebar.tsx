@@ -146,10 +146,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ onOpenNewOS, pendingAlerts = 3
               <ExpandableGroup
                 icon={<Wrench size={18} />}
                 label="Manutenções"
-                activePaths={[ROUTES.MANUTENCOES, ROUTES.MANUTENCOES_PLANOS, ROUTES.MANUTENCOES_AGENDA, ROUTES.MANUTENCOES_HISTORICO]}
+                activePaths={[ROUTES.MANUTENCOES_VISAO_GERAL, ROUTES.MANUTENCOES_PLANOS, ROUTES.MANUTENCOES_AGENDA, ROUTES.MANUTENCOES_HISTORICO]}
               >
                 <li>
-                  <NavItem to={ROUTES.MANUTENCOES} icon={<CircleDot size={13} />} label="Visão Geral" isSubItem end />
+                  <NavItem to={ROUTES.MANUTENCOES_VISAO_GERAL} icon={<CircleDot size={13} />} label="Visão Geral" isSubItem end />
                 </li>
                 <li>
                   <NavItem to={ROUTES.MANUTENCOES_PLANOS} icon={<BookOpen size={13} />} label="Planos Preventivos" isSubItem />

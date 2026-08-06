@@ -72,17 +72,17 @@ export const WorkOrderOpeningForm: React.FC = () => {
                 type="text"
                 value={formData.title}
                 onChange={e => setFormData({ ...formData, title: e.target.value })}
-                className="w-full px-4 py-2 bg-white/50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-800 rounded-xl outline-none focus:ring-2 focus:ring-primary/50 text-sm font-semibold"
+                className="w-full px-4 py-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl outline-none focus:ring-2 focus:ring-[var(--color-brand)]/50 text-sm font-semibold text-[var(--color-text-primary)]"
                 placeholder="Ex: Troca de óleo, Falha no motor..."
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-on-surface-variant mb-1 uppercase">Descrição Detalhada *</label>
+              <label className="block text-xs font-bold text-[var(--color-text-secondary)] mb-1 uppercase">Descrição Detalhada *</label>
               <textarea 
                 required
                 value={formData.description}
                 onChange={e => setFormData({ ...formData, description: e.target.value })}
-                className="w-full px-4 py-2 bg-white/50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-800 rounded-xl outline-none focus:ring-2 focus:ring-primary/50 text-sm h-24 resize-none"
+                className="w-full px-4 py-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl outline-none focus:ring-2 focus:ring-[var(--color-brand)]/50 text-sm h-24 resize-none text-[var(--color-text-primary)]"
                 placeholder="Descreva detalhadamente o sintoma ou o serviço a ser realizado..."
               />
             </div>
@@ -90,17 +90,17 @@ export const WorkOrderOpeningForm: React.FC = () => {
         </div>
 
         <div className="space-y-4">
-          <h3 className="font-title-md font-bold text-primary flex items-center gap-2 border-b border-primary/20 pb-2">
+          <h3 className="font-title-md font-bold text-[var(--color-brand)] flex items-center gap-2 border-b border-[var(--color-border)] pb-2">
             <ShieldAlert size={18} /> Classificação e Impacto
           </h3>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-on-surface-variant mb-1 uppercase">Tipo de Manutenção</label>
+              <label className="block text-xs font-bold text-[var(--color-text-secondary)] mb-1 uppercase">Tipo de Manutenção</label>
               <select 
                 value={formData.type}
                 onChange={e => setFormData({ ...formData, type: e.target.value })}
-                className="w-full px-4 py-2 bg-white/50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-800 rounded-xl outline-none text-sm font-semibold"
+                className="w-full px-4 py-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl outline-none text-sm font-semibold text-[var(--color-text-primary)]"
               >
                 <option value="corretiva_nao_planejada">Corretiva Não Planejada (Quebra)</option>
                 <option value="corretiva_planejada">Corretiva Planejada</option>
@@ -110,11 +110,11 @@ export const WorkOrderOpeningForm: React.FC = () => {
               </select>
             </div>
             <div>
-              <label className="block text-xs font-bold text-on-surface-variant mb-1 uppercase">Prioridade</label>
+              <label className="block text-xs font-bold text-[var(--color-text-secondary)] mb-1 uppercase">Prioridade</label>
               <select 
                 value={formData.priority}
                 onChange={e => setFormData({ ...formData, priority: e.target.value })}
-                className="w-full px-4 py-2 bg-white/50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-800 rounded-xl outline-none text-sm font-semibold"
+                className="w-full px-4 py-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl outline-none text-sm font-semibold text-[var(--color-text-primary)]"
               >
                 <option value="baixa">Baixa</option>
                 <option value="media">Média</option>

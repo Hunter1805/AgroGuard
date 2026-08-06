@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { RotateCw } from 'lucide-react';
+import { isCorpUI } from '../lib/ui-version';
 import { useDashboard } from '../hooks/useDashboard';
 import { ErrorState } from './ui/ErrorState';
 
-// Componentes do Dashboard
+// Componentes do Dashboard Legacy
 import { StatsCards } from './dashboard/StatsCards';
 import { AlertsCentral } from './dashboard/AlertsCentral';
 import { NextMaintenancePanel } from './dashboard/NextMaintenancePanel';
@@ -11,14 +12,26 @@ import { RecentOrdersPanel } from './dashboard/RecentOrdersPanel';
 import { ActivityTimeline } from './dashboard/ActivityTimeline';
 import { QuickActions } from './dashboard/QuickActions';
 
+// Componentes do Dashboard Corporativo v2
+import { DashboardViewCorp } from './dashboard/v2/DashboardViewCorp';
+
 interface DashboardViewProps {
   /** @deprecated — mantido por compatibilidade com App.tsx durante transição */
   setActiveTab?: (tab: string) => void;
   serviceOrders?: unknown[];
   revisions?: unknown[];
+  onOpenNewOS?: () => void;
 }
 
-export const DashboardView: React.FC<DashboardViewProps> = () => {
+export const DashboardView: React.FC<DashboardViewProps> = (props) => {
+  if (isCorpUI) {
+    return <DashboardViewCorp onOpenNewOS={props.onOpenNewOS} />;
+  }
+
+  return <DashboardViewLegacy {...props} />;
+};
+
+const DashboardViewLegacy: React.FC<DashboardViewProps> = () => {
   const {
     stats, priorityAlerts, upcomingMaintenance, recentOrders,
     activities, loading, error, refetch,
@@ -39,8 +52,7 @@ export const DashboardView: React.FC<DashboardViewProps> = () => {
   };
 
   return (
-    <div className="flex-1 overflow-y-auto p-6">
-      <div className="max-w-7xl mx-auto space-y-5 pb-14">
+    <div className="space-y-5 pb-14">
 
         {/* Cabeçalho */}
         <div className="flex justify-between items-end">
@@ -88,7 +100,7 @@ export const DashboardView: React.FC<DashboardViewProps> = () => {
 
         {/* Linha do tempo */}
         <ActivityTimeline activities={activities} loading={loading} />
-      </div>
     </div>
   );
 };
+

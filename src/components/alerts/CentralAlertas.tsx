@@ -95,8 +95,7 @@ export const CentralAlertas: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 overflow-y-auto p-6">
-      <div className="max-w-5xl mx-auto space-y-6 pb-12">
+    <div className="space-y-6 pb-12">
         <PageHeader
           title="Central de Alertas"
           subtitle="Pendências, avisos e alertas críticos de todos os módulos do sistema."
@@ -177,7 +176,6 @@ export const CentralAlertas: React.FC = () => {
             ))
           )}
         </div>
-      </div>
     </div>
   );
 };

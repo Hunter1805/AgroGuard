@@ -106,32 +106,32 @@ export const MaintenanceStats: React.FC<MaintenanceStatsProps> = ({ stats, loadi
 
       {/* Mini Bar Inferior com Métricas Operacionais e Ordens Preventivas */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <div className="bg-white/70 dark:bg-gray-900/50 backdrop-blur-md px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-800 flex items-center justify-between">
+        <div className="bg-[var(--color-surface)] px-4 py-3 rounded-xl border border-[var(--color-border)] flex items-center justify-between shadow-sm">
           <div className="flex items-center gap-2.5">
-            <Wrench className="w-4 h-4 text-emerald-500" />
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Concluídas nesta safra/mês</span>
+            <Wrench className="w-4 h-4 text-[var(--color-success)]" />
+            <span className="text-sm font-medium text-[var(--color-text-secondary)]">Concluídas nesta safra/mês</span>
           </div>
-          <span className="text-base font-bold text-gray-900 dark:text-white px-2 py-0.5 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 rounded-lg">
+          <span className="text-sm font-bold text-[var(--color-success)] px-2.5 py-0.5 bg-[var(--color-success-light)] border border-[var(--color-success)]/20 rounded-lg">
             {stats.concluidasPeriodo} unidades
           </span>
         </div>
 
-        <div className="bg-white/70 dark:bg-gray-900/50 backdrop-blur-md px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-800 flex items-center justify-between">
+        <div className="bg-[var(--color-surface)] px-4 py-3 rounded-xl border border-[var(--color-border)] flex items-center justify-between shadow-sm">
           <div className="flex items-center gap-2.5">
-            <FileText className="w-4 h-4 text-blue-500" />
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">OS Preventivas em Aberto</span>
+            <FileText className="w-4 h-4 text-[var(--color-info)]" />
+            <span className="text-sm font-medium text-[var(--color-text-secondary)]">OS Preventivas em Aberto</span>
           </div>
-          <span className="text-base font-bold text-gray-900 dark:text-white px-2 py-0.5 bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 rounded-lg">
+          <span className="text-sm font-bold text-[var(--color-info)] px-2.5 py-0.5 bg-[var(--color-info-light)] border border-[var(--color-info)]/20 rounded-lg">
             {stats.ordensPreventivasAbertas} ordens
           </span>
         </div>
 
-        <div className="bg-white/70 dark:bg-gray-900/50 backdrop-blur-md px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-800 flex items-center justify-between">
+        <div className="bg-[var(--color-surface)] px-4 py-3 rounded-xl border border-[var(--color-border)] flex items-center justify-between shadow-sm">
           <div className="flex items-center gap-2.5">
-            <CheckCircle2 className="w-4 h-4 text-purple-500" />
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Precisão de Tempo Oficina</span>
+            <CheckCircle2 className="w-4 h-4 text-[var(--color-brand)]" />
+            <span className="text-sm font-medium text-[var(--color-text-secondary)]">Precisão de Tempo Oficina</span>
           </div>
-          <span className="text-xs font-semibold text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/50 px-2.5 py-1 rounded-lg">
+          <span className="text-xs font-semibold text-[var(--color-brand)] bg-[var(--color-brand-light)] border border-[var(--color-brand)]/20 px-2.5 py-1 rounded-lg">
             {Math.round(stats.tempoRealizadoMinutos / 60)}h realiz. de {Math.round(stats.tempoPrevistoMinutos / 60)}h prev.
           </span>
         </div>

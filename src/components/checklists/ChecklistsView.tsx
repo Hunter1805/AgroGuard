@@ -34,12 +34,12 @@ export const ChecklistsView: React.FC = () => {
         subtitle="Gerencie inspeções pré-operacionais, programações periódicas, modelos configuráveis e tratamento auditable de não conformidades."
       />
 
-      <div className="flex justify-between items-center bg-surface-container-highest/60 border border-white/10 rounded-2xl p-4 shadow-lg flex-wrap gap-3">
+      <div className="flex justify-between items-center bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl p-4 shadow-sm flex-wrap gap-3">
         <div className="space-y-0.5">
-          <h3 className="font-title-md text-[15px] font-bold text-on-surface flex items-center gap-2">
-            <CheckSquare size={18} className="text-primary" /> Central de Inspeção Operacional
+          <h3 className="font-title-md text-[15px] font-bold text-[var(--color-text-primary)] flex items-center gap-2">
+            <CheckSquare size={18} className="text-[var(--color-brand)]" /> Central de Inspeção Operacional
           </h3>
-          <p className="text-[12px] text-on-surface-variant/80">
+          <p className="text-[12px] text-[var(--color-text-secondary)]">
             Acompanhe em tempo real a conformidade dos ativos da frota e previna avarias precoces.
           </p>
         </div>
@@ -49,36 +49,40 @@ export const ChecklistsView: React.FC = () => {
           size="sm"
           icon={<Plus size={16} />}
           onClick={() => setIsStartModalOpen(true)}
-          className="shadow-lg shadow-primary/20 scale-105 transition-transform font-bold"
+          className="font-bold"
         >
           Iniciar Novo Checklist
         </Button>
       </div>
 
       {statsLoading ? (
-        <div className="h-28 rounded-xl bg-surface-container/40 animate-pulse border border-white/5" />
+        <div className="h-28 rounded-xl bg-[var(--color-surface)] animate-pulse border border-[var(--color-border)]" />
       ) : (
         stats && <ChecklistStats stats={stats} />
       )}
 
       {/* Abas de Navegação */}
-      <div className="flex gap-2 border-b border-white/10 pb-2 overflow-x-auto font-mono-label text-[13px]">
+      <div className="border-b border-[var(--color-border)] bg-[var(--color-surface)] rounded-xl px-4 pt-2 flex items-center gap-2 overflow-x-auto shadow-sm">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
           return (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border transition-all whitespace-nowrap cursor-pointer ${
+              className={`flex items-center gap-2 pb-2.5 pt-1.5 px-3 border-b-2 font-semibold text-xs transition-all whitespace-nowrap cursor-pointer ${
                 isActive
-                  ? 'bg-primary text-on-primary font-bold border-primary shadow-lg shadow-primary/10 scale-102'
-                  : 'bg-surface-container-highest/40 hover:bg-surface-container-highest text-on-surface-variant border-white/5'
+                  ? 'border-[var(--color-brand)] text-[var(--color-brand)] font-bold'
+                  : 'border-transparent text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:border-[var(--color-border)]'
               }`}
             >
               {tab.icon}
               <span>{tab.label}</span>
               {tab.count !== undefined && (
-                <span className={`px-2 py-0.5 rounded-full text-[11px] font-mono-label ${isActive ? 'bg-white/20 text-on-primary font-bold' : 'bg-surface-container text-on-surface-variant'}`}>
+                <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
+                  isActive
+                    ? 'bg-[var(--color-brand-light)] text-[var(--color-brand)]'
+                    : 'bg-[var(--color-surface-secondary)] text-[var(--color-text-secondary)] border border-[var(--color-border)]'
+                }`}>
                   {tab.count}
                 </span>
               )}

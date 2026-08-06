@@ -1,16 +1,20 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { isCorpUI } from '../../../lib/ui-version';
 import { useEquipmentDetail } from '../../../hooks/useEquipmentDetail';
 import { LoadingState } from '../../ui/LoadingState';
 import { ErrorState } from '../../ui/ErrorState';
 import { EquipmentDetailHeader } from './EquipmentDetailHeader';
+import { EquipmentDetailHeaderCorp } from './EquipmentDetailHeaderCorp';
 import { EquipmentStatusNotice } from './EquipmentStatusNotice';
 import { EquipmentSummaryCards } from './EquipmentSummaryCards';
 import { EquipmentDetailActions } from './EquipmentDetailActions';
 import { EquipmentDetailTabs } from './EquipmentDetailTabs';
+import { EquipmentDetailTabsCorp, type MainGroupTab } from './EquipmentDetailTabsCorp';
 
 // As 12 Abas
 import { OverviewTab } from './tabs/OverviewTab';
+import { OverviewTabCorp } from './v2/OverviewTabCorp';
 import { ReadingsTab } from './tabs/ReadingsTab';
 import { ChecklistsTab } from './tabs/ChecklistsTab';
 import { MaintenanceTab } from './tabs/MaintenanceTab';
@@ -39,6 +43,7 @@ export const EquipmentDetailView: React.FC = () => {
     refetch,
   } = useEquipmentDetail();
 
+  const [activeMainGroup, setActiveMainGroup] = useState<MainGroupTab>('visao-geral');
   const [isArchiveOpen, setIsArchiveOpen] = useState(false);
   const [isArchiving, setIsArchiving] = useState(false);
 
@@ -74,119 +79,206 @@ export const EquipmentDetailView: React.FC = () => {
   }
 
   return (
-    <div className="flex-1 overflow-y-auto p-6 space-y-6">
-      <div className="max-w-7xl mx-auto space-y-6 pb-14">
-        {/* 1. Cabeçalho Completo */}
-        <EquipmentDetailHeader equipment={equipment} />
-
-        {/* 2. Aviso de Status Crítico (quando aplicável) */}
-        <EquipmentStatusNotice equipment={equipment} />
-
-        {/* 3. Cards Compactos de Métricas */}
-        <EquipmentSummaryCards equipment={equipment} summary={summary} />
-
-        {/* 4. Ações Principais e Secundárias */}
-        <EquipmentDetailActions
-          equipment={equipment}
-          onArchiveEquipment={() => setIsArchiveOpen(true)}
-        />
-
-        {/* 5. Barra com as 12 Abas Operacionais */}
-        <EquipmentDetailTabs
-          activeTab={activeTab}
-          onTabChange={changeTab}
-          summary={summary}
-        />
-
-        {/* 6. Conteúdo da Aba Ativa */}
-        <div className="pt-2">
-          {activeTab === 'visao-geral' && (
-            <OverviewTab
+    <div className="space-y-6 pb-14">
+        {isCorpUI ? (
+          <>
+            {/* 1. Cabeçalho Corporativo v1.1.0 */}
+            <EquipmentDetailHeaderCorp
               equipment={equipment}
-              history={detailData.history}
-              onViewFullHistory={() => changeTab('historico')}
+              onArchiveEquipment={() => setIsArchiveOpen(true)}
             />
-          )}
 
-          {activeTab === 'leituras' && (
-            <ReadingsTab
-              equipment={equipment}
-              readings={detailData.readings}
+            {/* 2. 5 Grupos de Navegação Corporativos */}
+            <EquipmentDetailTabsCorp
+              activeMainTab={activeMainGroup}
+              onMainTabChange={setActiveMainGroup}
+              activeSubTab={activeTab}
+              onSubTabChange={changeTab}
+              summary={summary}
             />
-          )}
 
-          {activeTab === 'checklists' && (
-            <ChecklistsTab
-              equipment={equipment}
-              checklists={detailData.checklists}
-            />
-          )}
+            {/* 3. Conteúdo da Aba Ativa */}
+            <div className="pt-2">
+              {activeTab === 'visao-geral' && (
+                <OverviewTabCorp
+                  equipment={equipment}
+                  summary={summary}
+                  loading={loading}
+                />
+              )}
 
-          {activeTab === 'manutencoes' && (
-            <MaintenanceTab
-              equipment={equipment}
-              maintenances={detailData.maintenances}
-            />
-          )}
+              {activeTab === 'leituras' && (
+                <ReadingsTab
+                  equipment={equipment}
+                  readings={detailData.readings}
+                />
+              )}
 
-          {activeTab === 'ordens-servico' && (
-            <OrdersTab
-              equipment={equipment}
-              orders={detailData.orders}
-            />
-          )}
+              {activeTab === 'checklists' && (
+                <ChecklistsTab
+                  equipment={equipment}
+                  checklists={detailData.checklists}
+                />
+              )}
 
-          {activeTab === 'falhas' && (
-            <FailuresTab
-              equipment={equipment}
-              failures={detailData.failures}
-              recurrentFailures={detailData.recurrentFailures}
-            />
-          )}
+              {activeTab === 'manutencoes' && (
+                <MaintenanceTab
+                  equipment={equipment}
+                  maintenances={detailData.maintenances}
+                />
+              )}
 
-          {activeTab === 'pneus' && (
-            <TiresTab
-              equipment={equipment}
-              tires={detailData.tires}
-            />
-          )}
+              {activeTab === 'ordens-servico' && (
+                <OrdersTab
+                  equipment={equipment}
+                  orders={detailData.orders}
+                />
+              )}
 
-          {activeTab === 'pecas-insumos' && (
-            <PartsTab
-              equipment={equipment}
-              parts={detailData.parts}
-            />
-          )}
+              {activeTab === 'falhas' && (
+                <FailuresTab
+                  equipment={equipment}
+                  failures={detailData.failures}
+                  recurrentFailures={detailData.recurrentFailures}
+                />
+              )}
 
-          {activeTab === 'custos' && (
-            <CostsTab
-              equipment={equipment}
-              costs={detailData.costs}
-            />
-          )}
+              {activeTab === 'pneus' && (
+                <TiresTab
+                  equipment={equipment}
+                  tires={detailData.tires}
+                />
+              )}
 
-          {activeTab === 'documentos' && (
-            <DocumentsTab
-              equipment={equipment}
-              documents={detailData.documents}
-            />
-          )}
+              {activeTab === 'pecas-insumos' && (
+                <PartsTab
+                  equipment={equipment}
+                  parts={detailData.parts}
+                />
+              )}
 
-          {activeTab === 'fotos' && (
-            <PhotosTab
-              equipment={equipment}
-              photos={detailData.photos}
-            />
-          )}
+              {activeTab === 'custos' && (
+                <CostsTab
+                  equipment={equipment}
+                  costs={detailData.costs}
+                />
+              )}
 
-          {activeTab === 'historico' && (
-            <HistoryTab
+              {activeTab === 'documentos' && (
+                <DocumentsTab
+                  equipment={equipment}
+                  documents={detailData.documents}
+                />
+              )}
+
+              {activeTab === 'fotos' && (
+                <PhotosTab
+                  equipment={equipment}
+                  photos={detailData.photos}
+                />
+              )}
+
+              {activeTab === 'historico' && (
+                <HistoryTab
+                  equipment={equipment}
+                  history={detailData.history}
+                />
+              )}
+            </div>
+          </>
+        ) : (
+          <>
+            {/* Layout Legacy */}
+            <EquipmentDetailHeader equipment={equipment} />
+            <EquipmentStatusNotice equipment={equipment} />
+            <EquipmentSummaryCards equipment={equipment} summary={summary} />
+            <EquipmentDetailActions
               equipment={equipment}
-              history={detailData.history}
+              onArchiveEquipment={() => setIsArchiveOpen(true)}
             />
-          )}
-        </div>
-      </div>
+            <EquipmentDetailTabs
+              activeTab={activeTab}
+              onTabChange={changeTab}
+              summary={summary}
+            />
+            <div className="pt-2">
+              {activeTab === 'visao-geral' && (
+                <OverviewTab
+                  equipment={equipment}
+                  history={detailData.history}
+                  onViewFullHistory={() => changeTab('historico')}
+                />
+              )}
+              {activeTab === 'leituras' && (
+                <ReadingsTab
+                  equipment={equipment}
+                  readings={detailData.readings}
+                />
+              )}
+              {activeTab === 'checklists' && (
+                <ChecklistsTab
+                  equipment={equipment}
+                  checklists={detailData.checklists}
+                />
+              )}
+              {activeTab === 'manutencoes' && (
+                <MaintenanceTab
+                  equipment={equipment}
+                  maintenances={detailData.maintenances}
+                />
+              )}
+              {activeTab === 'ordens-servico' && (
+                <OrdersTab
+                  equipment={equipment}
+                  orders={detailData.orders}
+                />
+              )}
+              {activeTab === 'falhas' && (
+                <FailuresTab
+                  equipment={equipment}
+                  failures={detailData.failures}
+                  recurrentFailures={detailData.recurrentFailures}
+                />
+              )}
+              {activeTab === 'pneus' && (
+                <TiresTab
+                  equipment={equipment}
+                  tires={detailData.tires}
+                />
+              )}
+              {activeTab === 'pecas-insumos' && (
+                <PartsTab
+                  equipment={equipment}
+                  parts={detailData.parts}
+                />
+              )}
+              {activeTab === 'custos' && (
+                <CostsTab
+                  equipment={equipment}
+                  costs={detailData.costs}
+                />
+              )}
+              {activeTab === 'documentos' && (
+                <DocumentsTab
+                  equipment={equipment}
+                  documents={detailData.documents}
+                />
+              )}
+              {activeTab === 'fotos' && (
+                <PhotosTab
+                  equipment={equipment}
+                  photos={detailData.photos}
+                />
+              )}
+              {activeTab === 'historico' && (
+                <HistoryTab
+                  equipment={equipment}
+                  history={detailData.history}
+                />
+              )}
+            </div>
+          </>
+        )}
 
       {/* Modal de confirmação de arquivamento */}
       {isArchiveOpen && (
@@ -201,3 +293,4 @@ export const EquipmentDetailView: React.FC = () => {
     </div>
   );
 };
+

@@ -15,15 +15,15 @@ export const MaintenanceHistoryFilters: React.FC<MaintenanceHistoryFiltersProps>
   onResetFilters,
 }) => {
   return (
-    <div className="glass-card p-4 flex flex-col md:flex-row items-center justify-between gap-3 shadow-sm">
+    <div className="bg-[var(--color-surface)] border border-[var(--color-border)] p-4 flex flex-col md:flex-row items-center justify-between gap-3 rounded-xl shadow-sm">
       <div className="relative w-full md:w-80">
-        <Search className="w-4 h-4 absolute left-3.5 top-1/2 transform -translate-y-1/2 text-gray-400" />
+        <Search className="w-4 h-4 absolute left-3.5 top-1/2 transform -translate-y-1/2 text-[var(--color-text-muted)]" />
         <input
           type="text"
           placeholder="Buscar protocolo, máquina, plano..."
           value={filters.search}
           onChange={(e) => onUpdateFilters({ search: e.target.value })}
-          className="w-full pl-10 pr-4 py-2 bg-white/70 dark:bg-gray-900/70 border border-gray-200 dark:border-gray-800 rounded-xl text-sm font-semibold text-gray-900 dark:text-white"
+          className="w-full pl-10 pr-4 py-2 bg-[var(--color-surface-secondary)] border border-[var(--color-border)] rounded-xl text-sm font-semibold text-[var(--color-text-primary)] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)] transition-all"
         />
       </div>
 

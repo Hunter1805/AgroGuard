@@ -3,10 +3,16 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { CheckCircle2 } from 'lucide-react';
 import { ROUTES } from './types/routes';
 import type { ServiceOrder } from './types';
+import { isCorpUI } from './lib/ui-version';
+import { useSidebarState } from './hooks/useSidebarState';
 
-// Layout
-import { Sidebar } from './components/layout/Sidebar';
-import { Header } from './components/layout/Header';
+// Layout Legacy
+import { Sidebar as SidebarLegacy } from './components/layout/Sidebar';
+import { Header as HeaderLegacy } from './components/layout/Header';
+
+// Layout Corporativo v1.1.0
+import { SidebarCorp } from './components/layout/SidebarCorp';
+import { HeaderCorp } from './components/layout/HeaderCorp';
 
 // Módulos existentes
 import { DashboardView } from './components/DashboardView';
@@ -15,6 +21,9 @@ import { CadastroEquipamentoView } from './components/equipment/CadastroEquipame
 import { EquipmentDetailView } from './components/equipment/detail/EquipmentDetailView';
 import { EquipmentReadingsView } from './components/equipment/readings/EquipmentReadingsView';
 import { MaintenanceOverview } from './components/maintenance/MaintenanceOverview';
+import { MaintenancePlansView } from './components/maintenance/plans/MaintenancePlansView';
+import { MaintenanceHistoryView } from './components/maintenance/history/MaintenanceHistoryView';
+import { MaintenanceCalendarView } from './components/maintenance/schedule/MaintenanceCalendarView';
 // Módulo Profissional de Relatórios e Indicadores (Fase 10)
 import { RelatoriosView } from './components/reports/RelatoriosView';
 
@@ -64,8 +73,10 @@ import { useMaintenance } from './hooks/useMaintenance';
 export function App() {
   const [isNewOSOpen, setIsNewOSOpen] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
+  const { collapsed, toggle } = useSidebarState();
   const { orders, addOrder } = useOrders();
   const { revisions } = useMaintenance();
 
@@ -75,8 +86,14 @@ export function App() {
     setTimeout(() => setToastMessage(null), 4000);
   };
 
+  const mainMarginClass = isCorpUI
+    ? collapsed
+      ? 'md:ml-[var(--spacing-sidebar-collapsed)]'
+      : 'md:ml-[var(--spacing-sidebar-width)]'
+    : 'md:ml-sidebar-width';
+
   return (
-    <div className="bg-background text-on-background min-h-screen flex overflow-hidden bg-pattern">
+    <div className={`h-screen flex overflow-hidden ${isCorpUI ? 'bg-app text-primary' : 'bg-background text-on-background bg-pattern'}`}>
       {/* Toast */}
       {toastMessage && (
         <div className="fixed bottom-6 right-6 z-50 glass-card bg-surface-container-highest border border-primary/40 text-primary px-4 py-3 rounded-lg shadow-2xl flex items-center gap-2 animate-bounce">
@@ -86,196 +103,219 @@ export function App() {
       )}
 
       {/* Sidebar */}
-      <Sidebar
-        onOpenNewOS={() => setIsNewOSOpen(true)}
-        pendingAlerts={3}
-      />
+      {isCorpUI ? (
+        <SidebarCorp
+          collapsed={collapsed}
+          onToggle={toggle}
+          pendingAlerts={3}
+          mobileOpen={mobileMenuOpen}
+          onMobileClose={() => setMobileMenuOpen(false)}
+        />
+      ) : (
+        <SidebarLegacy
+          onOpenNewOS={() => setIsNewOSOpen(true)}
+          pendingAlerts={3}
+        />
+      )}
 
-      {/* Área principal */}
-      <main className="flex-1 md:ml-sidebar-width flex flex-col h-screen overflow-hidden">
-        <Header onOpenCommandPalette={() => setIsCommandPaletteOpen(true)} />
-
-        {/* Roteamento */}
-        <Routes>
-          {/* Dashboard */}
-          <Route
-            path={ROUTES.DASHBOARD}
-            element={
-              <DashboardView
-                setActiveTab={() => {}}
-                serviceOrders={orders}
-                revisions={revisions}
-              />
-            }
+      {/* Área da direita (Header + Main) */}
+      <div className={`flex min-w-0 flex-1 flex-col ${mainMarginClass} transition-[margin-left] duration-200`}>
+        {isCorpUI ? (
+          <HeaderCorp
+            onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
+            onMobileMenuOpen={() => setMobileMenuOpen(true)}
+            pendingAlerts={3}
           />
+        ) : (
+          <HeaderLegacy onOpenCommandPalette={() => setIsCommandPaletteOpen(true)} />
+        )}
 
-          {/* Equipamentos */}
-          <Route path={ROUTES.EQUIPAMENTOS} element={<EquipamentosView />} />
-          <Route path="/equipamentos/novo" element={<CadastroEquipamentoView />} />
-          <Route path="/equipamentos/:equipmentId/editar" element={<CadastroEquipamentoView />} />
-          <Route path="/equipamentos/:id/editar" element={<CadastroEquipamentoView />} />
-          
-          {/* Ficha Detalhada (Fase 3C) */}
-          <Route path={ROUTES.EQUIPAMENTO_DETALHE} element={<EquipmentDetailView />} />
-          <Route path={ROUTES.EQUIPAMENTO_DETALHE_ABA} element={<EquipmentDetailView />} />
+        {/* Área rolável principal */}
+        <main className="min-h-0 flex-1 overflow-y-auto">
+          <div className="mx-auto w-full max-w-[1600px] p-6">
+            <Routes>
+              {/* Dashboard */}
+              <Route
+                path={ROUTES.DASHBOARD}
+                element={
+                  <DashboardView
+                    setActiveTab={() => {}}
+                    serviceOrders={orders}
+                    revisions={revisions}
+                    onOpenNewOS={() => setIsNewOSOpen(true)}
+                  />
+                }
+              />
 
-          {/* Leituras Avançadas (Fase 3D) */}
-          <Route path={ROUTES.EQUIPAMENTOS_LEITURAS} element={<EquipmentReadingsView />} />
-          <Route path={ROUTES.EQUIPAMENTO_LEITURAS} element={<EquipmentReadingsView />} />
+              {/* Equipamentos */}
+              <Route path={ROUTES.EQUIPAMENTOS} element={<EquipamentosView />} />
+              <Route path="/equipamentos/novo" element={<CadastroEquipamentoView />} />
+              <Route path="/equipamentos/:equipmentId/editar" element={<CadastroEquipamentoView />} />
+              <Route path="/equipamentos/:id/editar" element={<CadastroEquipamentoView />} />
+              
+              {/* Ficha Detalhada (Fase 3C) */}
+              <Route path={ROUTES.EQUIPAMENTO_DETALHE} element={<EquipmentDetailView />} />
+              <Route path={ROUTES.EQUIPAMENTO_DETALHE_ABA} element={<EquipmentDetailView />} />
 
-          {/* Checklists (Fase 4 — Módulo Completo de Checklists) */}
-          <Route path={ROUTES.CHECKLISTS} element={<ChecklistsView />} />
-          <Route path="/checklists/execucoes" element={<ChecklistsView />} />
-          <Route path="/checklists/execucoes/:id" element={<ChecklistExecutionView />} />
-          <Route path="/checklists/modelos" element={<ChecklistsView />} />
-          <Route path="/checklists/modelos/novo" element={<ChecklistTemplateForm />} />
-          <Route path="/checklists/modelos/:templateId/editar" element={<ChecklistTemplateForm />} />
-          <Route path="/checklists/programacoes" element={<ChecklistsView />} />
-          <Route path="/checklists/nao-conformidades" element={<ChecklistsView />} />
+              {/* Leituras Avançadas (Fase 3D) */}
+              <Route path={ROUTES.EQUIPAMENTOS_LEITURAS} element={<EquipmentReadingsView />} />
+              <Route path={ROUTES.EQUIPAMENTO_LEITURAS} element={<EquipmentReadingsView />} />
 
-          {/* Manutenções — Fase 5 (Módulo Profissional de Preventivas) */}
-          <Route path={ROUTES.MANUTENCOES} element={<MaintenanceOverview initialTab="visao_geral" />} />
-          <Route path={ROUTES.MANUTENCOES_PLANOS} element={<MaintenanceOverview initialTab="planos" />} />
-          <Route path={ROUTES.MANUTENCOES_AGENDA} element={<MaintenanceOverview initialTab="agenda" />} />
-          <Route path={ROUTES.MANUTENCOES_HISTORICO} element={<MaintenanceOverview initialTab="historico" />} />
-          <Route path="/manutencoes/vinculos" element={<MaintenanceOverview initialTab="planos" />} />
+              {/* Checklists (Fase 4 — Módulo Completo de Checklists) */}
+              <Route path={ROUTES.CHECKLISTS} element={<ChecklistsView />} />
+              <Route path="/checklists/execucoes" element={<ChecklistsView />} />
+              <Route path="/checklists/execucoes/:id" element={<ChecklistExecutionView />} />
+              <Route path="/checklists/modelos" element={<ChecklistsView />} />
+              <Route path="/checklists/modelos/novo" element={<ChecklistTemplateForm />} />
+              <Route path="/checklists/modelos/:templateId/editar" element={<ChecklistTemplateForm />} />
+              <Route path="/checklists/programacoes" element={<ChecklistsView />} />
+              <Route path="/checklists/nao-conformidades" element={<ChecklistsView />} />
 
-          {/* Ordens de Serviço (Fase 6) */}
-          <Route path={ROUTES.ORDENS_SERVICO} element={<WorkOrdersView />} />
-          <Route path={ROUTES.ORDEM_NOVA} element={<WorkOrderOpeningForm />} />
-          <Route path={ROUTES.ORDEM_DETALHE} element={<WorkOrderDetailView />} />
-          {/* As demais rotas (editar, planejamento, execucao) podem redirecionar para a view de Detalhes ou abrir modais */}
-          <Route path={ROUTES.ORDEM_PLANEJAMENTO} element={<WorkOrderDetailView />} />
-          <Route path={ROUTES.ORDEM_EXECUCAO} element={<WorkOrderDetailView />} />
-          <Route path={ROUTES.ORDEM_LIBERACAO} element={<WorkOrderDetailView />} />
-          <Route path={ROUTES.ORDEM_ENCERRAMENTO} element={<WorkOrderDetailView />} />
+              {/* Manutenções — Fase 5 (Módulo Profissional de Preventivas) */}
+              <Route path={ROUTES.MANUTENCOES} element={<Navigate to="/manutencoes/visao-geral" replace />} />
+              <Route path="/manutencoes/visao-geral" element={<MaintenanceOverview />} />
+              <Route path={ROUTES.MANUTENCOES_PLANOS} element={<MaintenancePlansView />} />
+              <Route path={ROUTES.MANUTENCOES_AGENDA} element={<MaintenanceCalendarView />} />
+              <Route path={ROUTES.MANUTENCOES_HISTORICO} element={<MaintenanceHistoryView />} />
 
-          {/* Central de Alertas */}
-          <Route path={ROUTES.ALERTAS} element={<CentralAlertas />} />
+              {/* Ordens de Serviço (Fase 6) */}
+              <Route path={ROUTES.ORDENS_SERVICO} element={<WorkOrdersView />} />
+              <Route path={ROUTES.ORDEM_NOVA} element={<WorkOrderOpeningForm />} />
+              <Route path={ROUTES.ORDEM_DETALHE} element={<WorkOrderDetailView />} />
+              {/* As demais rotas (editar, planejamento, execucao) podem redirecionar para a view de Detalhes ou abrir modais */}
+              <Route path={ROUTES.ORDEM_PLANEJAMENTO} element={<WorkOrderDetailView />} />
+              <Route path={ROUTES.ORDEM_EXECUCAO} element={<WorkOrderDetailView />} />
+              <Route path={ROUTES.ORDEM_LIBERACAO} element={<WorkOrderDetailView />} />
+              <Route path={ROUTES.ORDEM_ENCERRAMENTO} element={<WorkOrderDetailView />} />
 
-          {/* Pneus (Fase 7 — Módulo Autônomo e Profissional de Pneus) */}
-          <Route path={ROUTES.PNEUS} element={<PneusView initialTab="visao_geral" />} />
-          <Route path={ROUTES.PNEUS_INSTALADOS} element={<PneusView initialTab="instalados" />} />
-          <Route path={ROUTES.PNEUS_INSPECOES} element={<PneusView initialTab="inspecoes" />} />
-          <Route path={ROUTES.PNEUS_INSPECAO_NOVA} element={<TireInspectionForm />} />
-          <Route path={ROUTES.PNEUS_MOVIMENTACOES} element={<PneusView initialTab="movimentacoes" />} />
-          <Route path={ROUTES.PNEUS_RECOMENDACOES} element={<PneusView initialTab="recomendacoes" />} />
-          <Route path={ROUTES.PNEUS_HISTORICO} element={<PneusView initialTab="historico" />} />
-          <Route path={ROUTES.PNEUS_NOVO} element={<CadastroPneuView />} />
-          <Route path={ROUTES.PNEU_DETALHE} element={<TireDetailView />} />
-          <Route path={ROUTES.PNEU_EDITAR} element={<CadastroPneuView />} />
+              {/* Central de Alertas */}
+              <Route path={ROUTES.ALERTAS} element={<CentralAlertas />} />
 
-          {/* Ferramentas (Fase 8 — Módulo Autônomo e Profissional de Ferramentas) */}
-          <Route path={ROUTES.FERRAMENTAS} element={<FerramentasView initialTab="visao_geral" />} />
-          <Route path={ROUTES.FERRAMENTAS_ITENS} element={<FerramentasView initialTab="itens" />} />
-          <Route path={ROUTES.FERRAMENTAS_NOVA} element={<CadastroFerramentaView />} />
-          <Route path={ROUTES.FERRAMENTA_DETALHE} element={<ToolDetailView />} />
-          <Route path={ROUTES.FERRAMENTA_EDITAR} element={<CadastroFerramentaView />} />
-          <Route path={ROUTES.FERRAMENTAS_EMPRESTIMOS} element={<FerramentasView initialTab="emprestimos" />} />
-          <Route path={ROUTES.FERRAMENTAS_RESERVAS} element={<FerramentasView initialTab="reservas" />} />
-          <Route path={ROUTES.FERRAMENTAS_KITS} element={<FerramentasView initialTab="kits" />} />
-          <Route path={ROUTES.FERRAMENTAS_CALIBRACOES} element={<FerramentasView initialTab="calibracoes" />} />
-          <Route path={ROUTES.FERRAMENTAS_MANUTENCOES} element={<FerramentasView initialTab="manutencoes" />} />
-          <Route path={ROUTES.FERRAMENTAS_HISTORICO} element={<FerramentasView initialTab="historico" />} />
+              {/* Pneus (Fase 7 — Módulo Autônomo e Profissional de Pneus) */}
+              <Route path={ROUTES.PNEUS} element={<PneusView initialTab="visao_geral" />} />
+              <Route path={ROUTES.PNEUS_INSTALADOS} element={<PneusView initialTab="instalados" />} />
+              <Route path={ROUTES.PNEUS_INSPECOES} element={<PneusView initialTab="inspecoes" />} />
+              <Route path={ROUTES.PNEUS_INSPECAO_NOVA} element={<TireInspectionForm />} />
+              <Route path={ROUTES.PNEUS_MOVIMENTACOES} element={<PneusView initialTab="movimentacoes" />} />
+              <Route path={ROUTES.PNEUS_RECOMENDACOES} element={<PneusView initialTab="recomendacoes" />} />
+              <Route path={ROUTES.PNEUS_HISTORICO} element={<PneusView initialTab="historico" />} />
+              <Route path={ROUTES.PNEUS_NOVO} element={<CadastroPneuView />} />
+              <Route path={ROUTES.PNEU_DETALHE} element={<TireDetailView />} />
+              <Route path={ROUTES.PNEU_EDITAR} element={<CadastroPneuView />} />
 
-          {/* Peças e Insumos (Fase 9 — Módulo Autônomo e Profissional) */}
-          <Route path={ROUTES.PECAS_INSUMOS} element={<PecasInsumosView initialTab="visao_geral" />} />
-          <Route path={ROUTES.PECAS_INSUMOS_ITENS} element={<PecasInsumosView initialTab="itens" />} />
-          <Route path={ROUTES.PECAS_INSUMOS_NOVO} element={<CadastroPecaInsumoView />} />
-          <Route path={ROUTES.PECAS_INSUMO_DETALHE} element={<StockItemDetailView />} />
-          <Route path={ROUTES.PECAS_INSUMO_EDITAR} element={<CadastroPecaInsumoView />} />
-          <Route path={ROUTES.PECAS_INSUMOS_MOVIMENTACOES} element={<PecasInsumosView initialTab="movimentacoes" />} />
-          <Route path={ROUTES.PECAS_INSUMOS_MOVIMENTACAO_NOVA} element={<PecasInsumosView initialTab="movimentacoes" />} />
-          <Route path={ROUTES.PECAS_INSUMOS_RESERVAS} element={<PecasInsumosView initialTab="reservas" />} />
-          <Route path={ROUTES.PECAS_INSUMOS_INVENTARIOS} element={<PecasInsumosView initialTab="inventarios" />} />
-          <Route path={ROUTES.PECAS_INSUMOS_LOTES} element={<PecasInsumosView initialTab="lotes" />} />
-          <Route path={ROUTES.PECAS_INSUMOS_HISTORICO} element={<PecasInsumosView initialTab="historico" />} />
+              {/* Ferramentas (Fase 8 — Módulo Autônomo e Profissional de Ferramentas) */}
+              <Route path={ROUTES.FERRAMENTAS} element={<FerramentasView initialTab="visao_geral" />} />
+              <Route path={ROUTES.FERRAMENTAS_ITENS} element={<FerramentasView initialTab="itens" />} />
+              <Route path={ROUTES.FERRAMENTAS_NOVA} element={<CadastroFerramentaView />} />
+              <Route path={ROUTES.FERRAMENTA_DETALHE} element={<ToolDetailView />} />
+              <Route path={ROUTES.FERRAMENTA_EDITAR} element={<CadastroFerramentaView />} />
+              <Route path={ROUTES.FERRAMENTAS_EMPRESTIMOS} element={<FerramentasView initialTab="emprestimos" />} />
+              <Route path={ROUTES.FERRAMENTAS_RESERVAS} element={<FerramentasView initialTab="reservas" />} />
+              <Route path={ROUTES.FERRAMENTAS_KITS} element={<FerramentasView initialTab="kits" />} />
+              <Route path={ROUTES.FERRAMENTAS_CALIBRACOES} element={<FerramentasView initialTab="calibracoes" />} />
+              <Route path={ROUTES.FERRAMENTAS_MANUTENCOES} element={<FerramentasView initialTab="manutencoes" />} />
+              <Route path={ROUTES.FERRAMENTAS_HISTORICO} element={<FerramentasView initialTab="historico" />} />
 
-          {/* Relatórios (Fase 10 — Módulo Autônomo e Profissional de Relatórios e Indicadores) */}
-          <Route path={ROUTES.RELATORIOS} element={<RelatoriosView initialTab="visao_geral" />} />
-          <Route path={ROUTES.RELATORIOS_EQUIPAMENTOS} element={<RelatoriosView initialTab="equipamentos" />} />
-          <Route path={ROUTES.RELATORIOS_LEITURAS} element={<RelatoriosView initialTab="leituras" />} />
-          <Route path={ROUTES.RELATORIOS_MANUTENCOES} element={<RelatoriosView initialTab="manutencoes" />} />
-          <Route path={ROUTES.RELATORIOS_ORDENS_SERVICO} element={<RelatoriosView initialTab="ordens-servico" />} />
-          <Route path={ROUTES.RELATORIOS_CHECKLISTS} element={<RelatoriosView initialTab="checklists" />} />
-          <Route path={ROUTES.RELATORIOS_NAO_CONFORMIDADES} element={<RelatoriosView initialTab="checklists" />} />
-          <Route path={ROUTES.RELATORIOS_FALHAS} element={<RelatoriosView initialTab="falhas" />} />
-          <Route path={ROUTES.RELATORIOS_PNEUS} element={<RelatoriosView initialTab="pneus" />} />
-          <Route path={ROUTES.RELATORIOS_FERRAMENTAS} element={<RelatoriosView initialTab="ferramentas" />} />
-          <Route path={ROUTES.RELATORIOS_PECAS_ESTOQUE} element={<RelatoriosView initialTab="pecas-estoque" />} />
-          <Route path={ROUTES.RELATORIOS_CUSTOS} element={<RelatoriosView initialTab="custos" />} />
-          <Route path={ROUTES.RELATORIOS_INDICADORES} element={<RelatoriosView initialTab="indicadores" />} />
-          <Route path={ROUTES.RELATORIOS_FAVORITOS} element={<RelatoriosView initialTab="visao_geral" />} />
-          <Route path={ROUTES.RELATORIOS_EXPORTACOES} element={<RelatoriosView initialTab="exportacoes" />} />
+              {/* Peças e Insumos (Fase 9 — Módulo Autônomo e Profissional) */}
+              <Route path={ROUTES.PECAS_INSUMOS} element={<PecasInsumosView initialTab="visao_geral" />} />
+              <Route path={ROUTES.PECAS_INSUMOS_ITENS} element={<PecasInsumosView initialTab="itens" />} />
+              <Route path={ROUTES.PECAS_INSUMOS_NOVO} element={<CadastroPecaInsumoView />} />
+              <Route path={ROUTES.PECAS_INSUMO_DETALHE} element={<StockItemDetailView />} />
+              <Route path={ROUTES.PECAS_INSUMO_EDITAR} element={<CadastroPecaInsumoView />} />
+              <Route path={ROUTES.PECAS_INSUMOS_MOVIMENTACOES} element={<PecasInsumosView initialTab="movimentacoes" />} />
+              <Route path={ROUTES.PECAS_INSUMOS_MOVIMENTACAO_NOVA} element={<PecasInsumosView initialTab="movimentacoes" />} />
+              <Route path={ROUTES.PECAS_INSUMOS_RESERVAS} element={<PecasInsumosView initialTab="reservas" />} />
+              <Route path={ROUTES.PECAS_INSUMOS_INVENTARIOS} element={<PecasInsumosView initialTab="inventarios" />} />
+              <Route path={ROUTES.PECAS_INSUMOS_LOTES} element={<PecasInsumosView initialTab="lotes" />} />
+              <Route path={ROUTES.PECAS_INSUMOS_HISTORICO} element={<PecasInsumosView initialTab="historico" />} />
 
-          {/* Cadastros Auxiliares (Fase 11 — Módulo Completo de Master Data) */}
-          <Route path={ROUTES.CADASTROS} element={<CadastrosView />} />
+              {/* Relatórios (Fase 10 — Módulo Autônomo e Profissional de Relatórios e Indicadores) */}
+              <Route path={ROUTES.RELATORIOS} element={<RelatoriosView initialTab="visao_geral" />} />
+              <Route path={ROUTES.RELATORIOS_EQUIPAMENTOS} element={<RelatoriosView initialTab="equipamentos" />} />
+              <Route path={ROUTES.RELATORIOS_LEITURAS} element={<RelatoriosView initialTab="leituras" />} />
+              <Route path={ROUTES.RELATORIOS_MANUTENCOES} element={<RelatoriosView initialTab="manutencoes" />} />
+              <Route path={ROUTES.RELATORIOS_ORDENS_SERVICO} element={<RelatoriosView initialTab="ordens-servico" />} />
+              <Route path={ROUTES.RELATORIOS_CHECKLISTS} element={<RelatoriosView initialTab="checklists" />} />
+              <Route path={ROUTES.RELATORIOS_NAO_CONFORMIDADES} element={<RelatoriosView initialTab="checklists" />} />
+              <Route path={ROUTES.RELATORIOS_FALHAS} element={<RelatoriosView initialTab="falhas" />} />
+              <Route path={ROUTES.RELATORIOS_PNEUS} element={<RelatoriosView initialTab="pneus" />} />
+              <Route path={ROUTES.RELATORIOS_FERRAMENTAS} element={<RelatoriosView initialTab="ferramentas" />} />
+              <Route path={ROUTES.RELATORIOS_PECAS_ESTOQUE} element={<RelatoriosView initialTab="pecas-estoque" />} />
+              <Route path={ROUTES.RELATORIOS_CUSTOS} element={<RelatoriosView initialTab="custos" />} />
+              <Route path={ROUTES.RELATORIOS_INDICADORES} element={<RelatoriosView initialTab="indicadores" />} />
+              <Route path={ROUTES.RELATORIOS_FAVORITOS} element={<RelatoriosView initialTab="visao_geral" />} />
+              <Route path={ROUTES.RELATORIOS_EXPORTACOES} element={<RelatoriosView initialTab="exportacoes" />} />
 
-          {/* Organização */}
-          <Route path={ROUTES.CADASTROS_EMPRESAS} element={<MasterDataRouteHandler type="empresas" />} />
-          <Route path={ROUTES.CADASTROS_UNIDADES} element={<MasterDataRouteHandler type="unidades" />} />
-          <Route path={ROUTES.CADASTROS_FAZENDAS} element={<MasterDataRouteHandler type="fazendas" />} />
-          <Route path={ROUTES.CADASTROS_SETORES} element={<MasterDataRouteHandler type="setores" />} />
-          <Route path={ROUTES.CADASTROS_LOCALIZACOES} element={<MasterDataRouteHandler type="localizacoes" />} />
-          <Route path={ROUTES.CADASTROS_CENTROS_COSTO} element={<MasterDataRouteHandler type="centros_custo" />} />
-          <Route path={ROUTES.CADASTROS_OFICINAS} element={<MasterDataRouteHandler type="oficinas" />} />
-          <Route path={ROUTES.CADASTROS_ALMOXARIFADOS} element={<MasterDataRouteHandler type="almoxarifados" />} />
-          <Route path={ROUTES.CADASTROS_EQUIPES} element={<MasterDataRouteHandler type="equipes" />} />
+              {/* Cadastros Auxiliares (Fase 11 — Módulo Completo de Master Data) */}
+              <Route path={ROUTES.CADASTROS} element={<CadastrosView />} />
 
-          {/* Equipamentos */}
-          <Route path={ROUTES.CADASTROS_TIPOS_EQUIPAMENTO} element={<MasterDataRouteHandler type="tipos_equipamento" />} />
-          <Route path={ROUTES.CADASTROS_CATEGORIAS_EQUIPAMENTO} element={<MasterDataRouteHandler type="categorias_equipamento" />} />
-          <Route path={ROUTES.CADASTROS_SUBCATEGORIAS_EQUIPAMENTO} element={<MasterDataRouteHandler type="subcategorias_equipamento" />} />
-          <Route path={ROUTES.CADASTROS_MARCAS} element={<MasterDataRouteHandler type="marcas" />} />
-          <Route path={ROUTES.CADASTROS_MODELOS} element={<MasterDataRouteHandler type="modelos" />} />
-          <Route path={ROUTES.CADASTROS_COMBUSTIVEIS} element={<MasterDataRouteHandler type="combustiveis" />} />
-          <Route path={ROUTES.CADASTROS_FORMAS_PROPRIEDADE} element={<MasterDataRouteHandler type="formas_propriedade" />} />
+              {/* Organização */}
+              <Route path={ROUTES.CADASTROS_EMPRESAS} element={<MasterDataRouteHandler type="empresas" />} />
+              <Route path={ROUTES.CADASTROS_UNIDADES} element={<MasterDataRouteHandler type="unidades" />} />
+              <Route path={ROUTES.CADASTROS_FAZENDAS} element={<MasterDataRouteHandler type="fazendas" />} />
+              <Route path={ROUTES.CADASTROS_SETORES} element={<MasterDataRouteHandler type="setores" />} />
+              <Route path={ROUTES.CADASTROS_LOCALIZACOES} element={<MasterDataRouteHandler type="localizacoes" />} />
+              <Route path={ROUTES.CADASTROS_CENTROS_COSTO} element={<MasterDataRouteHandler type="centros_custo" />} />
+              <Route path={ROUTES.CADASTROS_OFICINAS} element={<MasterDataRouteHandler type="oficinas" />} />
+              <Route path={ROUTES.CADASTROS_ALMOXARIFADOS} element={<MasterDataRouteHandler type="almoxarifados" />} />
+              <Route path={ROUTES.CADASTROS_EQUIPES} element={<MasterDataRouteHandler type="equipes" />} />
 
-          {/* Manutenção */}
-          <Route path={ROUTES.CADASTROS_SISTEMAS} element={<MasterDataRouteHandler type="sistemas" />} />
-          <Route path={ROUTES.CADASTROS_SUBSISTEMAS} element={<MasterDataRouteHandler type="subsistemas" />} />
-          <Route path={ROUTES.CADASTROS_COMPONENTES} element={<MasterDataRouteHandler type="componentes" />} />
-          <Route path={ROUTES.CADASTROS_TIPOS_FALHA} element={<MasterDataRouteHandler type="tipos_falha" />} />
-          <Route path={ROUTES.CADASTROS_SINTOMAS} element={<MasterDataRouteHandler type="sintomas" />} />
-          <Route path={ROUTES.CADASTROS_CAUSAS} element={<MasterDataRouteHandler type="causas" />} />
-          <Route path={ROUTES.CADASTROS_TIPOS_MANUTENCAO} element={<MasterDataRouteHandler type="tipos_manutencao" />} />
-          <Route path={ROUTES.CADASTROS_PRIORIDADES} element={<MasterDataRouteHandler type="prioridades" />} />
-          <Route path={ROUTES.CADASTROS_MOTIVOS_PAUSA} element={<MasterDataRouteHandler type="motivos_pausa" />} />
-          <Route path={ROUTES.CADASTROS_MOTIVOS_CANCELAMENTO} element={<MasterDataRouteHandler type="motivos_cancelamento" />} />
-          <Route path={ROUTES.CADASTROS_MOTIVOS_ADIAMENTO} element={<MasterDataRouteHandler type="motivos_adiamento" />} />
+              {/* Equipamentos */}
+              <Route path={ROUTES.CADASTROS_TIPOS_EQUIPAMENTO} element={<MasterDataRouteHandler type="tipos_equipamento" />} />
+              <Route path={ROUTES.CADASTROS_CATEGORIAS_EQUIPAMENTO} element={<MasterDataRouteHandler type="categorias_equipamento" />} />
+              <Route path={ROUTES.CADASTROS_SUBCATEGORIAS_EQUIPAMENTO} element={<MasterDataRouteHandler type="subcategorias_equipamento" />} />
+              <Route path={ROUTES.CADASTROS_MARCAS} element={<MasterDataRouteHandler type="marcas" />} />
+              <Route path={ROUTES.CADASTROS_MODELOS} element={<MasterDataRouteHandler type="modelos" />} />
+              <Route path={ROUTES.CADASTROS_COMBUSTIVEIS} element={<MasterDataRouteHandler type="combustiveis" />} />
+              <Route path={ROUTES.CADASTROS_FORMAS_PROPRIEDADE} element={<MasterDataRouteHandler type="formas_propriedade" />} />
 
-          {/* Materiais e Serviços */}
-          <Route path={ROUTES.CADASTROS_FORNECEDORES} element={<MasterDataRouteHandler type="fornecedores" />} />
-          <Route path={ROUTES.CADASTROS_CATEGORIAS_PECAS} element={<MasterDataRouteHandler type="categorias_pecas" />} />
-          <Route path={ROUTES.CADASTROS_CATEGORIAS_FERRAMENTAS} element={<MasterDataRouteHandler type="categorias_ferramentas" />} />
-          <Route path={ROUTES.CADASTROS_UNIDADES_MEDIDA} element={<MasterDataRouteHandler type="unidades_medida" />} />
-          <Route path={ROUTES.CADASTROS_TIPOS_DOCUMENTO} element={<MasterDataRouteHandler type="tipos_documento" />} />
-          <Route path={ROUTES.CADASTROS_TIPOS_SERVICO} element={<MasterDataRouteHandler type="tipos_servico" />} />
-          <Route path={ROUTES.CADASTROS_ESPECIALIDADES} element={<MasterDataRouteHandler type="especialidades" />} />
+              {/* Manutenção */}
+              <Route path={ROUTES.CADASTROS_SISTEMAS} element={<MasterDataRouteHandler type="sistemas" />} />
+              <Route path={ROUTES.CADASTROS_SUBSISTEMAS} element={<MasterDataRouteHandler type="subsistemas" />} />
+              <Route path={ROUTES.CADASTROS_COMPONENTES} element={<MasterDataRouteHandler type="componentes" />} />
+              <Route path={ROUTES.CADASTROS_TIPOS_FALHA} element={<MasterDataRouteHandler type="tipos_falha" />} />
+              <Route path={ROUTES.CADASTROS_SINTOMAS} element={<MasterDataRouteHandler type="sintomas" />} />
+              <Route path={ROUTES.CADASTROS_CAUSAS} element={<MasterDataRouteHandler type="causas" />} />
+              <Route path={ROUTES.CADASTROS_TIPOS_MANUTENCAO} element={<MasterDataRouteHandler type="tipos_manutencao" />} />
+              <Route path={ROUTES.CADASTROS_PRIORIDADES} element={<MasterDataRouteHandler type="prioridades" />} />
+              <Route path={ROUTES.CADASTROS_MOTIVOS_PAUSA} element={<MasterDataRouteHandler type="motivos_pausa" />} />
+              <Route path={ROUTES.CADASTROS_MOTIVOS_CANCELAMENTO} element={<MasterDataRouteHandler type="motivos_cancelamento" />} />
+              <Route path={ROUTES.CADASTROS_MOTIVOS_ADIAMENTO} element={<MasterDataRouteHandler type="motivos_adiamento" />} />
 
-          {/* Usuários e Configurações Globais (Fase 12) */}
-          <Route path={ROUTES.USUARIOS} element={<ConfiguracoesView initialTab="usuarios" />} />
-          <Route path={ROUTES.CONFIGURACOES} element={<ConfiguracoesView initialTab="visao_geral" />} />
-          <Route path={ROUTES.CONFIGURACOES_USUARIOS} element={<ConfiguracoesView initialTab="usuarios" />} />
-          <Route path={ROUTES.CONFIGURACOES_USUARIO_NOVO} element={<ConfiguracoesView initialTab="usuarios" />} />
-          <Route path={ROUTES.CONFIGURACOES_USUARIO_DETALHE} element={<ConfiguracoesView initialTab="usuarios" />} />
-          <Route path={ROUTES.CONFIGURACOES_USUARIO_EDITAR} element={<ConfiguracoesView initialTab="usuarios" />} />
-          <Route path={ROUTES.CONFIGURACOES_PERFIS} element={<ConfiguracoesView initialTab="perfis" />} />
-          <Route path={ROUTES.CONFIGURACOES_PERFIL_NOVO} element={<ConfiguracoesView initialTab="perfis" />} />
-          <Route path={ROUTES.CONFIGURACOES_PERFIL_DETALHE} element={<ConfiguracoesView initialTab="perfis" />} />
-          <Route path={ROUTES.CONFIGURACOES_PERFIL_EDITAR} element={<ConfiguracoesView initialTab="perfis" />} />
-          <Route path={ROUTES.CONFIGURACOES_PERMISSOES} element={<ConfiguracoesView initialTab="perfis" />} />
-          <Route path={ROUTES.CONFIGURACOES_ESCOPOS} element={<ConfiguracoesView initialTab="usuarios" />} />
-          <Route path={ROUTES.CONFIGURACOES_PREFERENCIAS} element={<ConfiguracoesView initialTab="usuarios" />} />
-          <Route path={ROUTES.CONFIGURACOES_GERAIS} element={<ConfiguracoesView initialTab="gerais" />} />
-          <Route path={ROUTES.CONFIGURACOES_ALERTAS} element={<ConfiguracoesView initialTab="alertas" />} />
-          <Route path={ROUTES.CONFIGURACOES_NUMERACOES} element={<ConfiguracoesView initialTab="numeracoes" />} />
-          <Route path={ROUTES.CONFIGURACOES_AUDITORIA} element={<ConfiguracoesView initialTab="auditoria" />} />
+              {/* Materiais e Serviços */}
+              <Route path={ROUTES.CADASTROS_FORNECEDORES} element={<MasterDataRouteHandler type="fornecedores" />} />
+              <Route path={ROUTES.CADASTROS_CATEGORIAS_PECAS} element={<MasterDataRouteHandler type="categorias_pecas" />} />
+              <Route path={ROUTES.CADASTROS_CATEGORIAS_FERRAMENTAS} element={<MasterDataRouteHandler type="categorias_ferramentas" />} />
+              <Route path={ROUTES.CADASTROS_UNIDADES_MEDIDA} element={<MasterDataRouteHandler type="unidades_medida" />} />
+              <Route path={ROUTES.CADASTROS_TIPOS_DOCUMENTO} element={<MasterDataRouteHandler type="tipos_documento" />} />
+              <Route path={ROUTES.CADASTROS_TIPOS_SERVICO} element={<MasterDataRouteHandler type="tipos_servico" />} />
+              <Route path={ROUTES.CADASTROS_ESPECIALIDADES} element={<MasterDataRouteHandler type="especialidades" />} />
 
-          {/* Redirect raiz */}
-          <Route path="*" element={<Navigate to={ROUTES.DASHBOARD} replace />} />
-        </Routes>
-      </main>
+              {/* Usuários e Configurações Globais (Fase 12) */}
+              <Route path={ROUTES.USUARIOS} element={<ConfiguracoesView initialTab="usuarios" />} />
+              <Route path={ROUTES.CONFIGURACOES} element={<ConfiguracoesView initialTab="visao_geral" />} />
+              <Route path={ROUTES.CONFIGURACOES_USUARIOS} element={<ConfiguracoesView initialTab="usuarios" />} />
+              <Route path={ROUTES.CONFIGURACOES_USUARIO_NOVO} element={<ConfiguracoesView initialTab="usuarios" />} />
+              <Route path={ROUTES.CONFIGURACOES_USUARIO_DETALHE} element={<ConfiguracoesView initialTab="usuarios" />} />
+              <Route path={ROUTES.CONFIGURACOES_USUARIO_EDITAR} element={<ConfiguracoesView initialTab="usuarios" />} />
+              <Route path={ROUTES.CONFIGURACOES_PERFIS} element={<ConfiguracoesView initialTab="perfis" />} />
+              <Route path={ROUTES.CONFIGURACOES_PERFIL_NOVO} element={<ConfiguracoesView initialTab="perfis" />} />
+              <Route path={ROUTES.CONFIGURACOES_PERFIL_DETALHE} element={<ConfiguracoesView initialTab="perfis" />} />
+              <Route path={ROUTES.CONFIGURACOES_PERFIL_EDITAR} element={<ConfiguracoesView initialTab="perfis" />} />
+              <Route path={ROUTES.CONFIGURACOES_PERMISSOES} element={<ConfiguracoesView initialTab="perfis" />} />
+              <Route path={ROUTES.CONFIGURACOES_ESCOPOS} element={<ConfiguracoesView initialTab="usuarios" />} />
+              <Route path={ROUTES.CONFIGURACOES_PREFERENCIAS} element={<ConfiguracoesView initialTab="usuarios" />} />
+              <Route path={ROUTES.CONFIGURACOES_GERAIS} element={<ConfiguracoesView initialTab="gerais" />} />
+              <Route path={ROUTES.CONFIGURACOES_ALERTAS} element={<ConfiguracoesView initialTab="alertas" />} />
+              <Route path={ROUTES.CONFIGURACOES_NUMERACOES} element={<ConfiguracoesView initialTab="numeracoes" />} />
+              <Route path={ROUTES.CONFIGURACOES_AUDITORIA} element={<ConfiguracoesView initialTab="auditoria" />} />
+
+              {/* Redirect raiz */}
+              <Route path="*" element={<Navigate to={ROUTES.DASHBOARD} replace />} />
+            </Routes>
+          </div>
+        </main>
+      </div>
 
       {/* Modais globais */}
       <NovaOrdemServicoModal

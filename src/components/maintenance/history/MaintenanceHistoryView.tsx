@@ -3,6 +3,7 @@ import { useMaintenanceHistory } from '../../../hooks/useMaintenanceHistory';
 import { MaintenanceHistoryFilters } from './MaintenanceHistoryFilters';
 import { MaintenanceHistoryTable } from './MaintenanceHistoryTable';
 import { MaintenanceHistoryDrawer } from './MaintenanceHistoryDrawer';
+import { PageHeader } from '../../ui/PageHeader';
 
 interface MaintenanceHistoryViewProps {
   equipmentIdFilter?: string;
@@ -23,7 +24,14 @@ export const MaintenanceHistoryView: React.FC<MaintenanceHistoryViewProps> = ({ 
   } = useMaintenanceHistory(equipmentIdFilter);
 
   return (
-    <div className="space-y-6 animate-fadeIn">
+    <div className="space-y-6 max-w-[1600px] mx-auto pb-12 animate-fadeIn">
+      {!equipmentIdFilter && (
+        <PageHeader
+          title="Histórico Auditável de Manutenções"
+          subtitle="Linha do tempo e registros definitivos de ordens de serviço e preventivas encerradas"
+        />
+      )}
+
       {error && (
         <div className="bg-rose-50 border border-rose-200 text-rose-700 p-3.5 rounded-2xl text-xs font-bold">
           {error}

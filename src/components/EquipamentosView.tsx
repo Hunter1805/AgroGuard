@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, CheckCircle2 } from 'lucide-react';
+import { isCorpUI } from '../lib/ui-version';
 import { useEquipments } from '../hooks/useEquipments';
 import { PageHeader } from './ui/PageHeader';
+import { PageHeaderCorp } from './ui/PageHeaderCorp';
 import { EquipmentStats } from './equipment/EquipmentStats';
+import { EquipmentStatsBar } from './equipment/EquipmentStatsBar';
 import { EquipmentFilters } from './equipment/EquipmentFilters';
+import { EquipmentToolbar } from './equipment/EquipmentToolbar';
 import { EquipmentTable } from './equipment/EquipmentTable';
 import { EquipmentCard } from './equipment/EquipmentCard';
 import { ArchiveConfirmModal } from './equipment/ArchiveConfirmModal';
@@ -93,7 +97,7 @@ export const EquipamentosView: React.FC = () => {
   }
 
   return (
-    <div className="flex-1 overflow-y-auto p-6 space-y-6">
+    <div className="space-y-6 pb-14">
       {/* Toast */}
       {toastMessage && (
         <div className="fixed bottom-6 right-6 z-50 glass-card bg-surface-container-highest border border-primary/40 text-primary px-4 py-3 rounded-lg shadow-2xl flex items-center gap-2 animate-fade-in">
@@ -102,43 +106,80 @@ export const EquipamentosView: React.FC = () => {
         </div>
       )}
 
-      <div className="max-w-7xl mx-auto space-y-6 pb-14">
-        {/* Cabeçalho */}
-        <PageHeader
-          title="Gestão de Frota e Equipamentos"
-          subtitle="Cadastre, monitore a telemetria/leitura e acompanhe o estado operacional dos ativos."
-          actions={
-            <Button variant="primary" size="md" icon={<Plus size={16} />} onClick={handleNewEquipment}>
-              Cadastrar Equipamento
-            </Button>
-          }
-        />
+      {/* Cabeçalho */}
+        {isCorpUI ? (
+          <PageHeaderCorp
+            title="Equipamentos"
+            description="Gerencie os equipamentos e sua condição operacional."
+            primaryAction={{
+              label: 'Novo equipamento',
+              icon: <Plus size={16} />,
+              onClick: handleNewEquipment,
+              variant: 'primary',
+            }}
+          />
+        ) : (
+          <PageHeader
+            title="Gestão de Frota e Equipamentos"
+            subtitle="Cadastre, monitore a telemetria/leitura e acompanhe o estado operacional dos ativos."
+            actions={
+              <Button variant="primary" size="md" icon={<Plus size={16} />} onClick={handleNewEquipment}>
+                Cadastrar Equipamento
+              </Button>
+            }
+          />
+        )}
 
-        {/* Cards de Métricas */}
-        <EquipmentStats stats={stats} />
+        {/* Indicadores da Frota */}
+        {isCorpUI ? (
+          <EquipmentStatsBar stats={stats} />
+        ) : (
+          <EquipmentStats stats={stats} />
+        )}
 
         {/* Filtros */}
-        <EquipmentFilters
-          searchTerm={searchTerm}
-          onSearchChange={setSearchTerm}
-          assetType={filterAssetType}
-          onAssetTypeChange={setFilterAssetType}
-          status={filterStatus}
-          onStatusChange={setFilterStatus}
-          location={filterLocation}
-          onLocationChange={setFilterLocation}
-          locationsList={locations}
-          maintenanceStatus={filterMaintenanceStatus}
-          onMaintenanceStatusChange={setFilterMaintenanceStatus}
-          hasPendingAlert={filterAlertOnly}
-          onHasPendingAlertChange={setFilterAlertOnly}
-          isReadingOverdue={filterReadingOverdueOnly}
-          onIsReadingOverdueChange={setFilterReadingOverdueOnly}
-          viewMode={viewMode}
-          onViewModeChange={setViewMode}
-          onNewEquipment={handleNewEquipment}
-          onClearFilters={clearAllFilters}
-        />
+        {isCorpUI ? (
+          <EquipmentToolbar
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+            status={filterStatus as any}
+            onStatusChange={(val) => setFilterStatus(val as any)}
+            location={filterLocation}
+            onLocationChange={setFilterLocation}
+            locationsList={locations}
+            assetType={filterAssetType as any}
+            onAssetTypeChange={(val) => setFilterAssetType(val as any)}
+            hasPendingAlert={filterAlertOnly}
+            onHasPendingAlertChange={setFilterAlertOnly}
+            isReadingOverdue={filterReadingOverdueOnly}
+            onIsReadingOverdueChange={setFilterReadingOverdueOnly}
+            viewMode={viewMode === 'cards' ? 'grid' : 'table'}
+            onViewModeChange={(mode) => setViewMode(mode === 'grid' ? 'cards' : 'table')}
+            onClearFilters={clearAllFilters}
+          />
+        ) : (
+          <EquipmentFilters
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+            assetType={filterAssetType}
+            onAssetTypeChange={setFilterAssetType}
+            status={filterStatus}
+            onStatusChange={setFilterStatus}
+            location={filterLocation}
+            onLocationChange={setFilterLocation}
+            locationsList={locations}
+            maintenanceStatus={filterMaintenanceStatus}
+            onMaintenanceStatusChange={setFilterMaintenanceStatus}
+            hasPendingAlert={filterAlertOnly}
+            onHasPendingAlertChange={setFilterAlertOnly}
+            isReadingOverdue={filterReadingOverdueOnly}
+            onIsReadingOverdueChange={setFilterReadingOverdueOnly}
+            viewMode={viewMode}
+            onViewModeChange={setViewMode}
+            onNewEquipment={handleNewEquipment}
+            onClearFilters={clearAllFilters}
+          />
+        )}
 
         {/* Listagem em Tabela ou Cards */}
         {equipments.length === 0 ? (
@@ -171,7 +212,6 @@ export const EquipamentosView: React.FC = () => {
             ))}
           </div>
         )}
-      </div>
 
       {/* Modal de confirmação de arquivamento */}
       {archivingEquipment && (
@@ -200,3 +240,4 @@ export const EquipamentosView: React.FC = () => {
     </div>
   );
 };
+

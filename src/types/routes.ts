@@ -25,6 +25,7 @@ export const ROUTES = {
   CHECKLISTS_NAO_CONFORMIDADES: '/checklists/nao-conformidades',
 
   MANUTENCOES: '/manutencoes',
+  MANUTENCOES_VISAO_GERAL: '/manutencoes/visao-geral',
   MANUTENCOES_PLANOS: '/manutencoes/planos',
   MANUTENCOES_PLANO_NOVO: '/manutencoes/planos/novo',
   MANUTENCOES_PLANO_DETALHE: '/manutencoes/planos/:planId',

@@ -65,8 +65,7 @@ export const EquipmentReadingsView: React.FC = () => {
   }
 
   return (
-    <div className="flex-1 overflow-y-auto p-6 space-y-6">
-      <div className="max-w-7xl mx-auto space-y-6 pb-14">
+    <div className="space-y-6 pb-14">
         {/* Cabeçalho da Página */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 glass-card p-6 rounded-2xl border border-white/10">
           <div className="space-y-1">
@@ -121,7 +120,6 @@ export const EquipmentReadingsView: React.FC = () => {
           onCancelReading={setCancellationTarget}
           onOpenNewReading={() => setIsFormOpen(true)}
         />
-      </div>
 
       {/* Modal de Registro Rápido */}
       {isFormOpen && (
