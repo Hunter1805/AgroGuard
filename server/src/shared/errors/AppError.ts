@@ -31,7 +31,8 @@ export type AppErrorCode =
   | 'OWNER_ROLE_IMMUTABLE'
   | 'SELF_BLOCK_FORBIDDEN'
   | 'OWNER_BLOCK_FORBIDDEN'
-  | 'MEMBER_AUTH_NOT_FOUND';
+  | 'MEMBER_AUTH_NOT_FOUND'
+  | 'ONBOARDING_DATA_MISSING';
 
 export class AppError extends Error {
   public readonly statusCode: number;

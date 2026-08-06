@@ -62,7 +62,7 @@ import { EmailConfirmationPage } from './components/auth/EmailConfirmationPage';
 import { AuthCallbackPage } from './components/auth/AuthCallbackPage';
 import { ForgotPasswordPage } from './components/auth/ForgotPasswordPage';
 import { ResetPasswordPage } from './components/auth/ResetPasswordPage';
-import { ProvisioningPage } from './components/auth/ProvisioningPage';
+import { PreparingEnvironmentPage } from './components/auth/PreparingEnvironmentPage';
 import { AccessBlockedPage } from './components/auth/AccessBlockedPage';
 import { AcceptInvitationPage } from './components/auth/AcceptInvitationPage';
 import { WelcomeOnboardingPage } from './components/onboarding/WelcomeOnboardingPage';
@@ -119,17 +119,20 @@ export function App() {
 
       {/* Rota de Provisionamento e Onboarding */}
       <Route
-        path="/criar-ambiente"
+        path="/onboarding/preparando-ambiente"
         element={
           !user ? (
             <Navigate to="/entrar" replace />
           ) : profile?.organizationId ? (
             <Navigate to="/boas-vindas" replace />
           ) : (
-            <ProvisioningPage />
+            <PreparingEnvironmentPage />
           )
         }
       />
+
+      {/* Redirecionamento de rota legada */}
+      <Route path="/criar-ambiente" element={<Navigate to="/onboarding/preparando-ambiente" replace />} />
 
       <Route
         path="/boas-vindas"
@@ -137,7 +140,7 @@ export function App() {
           !user ? (
             <Navigate to="/entrar" replace />
           ) : !profile?.organizationId ? (
-            <Navigate to="/criar-ambiente" replace />
+            <Navigate to="/onboarding/preparando-ambiente" replace />
           ) : profile?.onboardingCompleted ? (
             <Navigate to="/app/dashboard" replace />
           ) : (
@@ -153,7 +156,7 @@ export function App() {
           !user ? (
             <Navigate to="/entrar" replace />
           ) : !profile?.organizationId ? (
-            <Navigate to="/criar-ambiente" replace />
+            <Navigate to="/onboarding/preparando-ambiente" replace />
           ) : !profile?.onboardingCompleted ? (
             <Navigate to="/boas-vindas" replace />
           ) : (
@@ -169,7 +172,7 @@ export function App() {
           !user ? (
             <Navigate to="/entrar" replace />
           ) : !profile?.organizationId ? (
-            <Navigate to="/criar-ambiente" replace />
+            <Navigate to="/onboarding/preparando-ambiente" replace />
           ) : !profile?.onboardingCompleted ? (
             <Navigate to="/boas-vindas" replace />
           ) : (

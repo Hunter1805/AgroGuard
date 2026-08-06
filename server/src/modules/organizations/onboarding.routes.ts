@@ -26,7 +26,6 @@ export async function onboardingRoutes(app: FastifyInstance) {
       tags: ['Onboarding'],
       body: {
         type: 'object',
-        required: ['ownerName', 'organizationName', 'acceptedTermsVersion', 'acceptedPrivacyVersion'],
         properties: {
           ownerName: { type: 'string' },
           organizationName: { type: 'string' },
@@ -46,10 +45,9 @@ export async function onboardingRoutes(app: FastifyInstance) {
     }
 
     const { authUserId } = request.actor;
-    const body = request.body as ProvisionPayload;
+    const body = (request.body as ProvisionPayload) || {};
 
     // 1. Garantir idempotência: verificar se o usuário já possui uma membership
-    // Buscar se já existe um usuário interno com esse authUserId
     let user = await prisma.user.findUnique({
       where: { authUserId },
       include: {
@@ -61,7 +59,6 @@ export async function onboardingRoutes(app: FastifyInstance) {
     });
 
     if (user && user.memberships.length > 0) {
-      // Já está provisionado, retornar resposta de sucesso idempotente
       const activeMembership = user.memberships[0];
       const response: ApiResponse<{ message: string; organizationId: string }> = {
         data: {
@@ -72,8 +69,6 @@ export async function onboardingRoutes(app: FastifyInstance) {
       return reply.status(200).send(response);
     }
 
-    // Se o usuário interno ainda não foi vinculado ao authUserId, podemos procurar pelo e-mail
-    // para evitar cadastros duplicados de usuários
     if (!env.SUPABASE_URL || !env.SUPABASE_SERVICE_ROLE_KEY) {
       throw new AppError('Serviço de autenticação não configurado no servidor.', 500, 'AUTH_CONFIG_ERROR');
     }
@@ -90,8 +85,23 @@ export async function onboardingRoutes(app: FastifyInstance) {
 
     const email = authUser.email!;
 
+    // 2. Extrair metadados do Supabase como fallback para dados da empresa
+    const metadata = authUser.user_metadata || {};
+    const ownerName = body.ownerName || metadata.name || authUser.email?.split('@')[0] || 'Proprietário';
+    const organizationName = body.organizationName || metadata.organizationName;
+    const workspaceName = body.workspaceName || metadata.workspaceName || organizationName;
+    const segment = body.segment || metadata.segment || 'AGRICULTURE';
+    const estimatedEquipmentCount = body.estimatedEquipmentCount || metadata.estimatedEquipmentCount || '11_50';
+    const phone = body.phone !== undefined ? body.phone : (metadata.phone || null);
+    const acceptedTermsVersion = body.acceptedTermsVersion || metadata.acceptedTermsVersion || '2026-08';
+    const acceptedPrivacyVersion = body.acceptedPrivacyVersion || metadata.acceptedPrivacyVersion || '2026-08';
+
+    if (!organizationName) {
+      throw new AppError('Dados da empresa não localizados. Por favor, configure sua empresa.', 400, 'ONBOARDING_DATA_MISSING');
+    }
+
+    // Se o usuário interno ainda não foi vinculado ao authUserId, podemos procurar pelo e-mail
     if (!user) {
-      // Buscar por e-mail para ver se o usuário já existe no banco interno de alguma forma
       user = await prisma.user.findUnique({
         where: { email },
         include: {
@@ -103,7 +113,6 @@ export async function onboardingRoutes(app: FastifyInstance) {
       });
 
       if (user && user.memberships.length > 0) {
-        // Vincula o authUserId se não estava vinculado e retorna a resposta de idempotência
         if (!user.authUserId) {
           await prisma.user.update({
             where: { id: user.id },
@@ -121,30 +130,27 @@ export async function onboardingRoutes(app: FastifyInstance) {
       }
     }
 
-    // 2. Executar a transação Prisma para provisionamento completo e idempotente
+    // 3. Executar a transação Prisma para provisionamento completo e idempotente
     const result = await prisma.$transaction(async (tx) => {
-      // Criar o usuário interno se ele ainda não existe
       let internalUser: any = user;
       if (!internalUser) {
         internalUser = await tx.user.create({
           data: {
             authUserId,
-            name: body.ownerName,
+            name: ownerName,
             email,
             status: 'ativo',
             type: 'interno',
           },
         });
       } else if (!internalUser.authUserId) {
-        // Atualizar vínculo se já existia
         internalUser = await tx.user.update({
           where: { id: internalUser.id },
           data: { authUserId },
         });
       }
 
-      // Gerar um código legível único para a organização
-      const baseSlug = body.organizationName
+      const baseSlug = organizationName
         .toLowerCase()
         .normalize('NFD')
         .replace(/[\u0300-\u036f]/g, '')
@@ -156,38 +162,34 @@ export async function onboardingRoutes(app: FastifyInstance) {
       const randomSuffix = Math.random().toString(36).substring(2, 7);
       const orgCode = `${baseSlug}-${randomSuffix}`;
 
-      // Criar a organização
       const organization = await tx.organization.create({
         data: {
-          name: body.organizationName,
+          name: organizationName,
           code: orgCode,
           status: 'ativo',
         },
       });
 
-      // Criar a empresa principal (Company)
       const company = await tx.company.create({
         data: {
           organizationId: organization.id,
           code: 'COMP-01',
-          name: body.workspaceName || body.organizationName,
+          name: workspaceName || organizationName,
           status: 'ativo',
         },
       });
 
-      // Criar a unidade matriz padrão
       const unit = await tx.unit.create({
         data: {
           organizationId: organization.id,
           companyId: company.id,
           code: 'UN-01',
-          name: `Matriz ${body.workspaceName || body.organizationName}`,
+          name: `Matriz ${workspaceName || organizationName}`,
           type: 'matriz',
           status: 'ativo',
         },
       });
 
-      // Criar a membership ligando o usuário à organização como proprietário
       const membership = await tx.organizationMembership.create({
         data: {
           organizationId: organization.id,
@@ -197,7 +199,6 @@ export async function onboardingRoutes(app: FastifyInstance) {
         },
       });
 
-      // Garantir a role 'admin' e atribuir ao usuário
       let adminRole = await tx.role.findUnique({
         where: { code: 'admin' },
       });
@@ -214,7 +215,6 @@ export async function onboardingRoutes(app: FastifyInstance) {
         });
       }
 
-      // Criar associação UserRole se não existir
       const existingUserRole = await tx.userRole.findUnique({
         where: {
           userId_roleId: {
@@ -233,7 +233,6 @@ export async function onboardingRoutes(app: FastifyInstance) {
         });
       }
 
-      // Criar o escopo total da organização para o proprietário
       await tx.organizationScope.create({
         data: {
           membershipId: membership.id,
@@ -246,7 +245,6 @@ export async function onboardingRoutes(app: FastifyInstance) {
         },
       });
 
-      // Criar as preferências do usuário com os valores padrões
       await tx.userPreference.create({
         data: {
           userId: internalUser.id,
@@ -266,7 +264,6 @@ export async function onboardingRoutes(app: FastifyInstance) {
         },
       });
 
-      // Criar configurações da organização
       await tx.organizationSetting.create({
         data: {
           organizationId: organization.id,
@@ -280,22 +277,20 @@ export async function onboardingRoutes(app: FastifyInstance) {
         },
       });
 
-      // Criar o estado inicial de onboarding (0 de 4 etapas concluídas)
       await tx.onboardingState.create({
         data: {
           organizationId: organization.id,
           currentStep: 0,
           stepsCompleted: {
-            step1: false, // Complete os dados da empresa
-            step2: false, // Cadastre seu primeiro equipamento
-            step3: false, // Convide sua equipe
-            step4: false, // Configure sua primeira rotina
+            step1: false,
+            step2: false,
+            step3: false,
+            step4: false,
           },
           completed: false,
         },
       });
 
-      // Criar sequências numéricas iniciais para a organização
       await tx.numberSequence.upsert({
         where: { entityType: `OS-${organization.id}` },
         create: {
@@ -318,7 +313,6 @@ export async function onboardingRoutes(app: FastifyInstance) {
         update: {},
       });
 
-      // Criar log de auditoria do onboarding
       await tx.auditLog.create({
         data: {
           organizationId: organization.id,
@@ -329,10 +323,10 @@ export async function onboardingRoutes(app: FastifyInstance) {
           entityId: organization.id,
           action: 'provision',
           newData: {
-            acceptedTermsVersion: body.acceptedTermsVersion,
-            acceptedPrivacyVersion: body.acceptedPrivacyVersion,
-            segment: body.segment,
-            estimatedEquipmentCount: body.estimatedEquipmentCount,
+            acceptedTermsVersion,
+            acceptedPrivacyVersion,
+            segment,
+            estimatedEquipmentCount,
           },
         },
       });

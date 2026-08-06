@@ -23,27 +23,49 @@ export const AuthCallbackPage: React.FC = () => {
 
       setStatusText('Sincronizando seu perfil...');
 
-      // 1. Verificar se existe onboarding pendente no localStorage (empresa recém-cadastrada)
-      const pendingDataString = localStorage.getItem('agroguard_onboarding_pending');
-      
-      if (pendingDataString) {
+      // 1. Tentar carregar o perfil do usuário caso ainda não esteja disponível
+      if (!profile) {
         try {
-          setStatusText('Provisionando seu ambiente exclusivo...');
-          const pendingData = JSON.parse(pendingDataString);
-          
-          // Chama a API de provisionamento
+          await refreshProfile();
+          return;
+        } catch (err) {
+          setError('Não foi possível obter os dados de acesso do servidor.');
+          return;
+        }
+      }
+
+      // 2. Se o usuário está bloqueado
+      if (profile.status === 'bloqueado' || profile.status === 'inativo') {
+        navigate('/acesso-bloqueado');
+        return;
+      }
+
+      // 3. Se o usuário não tem organização vinculada, executa o provisionamento automático
+      if (!profile.organizationId) {
+        setStatusText('Criando seu ambiente operacional...');
+        try {
+          const pendingDataString = localStorage.getItem('agroguard_onboarding_pending');
+          const pendingData = pendingDataString ? JSON.parse(pendingDataString) : {};
+
           const { error: provisionError } = await provisionOrganization(pendingData);
 
           if (provisionError) {
-            setError(provisionError.message || 'Erro ao provisionar organização no servidor.');
+            // Se faltarem dados do onboarding (metadados indisponíveis na nuvem)
+            if (
+              provisionError.code === 'ONBOARDING_DATA_MISSING' || 
+              (provisionError.message && provisionError.message.includes('não localizados'))
+            ) {
+              navigate('/onboarding/preparando-ambiente?erro=dados_ausentes');
+            } else {
+              setError(provisionError.message || 'Erro ao criar seu ambiente. Tente novamente.');
+            }
             return;
           }
 
           // Limpa o localStorage de forma segura
           localStorage.removeItem('agroguard_onboarding_pending');
 
-          // Redireciona para as boas vindas (início do onboarding)
-          setStatusText('Ambiente provisionado! Preparando seu primeiro acesso...');
+          setStatusText('Ambiente pronto! Preparando seu primeiro acesso...');
           setTimeout(() => navigate('/boas-vindas'), 1500);
           return;
         } catch (err: any) {
@@ -52,25 +74,14 @@ export const AuthCallbackPage: React.FC = () => {
         }
       }
 
-      // 2. Se não há dados pendentes no localStorage, redireciona com base no perfil carregado
-      if (profile) {
-        if (profile.status === 'bloqueado' || profile.status === 'inativo') {
-          navigate('/acesso-bloqueado');
-        } else if (profile.status === 'sem_organizacao' || !profile.organizationId) {
-          navigate('/criar-ambiente');
-        } else if (!profile.onboardingCompleted) {
-          navigate('/boas-vindas');
-        } else {
-          navigate('/app/dashboard');
-        }
-      } else {
-        // Tenta recarregar o perfil
-        try {
-          await refreshProfile();
-        } catch {
-          setError('Não foi possível obter os dados de acesso do servidor.');
-        }
+      // 4. Se já possui organização mas não completou o onboarding
+      if (!profile.onboardingCompleted) {
+        navigate('/boas-vindas');
+        return;
       }
+
+      // 5. Fluxo normal: Dashboard
+      navigate('/app/dashboard');
     };
 
     processAuthCallback();

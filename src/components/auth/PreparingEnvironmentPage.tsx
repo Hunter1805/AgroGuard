@@ -1,12 +1,20 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Shield, Building2, Layers, Cpu, Phone, User, AlertTriangle, RefreshCw } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
-export const ProvisioningPage: React.FC = () => {
-  const { user, provisionOrganization } = useAuth();
+export const PreparingEnvironmentPage: React.FC = () => {
+  const { user, provisionOrganization, refreshProfile } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
+  // Estados de Controle
+  const [loading, setLoading] = useState(true);
+  const [statusText, setStatusText] = useState('Concluindo a criação do seu ambiente...');
+  const [error, setError] = useState<string | null>(null);
+  const [showManualForm, setShowManualForm] = useState(false);
+
+  // Campos do formulário manual de contingência
   const [ownerName, setOwnerName] = useState(user?.user_metadata?.name || '');
   const [companyName, setCompanyName] = useState('');
   const [workspaceName, setWorkspaceName] = useState('');
@@ -14,11 +22,52 @@ export const ProvisioningPage: React.FC = () => {
   const [equipmentCount, setEquipmentCount] = useState('11_50');
   const [phone, setPhone] = useState('');
 
-  const [loading, setLoading] = useState(false);
-  const [statusText, setStatusText] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  // Executa a tentativa automática de provisionamento ao carregar
+  useEffect(() => {
+    const autoProvision = async () => {
+      // Se veio explicitamente com erro de dados ausentes, exibe o formulário direto
+      if (searchParams.get('erro') === 'dados_ausentes') {
+        setShowManualForm(true);
+        setLoading(false);
+        return;
+      }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+      setLoading(true);
+      setError(null);
+      setStatusText('Estamos preparando o AgroGuard para a sua empresa...');
+
+      try {
+        const { error: provisionError } = await provisionOrganization({});
+
+        if (provisionError) {
+          const msg = provisionError.message || '';
+          if (
+            provisionError.code === 'ONBOARDING_DATA_MISSING' ||
+            msg.includes('não localizados') ||
+            msg.includes('indisponíveis')
+          ) {
+            // Se os dados não estão disponíveis na nuvem nem localmente
+            setShowManualForm(true);
+          } else {
+            setError(provisionError.message || 'Ocorreu um erro ao provisionar seu ambiente.');
+          }
+          setLoading(false);
+          return;
+        }
+
+        // Sucesso no provisionamento silencioso
+        setStatusText('Tudo pronto! Preparando seu primeiro acesso...');
+        setTimeout(() => navigate('/boas-vindas'), 1500);
+      } catch (err) {
+        setError('Não foi possível conectar ao servidor de provisionamento.');
+        setLoading(false);
+      }
+    };
+
+    autoProvision();
+  }, [searchParams]);
+
+  const handleSubmitManual = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
@@ -28,7 +77,7 @@ export const ProvisioningPage: React.FC = () => {
     }
 
     setLoading(true);
-    setStatusText('Criando sua organização e empresa principal...');
+    setStatusText('Criando sua organização e ambiente operacional...');
 
     const payload = {
       ownerName: ownerName.trim(),
@@ -42,8 +91,6 @@ export const ProvisioningPage: React.FC = () => {
     };
 
     try {
-      setTimeout(() => setStatusText('Inicializando preferências e numerações...'), 1000);
-      
       const { error: provisionError } = await provisionOrganization(payload);
 
       if (provisionError) {
@@ -52,7 +99,9 @@ export const ProvisioningPage: React.FC = () => {
         return;
       }
 
-      setStatusText('Ambiente provisionado! Redirecionando...');
+      // Sincroniza o perfil e redireciona
+      await refreshProfile();
+      setStatusText('Ambiente provisionado com sucesso! Redirecionando...');
       setTimeout(() => navigate('/boas-vindas'), 1500);
     } catch (err) {
       setError('Erro ao processar solicitação no servidor.');
@@ -72,24 +121,24 @@ export const ProvisioningPage: React.FC = () => {
         </div>
 
         {loading ? (
-          /* Estado de Carregamento Animado */
-          <div className="py-12 flex flex-col items-center text-center space-y-4">
+          /* Estado de Carregamento Animado (Processamento Silencioso) */
+          <div className="py-12 flex flex-col items-center text-center space-y-4 animate-fade-in">
             <RefreshCw size={36} className="text-emerald-600 animate-spin" />
             <div className="space-y-1">
-              <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider block">Provisionamento</span>
+              <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider block">Configurando</span>
               <p className="text-sm font-semibold text-slate-800 leading-snug">{statusText}</p>
             </div>
             <p className="text-[11px] text-slate-500 max-w-xs leading-relaxed">
-              Estamos montando a infraestrutura de banco de dados e escopo para o seu novo ambiente operacional corporativo.
+              Estamos montando a infraestrutura de banco de dados e preferências para o seu novo ambiente operacional corporativo.
             </p>
           </div>
-        ) : (
-          /* Formulário de Criação */
+        ) : showManualForm ? (
+          /* Estado de Contingência Manual (Quando os metadados do cadastro sumiram) */
           <div className="space-y-5">
             <div className="space-y-1.5 text-center">
-              <h2 className="text-xl font-bold tracking-tight text-slate-900">Criar Novo Ambiente</h2>
-              <p className="text-xs text-slate-500">
-                Seu usuário não possui uma organização ativa. Preencha as informações para provisionar seu ambiente exclusivo.
+              <h2 className="text-xl font-bold tracking-tight text-slate-900">Configurar sua Empresa</h2>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                Não conseguimos recuperar os dados do cadastro original de forma automática. Por favor, forneça-os abaixo para concluirmos a configuração.
               </p>
             </div>
 
@@ -100,7 +149,7 @@ export const ProvisioningPage: React.FC = () => {
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmitManual} className="space-y-4">
               {/* Nome do Responsável */}
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-slate-700 block">Nome completo do responsável</label>
@@ -187,7 +236,7 @@ export const ProvisioningPage: React.FC = () => {
                   <select
                     value={equipmentCount}
                     onChange={(e) => setEquipmentCount(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs rounded-md pl-9 pr-3 py-2.5 outline-none focus:border-slate-400 focus:bg-white transition-all appearance-none"
+                    className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs rounded-md pl-9 pr-3 py-2.5 outline-none focus:border-slate-400 focus:bg-white transition-all"
                   >
                     <option value="1_10">1 a 10 equipamentos</option>
                     <option value="11_50">11 a 50 equipamentos</option>
@@ -223,9 +272,39 @@ export const ProvisioningPage: React.FC = () => {
               </button>
             </form>
           </div>
+        ) : (
+          /* Erros Gerais (ex: servidor fora do ar) com botao de Tentar Novamente */
+          <div className="space-y-4 text-center">
+            <div className="bg-red-50 text-red-600 p-3 rounded-full w-12 h-12 flex items-center justify-center mx-auto animate-pulse">
+              <AlertTriangle size={24} />
+            </div>
+            <div className="space-y-2">
+              <h3 className="text-base font-bold text-slate-950">Falha ao preparar ambiente</h3>
+              <p className="text-xs text-slate-500 leading-relaxed">{error}</p>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  setError(null);
+                  setLoading(true);
+                  // Dispara reload
+                  navigate('/onboarding/preparando-ambiente', { replace: true });
+                }}
+                className="w-full bg-slate-900 hover:bg-slate-800 text-white font-medium text-xs rounded-md py-2.5 transition-colors"
+              >
+                Tentar Novamente
+              </button>
+              <button
+                onClick={() => setShowManualForm(true)}
+                className="w-full bg-slate-100 hover:bg-slate-200 text-slate-800 font-medium text-xs rounded-md py-2.5 transition-colors border border-slate-200"
+              >
+                Configurar Manualmente
+              </button>
+            </div>
+          </div>
         )}
       </div>
     </div>
   );
 };
-export default ProvisioningPage;
+export default PreparingEnvironmentPage;

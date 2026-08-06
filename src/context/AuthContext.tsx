@@ -23,7 +23,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<{ error: any }>;
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: any }>;
-  registerUser: (email: string, password: string, name: string) => Promise<{ user: SupabaseUser | null; error: any }>;
+  registerUser: (email: string, password: string, name: string, metadata?: Record<string, any>) => Promise<{ user: SupabaseUser | null; error: any }>;
   provisionOrganization: (payload: any) => Promise<{ data: any; error: any }>;
   updateOnboardingStep: (step: number) => Promise<{ data: any; error: any }>;
   refreshProfile: () => Promise<void>;
@@ -124,12 +124,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return { error };
   };
 
-  const registerUser = async (email: string, password: string, name: string) => {
+  const registerUser = async (email: string, password: string, name: string, metadata?: Record<string, any>) => {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        data: { name },
+        data: { name, ...metadata },
         emailRedirectTo: `${window.location.origin}/auth/callback`,
       },
     });
