@@ -173,8 +173,6 @@ export function App() {
             <Navigate to="/entrar" replace />
           ) : !profile?.organizationId ? (
             <Navigate to="/onboarding/preparando-ambiente" replace />
-          ) : !profile?.onboardingCompleted ? (
-            <Navigate to="/boas-vindas" replace />
           ) : (
             <div className={`h-screen flex overflow-hidden ${isCorpUI ? 'bg-app text-primary' : 'bg-background text-on-background bg-pattern'}`}>
               {/* Toast */}
