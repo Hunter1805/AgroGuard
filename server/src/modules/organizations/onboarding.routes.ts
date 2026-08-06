@@ -334,6 +334,9 @@ export async function onboardingRoutes(app: FastifyInstance) {
       return {
         organizationId: organization.id,
       };
+    }, {
+      maxWait: 15000,
+      timeout: 30000,
     });
 
     const response: ApiResponse<{ message: string; organizationId: string }> = {
