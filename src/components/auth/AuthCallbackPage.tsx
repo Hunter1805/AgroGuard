@@ -12,6 +12,16 @@ export const AuthCallbackPage: React.FC = () => {
 
   useEffect(() => {
     const processAuthCallback = async () => {
+      // 0. Checar se o Supabase retornou um erro de link expirado ou já utilizado na URL
+      const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+      const errorDescription = hashParams.get('error_description');
+      const errorCode = hashParams.get('error_code');
+
+      if (errorCode === 'otp_expired' || (errorDescription && (errorDescription.includes('expired') || errorDescription.includes('invalid')))) {
+        setError('Este link de confirmação expirou ou já foi utilizado. Por favor, faça login com seu e-mail e senha para acessar.');
+        return;
+      }
+
       // Se ainda está carregando o estado do useAuth, aguarda
       if (authLoading) return;
 
