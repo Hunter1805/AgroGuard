@@ -59,27 +59,109 @@ export async function requestActorMiddleware(request: FastifyRequest, _reply: Fa
             });
           }
 
-          // Buscar dados organizacionais associados ao usuário
-          const org = await prisma.organization.findFirst({ where: { status: 'ativo' } });
-          const company = await prisma.company.findFirst({ where: { status: 'ativo' } });
-          const unit = await prisma.unit.findFirst({ where: { status: 'ativo' } });
-          const farm = await prisma.farm.findFirst({ where: { status: 'ativo' } });
+          let companyIds: string[] = [];
+          let unitIds: string[] = [];
+          let farmIds: string[] = [];
+          let organizationId = '';
+          let permissions: EffectivePermission[] = [];
 
-          const defaultPermissions: EffectivePermission[] = [
-            { module: 'all', action: 'all', allowed: true },
-          ];
+          // Buscar o vínculo organizacional ativo do usuário
+          const membership = await prisma.organizationMembership.findFirst({
+            where: {
+              userId: user.id,
+              status: 'ativo',
+            },
+            include: {
+              scope: true,
+            },
+          });
+
+          if (membership) {
+            organizationId = membership.organizationId;
+            const scope = membership.scope;
+
+            if (scope) {
+              // 1. Resolver empresas da organização
+              if (scope.allCompanies) {
+                const companies = await prisma.company.findMany({
+                  where: { organizationId, status: 'ativo' },
+                  select: { id: true },
+                });
+                companyIds = companies.map((c) => c.id);
+              } else if (scope.companyIds && Array.isArray(scope.companyIds)) {
+                companyIds = scope.companyIds as string[];
+              }
+
+              // 2. Resolver unidades das empresas permitidas
+              if (scope.allUnits) {
+                const units = await prisma.unit.findMany({
+                  where: { organizationId, companyId: { in: companyIds }, status: 'ativo' },
+                  select: { id: true },
+                });
+                unitIds = units.map((u) => u.id);
+              } else if (scope.unitIds && Array.isArray(scope.unitIds)) {
+                unitIds = scope.unitIds as string[];
+              }
+
+              // 3. Resolver fazendas das unidades permitidas
+              if (scope.allFarms) {
+                const farms = await prisma.farm.findMany({
+                  where: { organizationId, unitId: { in: unitIds }, status: 'ativo' },
+                  select: { id: true },
+                });
+                farmIds = farms.map((f) => f.id);
+              } else if (scope.farmIds && Array.isArray(scope.farmIds)) {
+                farmIds = scope.farmIds as string[];
+              }
+            }
+
+            // O proprietário ou administradores têm acesso completo
+            const isAdmin =
+              membership.role === 'proprietario' ||
+              membership.role === 'administrador' ||
+              user.userRoles.some((ur) => ur.role.code === 'admin');
+
+            if (isAdmin) {
+              permissions = [{ module: 'all', action: 'all', allowed: true }];
+            } else {
+              // Permissões padrão para outros papéis (ex: técnico)
+              permissions = [
+                { module: 'equipments', action: 'read', allowed: true },
+                { module: 'work-orders', action: 'read', allowed: true },
+                { module: 'work-orders', action: 'create', allowed: true },
+                { module: 'work-orders', action: 'update', allowed: true },
+                { module: 'checklists', action: 'all', allowed: true },
+              ];
+            }
+          }
 
           request.actor = {
             authUserId: authUser.id,
             userId: user.id,
-            organizationId: org?.id || 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
-            companyIds: company ? [company.id] : ['b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22'],
-            unitIds: unit ? [unit.id] : ['c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33'],
-            farmIds: farm ? [farm.id] : ['d3eebc99-9c0b-4ef8-bb6d-6bb9bd380a44'],
+            organizationId,
+            companyIds,
+            unitIds,
+            farmIds,
             workshopIds: [],
             warehouseIds: [],
             roleIds: user.userRoles.map((ur) => ur.roleId),
-            permissions: defaultPermissions,
+            permissions,
+            isMockActor: false,
+          };
+          return;
+        } else {
+          // Usuário existe no Supabase Auth mas ainda não foi provisionado no banco interno do AgroGuard
+          request.actor = {
+            authUserId: authUser.id,
+            userId: '',
+            organizationId: '',
+            companyIds: [],
+            unitIds: [],
+            farmIds: [],
+            workshopIds: [],
+            warehouseIds: [],
+            roleIds: [],
+            permissions: [],
             isMockActor: false,
           };
           return;

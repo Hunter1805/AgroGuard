@@ -1,14 +1,18 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import type { Session, User as SupabaseUser } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase/supabase-client';
+import { apiClient } from '../lib/api/api-client';
 
 export interface UserProfileData {
   id: string;
+  authUserId: string;
   name: string;
   email: string;
   role: string;
   organizationId: string;
   status: string;
+  onboardingCompleted: boolean;
+  onboardingStep: number;
 }
 
 interface AuthContextType {
@@ -16,9 +20,13 @@ interface AuthContextType {
   user: SupabaseUser | null;
   profile: UserProfileData | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<{ error: Error | null }>;
+  login: (email: string, password: string) => Promise<{ error: any }>;
   logout: () => Promise<void>;
-  resetPassword: (email: string) => Promise<{ error: Error | null }>;
+  resetPassword: (email: string) => Promise<{ error: any }>;
+  registerUser: (email: string, password: string, name: string) => Promise<{ user: SupabaseUser | null; error: any }>;
+  provisionOrganization: (payload: any) => Promise<{ data: any; error: any }>;
+  updateOnboardingStep: (step: number) => Promise<{ data: any; error: any }>;
+  refreshProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -56,19 +64,44 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const fetchUserProfile = async (authUser: SupabaseUser) => {
     try {
-      // Mock profile fallback se não carregou do backend
+      const res = await apiClient<UserProfileData>('/users/me');
+      if (res.data) {
+        setProfile(res.data);
+      } else {
+        // Fallback estruturado
+        setProfile({
+          id: '',
+          authUserId: authUser.id,
+          name: authUser.user_metadata?.name || authUser.email?.split('@')[0] || 'Usuário AgroGuard',
+          email: authUser.email || '',
+          role: '',
+          organizationId: '',
+          status: 'novo',
+          onboardingCompleted: false,
+          onboardingStep: 0,
+        });
+      }
+    } catch {
+      // Fallback em caso de erro da API rest
       setProfile({
-        id: authUser.id,
+        id: '',
+        authUserId: authUser.id,
         name: authUser.user_metadata?.name || authUser.email?.split('@')[0] || 'Usuário AgroGuard',
         email: authUser.email || '',
-        role: 'Administrador',
-        organizationId: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
-        status: 'ativo',
+        role: '',
+        organizationId: '',
+        status: 'novo',
+        onboardingCompleted: false,
+        onboardingStep: 0,
       });
-    } catch {
-      // ignore
     } finally {
       setLoading(false);
+    }
+  };
+
+  const refreshProfile = async () => {
+    if (user) {
+      await fetchUserProfile(user);
     }
   };
 
@@ -86,13 +119,74 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const resetPassword = async (email: string) => {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
+      redirectTo: `${window.location.origin}/redefinir-senha`,
     });
     return { error };
   };
 
+  const registerUser = async (email: string, password: string, name: string) => {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { name },
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+    return { user: data.user, error };
+  };
+
+  const provisionOrganization = async (payload: any) => {
+    try {
+      const idempotencyKey = crypto.randomUUID ? crypto.randomUUID() : 'idemp-' + Date.now() + '-' + Math.random().toString(36).substring(2, 7);
+      const res = await apiClient<{ message: string; organizationId: string }>('/onboarding/provision', {
+        method: 'POST',
+        headers: {
+          'Idempotency-Key': idempotencyKey,
+        },
+        body: JSON.stringify(payload),
+      });
+      // Recarrega o perfil para obter a organização recém-vinculada
+      if (user) {
+        await fetchUserProfile(user);
+      }
+      return { data: res.data, error: null };
+    } catch (e: any) {
+      return { data: null, error: e };
+    }
+  };
+
+  const updateOnboardingStep = async (step: number) => {
+    try {
+      const res = await apiClient<any>('/onboarding/step', {
+        method: 'PATCH',
+        body: JSON.stringify({ step }),
+      });
+      if (user) {
+        await fetchUserProfile(user);
+      }
+      return { data: res.data, error: null };
+    } catch (e: any) {
+      return { data: null, error: e };
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ session, user, profile, loading, login, logout, resetPassword }}>
+    <AuthContext.Provider
+      value={{
+        session,
+        user,
+        profile,
+        loading,
+        login,
+        logout,
+        resetPassword,
+        registerUser,
+        provisionOrganization,
+        updateOnboardingStep,
+        refreshProfile,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

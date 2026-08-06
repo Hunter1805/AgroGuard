@@ -21,16 +21,20 @@ model Organization {
   archivedAt DateTime? @db.Timestamptz(3)
   deletedAt  DateTime? @db.Timestamptz(3)
 
-  companies  Company[]
-  units      Unit[]
-  farms      Farm[]
-  equipments Equipment[]
-  workOrders WorkOrder[]
-  stockItems StockItem[]
-  tires      Tire[]
-  tools      Tool[]
-  auditLogs  AuditLog[]
-  legacyMaps LegacyIdMap[]
+  companies        Company[]
+  units            Unit[]
+  farms            Farm[]
+  equipments       Equipment[]
+  workOrders       WorkOrder[]
+  stockItems       StockItem[]
+  tires            Tire[]
+  tools            Tool[]
+  auditLogs        AuditLog[]
+  legacyMaps       LegacyIdMap[]
+  memberships      OrganizationMembership[]
+  settings         OrganizationSetting?
+  onboardingState  OnboardingState?
+  invitations      UserInvitation[]
 
   @@map("organizations")
 }
@@ -320,9 +324,11 @@ model User {
   deletedAt    DateTime? @db.Timestamptz(3)
 
   userRoles        UserRole[]
-  workOrdersOpened WorkOrder[]    @relation("WorkOrderOpener")
+  workOrdersOpened WorkOrder[]              @relation("WorkOrderOpener")
   meterReadings    MeterReading[]
   auditLogs        AuditLog[]
+  memberships      OrganizationMembership[]
+  preferences      UserPreference?
 
   @@map("users")
 }
@@ -622,3 +628,105 @@ model LegacyIdMap {
   @@unique([module, legacyId])
   @@map("legacy_id_maps")
 }
+
+// ==========================================
+// 10. MULTIEMPRESA, ONBOARDING E CONVITES
+// ==========================================
+
+model OrganizationMembership {
+  id             String             @id @default(uuid()) @db.Uuid
+  organizationId String             @db.Uuid
+  userId         String             @db.Uuid
+  role           String             @default("membro") // proprietario, administrador, tecnico, operador
+  status         String             @default("ativo")  // ativo, pendente, inativo, bloqueado
+  createdAt      DateTime           @default(now()) @db.Timestamptz(3)
+  updatedAt      DateTime           @updatedAt @db.Timestamptz(3)
+
+  organization   Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user           User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  scope          OrganizationScope?
+
+  @@unique([organizationId, userId])
+  @@map("organization_memberships")
+}
+
+model OrganizationScope {
+  id           String                 @id @default(uuid()) @db.Uuid
+  membershipId String                 @unique @db.Uuid
+  allCompanies Boolean                @default(true)
+  allUnits     Boolean                @default(true)
+  allFarms     Boolean                @default(true)
+  companyIds   Json?                  // Array de UUIDs de empresas permitidas ex: ["uuid-1"]
+  unitIds      Json?                  // Array de UUIDs de unidades permitidas
+  farmIds      Json?                  // Array de UUIDs de fazendas permitidas
+  createdAt    DateTime               @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime               @updatedAt @db.Timestamptz(3)
+
+  membership   OrganizationMembership @relation(fields: [membershipId], references: [id], onDelete: Cascade)
+
+  @@map("organization_scopes")
+}
+
+model UserPreference {
+  id            String   @id @default(uuid()) @db.Uuid
+  userId        String   @unique @db.Uuid
+  theme         String   @default("light")
+  homeRoute     String   @default("/app/dashboard")
+  tableDensity  String   @default("comfortable")
+  dateFormat    String   @default("dd/MM/yyyy")
+  timeFormat    String   @default("24h")
+  notifications Json     // Estrutura de flags de notificação
+  createdAt     DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt     DateTime @updatedAt @db.Timestamptz(3)
+
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_preferences")
+}
+
+model OrganizationSetting {
+  id             String   @id @default(uuid()) @db.Uuid
+  organizationId String   @unique @db.Uuid
+  timezone       String   @default("America/Sao_Paulo")
+  language       String   @default("pt-BR")
+  currency       String   @default("BRL")
+  features       Json?    // Flags de features habilitadas
+  createdAt      DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt      DateTime @updatedAt @db.Timestamptz(3)
+
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@map("organization_settings")
+}
+
+model OnboardingState {
+  id             String   @id @default(uuid()) @db.Uuid
+  organizationId String   @unique @db.Uuid
+  currentStep    Int      @default(0) // 0 de 4 etapas
+  stepsCompleted Json     // Objeto indicando status, ex: {"step1": false, "step2": false, "step3": false, "step4": false}
+  completed      Boolean  @default(false)
+  createdAt      DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt      DateTime @updatedAt @db.Timestamptz(3)
+
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@map("onboarding_states")
+}
+
+model UserInvitation {
+  id             String   @id @default(uuid()) @db.Uuid
+  organizationId String   @db.Uuid
+  email          String
+  role           String   @default("tecnico")
+  scope          Json     // Escopo organizacional a ser associado
+  token          String   @unique
+  status         String   @default("pendente") // pendente, aceito, expirado, cancelado
+  expiresAt      DateTime @db.Timestamptz(3)
+  createdAt      DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt      DateTime @updatedAt @db.Timestamptz(3)
+
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@map("user_invitations")
+}
+

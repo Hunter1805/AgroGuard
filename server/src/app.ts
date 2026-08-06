@@ -8,8 +8,10 @@ import { errorHandler } from './shared/middleware/errorHandler';
 import { requestActorMiddleware } from './shared/http/RequestActor';
 import { healthRoutes } from './modules/health/health.routes';
 import { organizationRoutes } from './modules/organizations/organization.routes';
+import { onboardingRoutes } from './modules/organizations/onboarding.routes';
 import { masterDataRoutes } from './modules/master-data/master-data.routes';
 import { userRoutes } from './modules/users/user.routes';
+import { invitationRoutes } from './modules/users/invitation.routes';
 import { equipmentRoutes } from './modules/equipment/equipment.routes';
 import { workOrderRoutes } from './modules/work-orders/work-order.routes';
 import { stockRoutes } from './modules/stock/stock.routes';
@@ -107,8 +109,10 @@ export async function buildApp() {
   // Registro de Rotas da API v1
   await app.register(healthRoutes);
   await app.register(organizationRoutes);
+  await app.register(onboardingRoutes);
   await app.register(masterDataRoutes);
   await app.register(userRoutes);
+  await app.register(invitationRoutes);
   await app.register(equipmentRoutes);
   await app.register(workOrderRoutes);
   await app.register(stockRoutes);
