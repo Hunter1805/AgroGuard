@@ -29,6 +29,10 @@ export async function requestActorMiddleware(request: FastifyRequest, _reply: Fa
 
       const { data: { user: authUser }, error } = await supabase.auth.getUser(token);
 
+      if (error) {
+        request.log.error(error, `[Auth] Erro retornado pelo Supabase.auth.getUser para o token fornecido.`);
+      }
+
       if (!error && authUser) {
         // Buscar usuário interno correspondente pelo UUID authUserId ou por e-mail no primeiro login
         let user = await prisma.user.findFirst({

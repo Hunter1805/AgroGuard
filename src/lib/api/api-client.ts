@@ -28,6 +28,7 @@ export async function apiClient<T>(
   };
 
   const { data: { session } } = await supabase.auth.getSession();
+  console.log(`[apiClient] Requisição para ${url}. Sessão ativa: ${!!session}. Token presente: ${!!session?.access_token}`);
   if (session?.access_token) {
     headers['Authorization'] = `Bearer ${session.access_token}`;
   }
