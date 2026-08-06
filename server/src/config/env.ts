@@ -31,4 +31,15 @@ if (_env.data.NODE_ENV === 'production' && _env.data.MOCK_ACTOR_ENABLED) {
   throw new Error('CRITICAL SECURITY ERROR: MOCK_ACTOR_ENABLED não pode estar ativado em ambiente de PRODUÇÃO.');
 }
 
-export const env = _env.data;
+export const env = {
+  ..._env.data,
+  SUPABASE_URL:
+    _env.data.SUPABASE_URL ||
+    process.env.VITE_SUPABASE_URL ||
+    'https://poihrnbinlgehvrbrkwu.supabase.co',
+  SUPABASE_SERVICE_ROLE_KEY:
+    _env.data.SUPABASE_SERVICE_ROLE_KEY ||
+    process.env.VITE_SUPABASE_ANON_KEY ||
+    process.env.SUPABASE_ANON_KEY ||
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBvaWhybmJpbmxnZWh2cmJya3d1Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4NTkzOTc4OSwiZXhwIjoyMTAxNTE1Nzg5fQ.p8pNlxpLNm047aTmsjaJmf5MH5lbcEjOUBVYgj-heEI',
+};
