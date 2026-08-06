@@ -96,7 +96,7 @@ export const RegisterPage: React.FC = () => {
       };
 
       // 1. Registrar usuário no Supabase Auth enviando metadados de onboarding
-      const { user, error: signUpError } = await registerUser(email, password, name, onboardingData);
+      const { user, session, error: signUpError } = await registerUser(email, password, name, onboardingData);
 
       if (signUpError) {
         setError(signUpError.message || 'Erro ao criar conta. Verifique os dados e tente novamente.');
@@ -108,8 +108,13 @@ export const RegisterPage: React.FC = () => {
         // Guardar temporariamente no localStorage para contingência complementar local
         localStorage.setItem('agroguard_onboarding_pending', JSON.stringify(onboardingData));
 
-        // Redirecionar para a tela de confirmação de e-mail
-        navigate('/confirmar-email');
+        if (session) {
+          // Se o e-mail não exige confirmação (ou já gerou sessão ativa), vai direto pro callback
+          navigate('/auth/callback');
+        } else {
+          // Redirecionar para a tela de confirmação de e-mail
+          navigate('/confirmar-email');
+        }
       }
     } catch (err: any) {
       setError('Ocorreu um erro inesperado no cadastro.');
