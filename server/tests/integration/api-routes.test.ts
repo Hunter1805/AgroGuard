@@ -12,6 +12,7 @@ describe('Testes de Integração de Rotas API (Fase 15B)', () => {
     expect(response.statusCode).toBe(200);
     const body = JSON.parse(response.body);
     expect(body.status).toBe('ok');
+    await app.close();
   });
 
   it('deve retornar 404 padronizado para rota inexistente', async () => {
@@ -24,5 +25,6 @@ describe('Testes de Integração de Rotas API (Fase 15B)', () => {
     expect(response.statusCode).toBe(404);
     const body = JSON.parse(response.body);
     expect(body.error.code).toBe('NOT_FOUND');
+    await app.close();
   });
 });
