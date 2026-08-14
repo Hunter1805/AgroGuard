@@ -1,11 +1,12 @@
 import type { MaintenancePlan, MaintenancePlanFilterState } from '../types/maintenance-plan';
 import type { EquipmentMaintenancePlanLink } from '../types/maintenance-schedule';
+import { mockStorage } from './mock-storage';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Planos de Manutenção extraídos das abas: Tratores, Colhedoras, Implementos, Veículos
 // ─────────────────────────────────────────────────────────────────────────────
 
-const mockPlans: MaintenancePlan[] = [
+const defaultPlans: MaintenancePlan[] = [
   // ════════════════════════════════════════════════════════════════════════════
   // TRATOR LS U80 (ID 22) — Aba Tratores
   // ════════════════════════════════════════════════════════════════════════════
@@ -295,7 +296,7 @@ const mockPlans: MaintenancePlan[] = [
 ];
 
 // ─── Planos Mestre da Fase 5 (Versionamento e Regra Combinada) ───────────────
-let mockPlansV5: MaintenancePlan[] = [
+const defaultPlansV5: MaintenancePlan[] = [
   {
     id: 'PLN-V5-01',
     code: 'PLN-LS-80',
@@ -321,7 +322,7 @@ let mockPlansV5: MaintenancePlan[] = [
         readingInterval: 200,
         alertReadingBefore: 25,
         allowedReadingDelay: 10,
-        priority: 'alta',
+        priority: 'HIGH',
         estimatedDurationMinutes: 90,
         requiresEquipmentStop: true,
         requiresApproval: false,
@@ -330,7 +331,7 @@ let mockPlansV5: MaintenancePlan[] = [
             id: 'tsk-1',
             order: 1,
             title: 'Troca de Óleo do Motor',
-            criticality: 'alta',
+            criticality: 'HIGH',
             required: true,
             requirePhotoBefore: false,
             requirePhotoAfter: false,
@@ -354,7 +355,7 @@ let mockPlansV5: MaintenancePlan[] = [
         alertDaysBefore: 15,
         allowedReadingDelay: 20,
         allowedDaysDelay: 7,
-        priority: 'critica',
+        priority: 'CRITICAL',
         estimatedDurationMinutes: 300,
         requiresEquipmentStop: true,
         requiresApproval: true,
@@ -363,7 +364,7 @@ let mockPlansV5: MaintenancePlan[] = [
             id: 'tsk-2',
             order: 1,
             title: 'Substituição Completa dos Fluidos e Regulagem de Válvulas',
-            criticality: 'critica',
+            criticality: 'CRITICAL',
             required: true,
             requirePhotoBefore: false,
             requirePhotoAfter: true,
@@ -384,7 +385,7 @@ let mockPlansV5: MaintenancePlan[] = [
   {
     id: 'PLN-V5-02',
     code: 'PLN-MAS-265',
-    name: 'Plano Preventivo Massey 265 (Safra 26)',
+    name: 'Plano Preventive Massey 265 (Safra 26)',
     description: 'Manutenção periódica para linha Massey Ferguson.',
     applicableEquipmentTypeIds: ['Trator'],
     applicableBrandIds: ['Massey Ferguson'],
@@ -406,7 +407,7 @@ let mockPlansV5: MaintenancePlan[] = [
         readingInterval: 50,
         alertReadingBefore: 10,
         allowedReadingDelay: 5,
-        priority: 'media',
+        priority: 'NORMAL',
         estimatedDurationMinutes: 45,
         requiresEquipmentStop: false,
         requiresApproval: false,
@@ -415,7 +416,7 @@ let mockPlansV5: MaintenancePlan[] = [
             id: 'tsk-3',
             order: 1,
             title: 'Lubrificação Geral de Articulações e Bicos Graxeiros',
-            criticality: 'media',
+            criticality: 'NORMAL',
             required: true,
             requirePhotoBefore: false,
             requirePhotoAfter: false,
@@ -431,7 +432,7 @@ let mockPlansV5: MaintenancePlan[] = [
 ];
 
 // ─── Vínculos de Equipamentos aos Planos ─────────────────────────────────────
-let mockLinks: EquipmentMaintenancePlanLink[] = [
+const defaultLinks: EquipmentMaintenancePlanLink[] = [
   {
     id: 'LNK-01',
     equipmentId: 'EQ-022',
@@ -475,21 +476,25 @@ let mockLinks: EquipmentMaintenancePlanLink[] = [
 export const maintenancePlanService = {
   // ── Métodos Legados de Compatibilidade ──
   async getAll(): Promise<MaintenancePlan[]> {
-    return Promise.resolve([...mockPlans]);
+    const list = await mockStorage.get<MaintenancePlan>('maintenance_plans', defaultPlans);
+    return [...list];
   },
 
   async getByEquipmentId(equipmentId: string): Promise<MaintenancePlan | undefined> {
-    return Promise.resolve(mockPlans.find((p) => p.equipmentId === equipmentId));
+    const list = await mockStorage.get<MaintenancePlan>('maintenance_plans', defaultPlans);
+    return list.find((p) => p.equipmentId === equipmentId);
   },
 
   async getEquipmentsWithPlans(): Promise<string[]> {
-    return Promise.resolve(mockPlans.map((p) => p.equipmentId || ''));
+    const list = await mockStorage.get<MaintenancePlan>('maintenance_plans', defaultPlans);
+    return list.map((p) => p.equipmentId || '');
   },
 
   // ── Métodos Mestre da Fase 5 (Planos Preventivos e Versionamento) ──
   async getMaintenancePlans(filters?: Partial<MaintenancePlanFilterState>): Promise<MaintenancePlan[]> {
-    let result = [...mockPlansV5];
-    if (!filters) return Promise.resolve(result);
+    const list = await mockStorage.get<MaintenancePlan>('maintenance_plans_v5', defaultPlansV5);
+    let result = [...list];
+    if (!filters) return result;
 
     if (filters.search && filters.search.trim() !== '') {
       const q = filters.search.toLowerCase();
@@ -507,16 +512,18 @@ export const maintenancePlanService = {
     if (filters.status === 'inativo') result = result.filter((p) => !p.active && !p.archived);
     if (filters.status === 'arquivado') result = result.filter((p) => p.archived);
 
-    return Promise.resolve(result);
+    return result;
   },
 
   async getMaintenancePlanById(id: string): Promise<MaintenancePlan | undefined> {
-    const found = mockPlansV5.find((p) => p.id === id || p.code === id);
-    return Promise.resolve(found ? JSON.parse(JSON.stringify(found)) : undefined);
+    const list = await mockStorage.get<MaintenancePlan>('maintenance_plans_v5', defaultPlansV5);
+    const found = list.find((p) => p.id === id || p.code === id);
+    return found ? JSON.parse(JSON.stringify(found)) : undefined;
   },
 
   async createMaintenancePlan(data: Omit<MaintenancePlan, 'id' | 'createdAt' | 'updatedAt' | 'version'>): Promise<MaintenancePlan> {
-    const id = `PLN-V5-0${mockPlansV5.length + 1}`;
+    const list = await mockStorage.get<MaintenancePlan>('maintenance_plans_v5', defaultPlansV5);
+    const id = `PLN-V5-0${list.length + 1}`;
     const newPlan: MaintenancePlan = {
       ...data,
       id,
@@ -526,23 +533,26 @@ export const maintenancePlanService = {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
-    mockPlansV5.unshift(newPlan);
-    return Promise.resolve(newPlan);
+    list.unshift(newPlan);
+    await mockStorage.set('maintenance_plans_v5', list);
+    return newPlan;
   },
 
   async updateMaintenancePlan(id: string, updates: Partial<MaintenancePlan>): Promise<MaintenancePlan> {
-    const idx = mockPlansV5.findIndex((p) => p.id === id || p.code === id);
+    const list = await mockStorage.get<MaintenancePlan>('maintenance_plans_v5', defaultPlansV5);
+    const idx = list.findIndex((p) => p.id === id || p.code === id);
     if (idx === -1) throw new Error('Plano de manutenção não encontrado no banco do AgroGuard.');
 
-    // Verificar se já possui histórico no sistema. Se possui, sugerir versionamento!
-    mockPlansV5[idx] = { ...mockPlansV5[idx], ...updates, updatedAt: new Date().toISOString() };
-    return Promise.resolve(mockPlansV5[idx]);
+    list[idx] = { ...list[idx], ...updates, updatedAt: new Date().toISOString() };
+    await mockStorage.set('maintenance_plans_v5', list);
+    return list[idx];
   },
 
   async duplicateMaintenancePlan(id: string): Promise<MaintenancePlan> {
+    const list = await mockStorage.get<MaintenancePlan>('maintenance_plans_v5', defaultPlansV5);
     const existing = await this.getMaintenancePlanById(id);
     if (!existing) throw new Error('Plano original não encontrado para duplicação.');
-    const copyId = `PLN-V5-0${mockPlansV5.length + 1}`;
+    const copyId = `PLN-V5-0${list.length + 1}`;
     const duplicate: MaintenancePlan = {
       ...existing,
       id: copyId,
@@ -552,40 +562,46 @@ export const maintenancePlanService = {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
-    mockPlansV5.unshift(duplicate);
-    return Promise.resolve(duplicate);
+    list.unshift(duplicate);
+    await mockStorage.set('maintenance_plans_v5', list);
+    return duplicate;
   },
 
   async createMaintenancePlanVersion(id: string): Promise<MaintenancePlan> {
-    const existingIdx = mockPlansV5.findIndex((p) => p.id === id || p.code === id);
+    const list = await mockStorage.get<MaintenancePlan>('maintenance_plans_v5', defaultPlansV5);
+    const existingIdx = list.findIndex((p) => p.id === id || p.code === id);
     if (existingIdx === -1) throw new Error('Plano não localizado.');
 
-    const current = mockPlansV5[existingIdx];
-    // Congelar a versão anterior no histórico imutável (simulado por clonagem incrementada)
+    const current = list[existingIdx];
     const newVersionNum = (current.version || 1) + 1;
     const upgraded: MaintenancePlan = {
       ...JSON.parse(JSON.stringify(current)),
       version: newVersionNum,
       updatedAt: new Date().toISOString(),
     };
-    mockPlansV5[existingIdx] = upgraded;
+    list[existingIdx] = upgraded;
+    await mockStorage.set('maintenance_plans_v5', list);
 
     // Atualizar também vínculos ativos para esta nova versão
-    mockLinks.forEach((lnk) => {
+    const links = await mockStorage.get<EquipmentMaintenancePlanLink>('maintenance_plan_links', defaultLinks);
+    links.forEach((lnk) => {
       if (lnk.planId === current.id) lnk.planVersion = newVersionNum;
     });
+    await mockStorage.set('maintenance_plan_links', links);
 
-    return Promise.resolve(upgraded);
+    return upgraded;
   },
 
   // ── Gestão dos Vínculos Operacionais (Equipamentos) ──
   async getEquipmentPlanLinks(equipmentId?: string): Promise<EquipmentMaintenancePlanLink[]> {
-    if (!equipmentId) return Promise.resolve([...mockLinks]);
-    return Promise.resolve(mockLinks.filter((l) => l.equipmentId === equipmentId && l.active));
+    const links = await mockStorage.get<EquipmentMaintenancePlanLink>('maintenance_plan_links', defaultLinks);
+    if (!equipmentId) return [...links];
+    return links.filter((l) => l.equipmentId === equipmentId && l.active);
   },
 
   async linkPlanToEquipment(data: Omit<EquipmentMaintenancePlanLink, 'id' | 'createdAt' | 'updatedAt'>): Promise<EquipmentMaintenancePlanLink> {
-    const id = `LNK-0${mockLinks.length + 1}`;
+    const links = await mockStorage.get<EquipmentMaintenancePlanLink>('maintenance_plan_links', defaultLinks);
+    const id = `LNK-0${links.length + 1}`;
     const link: EquipmentMaintenancePlanLink = {
       ...data,
       id,
@@ -593,20 +609,23 @@ export const maintenancePlanService = {
       updatedAt: new Date().toISOString(),
     };
     // Desativar vínculos antigos do mesmo plano/equipamento se existirem
-    mockLinks.forEach((l) => {
+    links.forEach((l) => {
       if (l.equipmentId === data.equipmentId && l.planId === data.planId) l.active = false;
     });
-    mockLinks.unshift(link);
-    return Promise.resolve(link);
+    links.unshift(link);
+    await mockStorage.set('maintenance_plan_links', links);
+    return link;
   },
 
   async unlinkPlanFromEquipment(linkId: string): Promise<boolean> {
-    const idx = mockLinks.findIndex((l) => l.id === linkId);
+    const links = await mockStorage.get<EquipmentMaintenancePlanLink>('maintenance_plan_links', defaultLinks);
+    const idx = links.findIndex((l) => l.id === linkId);
     if (idx !== -1) {
-      mockLinks[idx].active = false;
-      return Promise.resolve(true);
+      links[idx].active = false;
+      await mockStorage.set('maintenance_plan_links', links);
+      return true;
     }
-    return Promise.resolve(false);
+    return false;
   },
 };
 

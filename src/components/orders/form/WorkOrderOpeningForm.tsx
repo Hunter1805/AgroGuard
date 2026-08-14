@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Save, ArrowLeft, PenTool, ShieldAlert } from 'lucide-react';
+import { Save, ArrowLeft, PenTool, ShieldAlert, Info } from 'lucide-react';
 import { Button } from '../../ui/Button';
 import { workOrderService } from '../../../services/work-order.service';
 import { ROUTES } from '../../../types/routes';
@@ -14,8 +14,10 @@ export const WorkOrderOpeningForm: React.FC = () => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    type: 'corretiva_nao_planejada',
-    priority: 'media',
+    nature: 'MAINTENANCE',
+    selectedType: 'CORRECTIVE_EMERGENCY', // tipo de manutenção visual unificado
+    trigger: 'MANUAL',
+    priority: 'NORMAL',
     impact: 'sem_impacto',
     equipmentCanOperate: true,
     requiresBlock: false
@@ -25,14 +27,45 @@ export const WorkOrderOpeningForm: React.FC = () => {
     e.preventDefault();
     try {
       setLoading(true);
+
+      // Desmembrar o tipo de manutenção operacional selecionado
+      let maintenanceType: string | null = null;
+      let correctiveMode: string | null = null;
+
+      if (formData.nature === 'MAINTENANCE') {
+        if (formData.selectedType === 'PREVENTIVE') {
+          maintenanceType = 'PREVENTIVE';
+        } else if (formData.selectedType === 'CORRECTIVE_PLANNED') {
+          maintenanceType = 'CORRECTIVE';
+          correctiveMode = 'PLANNED';
+        } else if (formData.selectedType === 'CORRECTIVE_EMERGENCY') {
+          maintenanceType = 'CORRECTIVE';
+          correctiveMode = 'EMERGENCY';
+        } else if (formData.selectedType === 'PREDICTIVE') {
+          maintenanceType = 'PREDICTIVE';
+        } else if (formData.selectedType === 'CONDITION_BASED') {
+          maintenanceType = 'CONDITION_BASED';
+        } else if (formData.selectedType === 'ROUTINE_INSPECTION') {
+          maintenanceType = 'ROUTINE_INSPECTION';
+        }
+      }
+
       const newOs = await workOrderService.createWorkOrder({
-        ...formData,
+        title: formData.title,
+        description: formData.description,
+        nature: formData.nature as any,
+        maintenanceType: maintenanceType as any,
+        correctiveMode: correctiveMode as any,
+        trigger: formData.trigger as any,
+        priority: formData.priority as any,
+        impact: formData.impact as any,
         equipmentId,
-        equipmentName: 'Trator JD 7J', // mock
-        origin: 'manual',
+        equipmentName: 'Equipamento Selecionado',
         openedAt: new Date().toISOString(),
         requesterId: 'u-1',
-        requesterName: 'Operador Atual'
+        requesterName: 'Operador Atual',
+        equipmentCanOperate: formData.equipmentCanOperate,
+        requiresBlock: formData.requiresBlock,
       } as any);
 
       navigate(ROUTES.ORDEM_DETALHE.replace(':orderId', newOs.id));
@@ -44,7 +77,7 @@ export const WorkOrderOpeningForm: React.FC = () => {
   };
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
+    <div className="max-w-3xl mx-auto space-y-6 text-sm">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Button variant="outline" size="sm" onClick={() => navigate(-1)}>
@@ -52,7 +85,7 @@ export const WorkOrderOpeningForm: React.FC = () => {
           </Button>
           <div>
             <h2 className="text-xl font-title-lg font-extrabold text-on-surface">Nova Ordem de Serviço</h2>
-            <p className="text-sm text-on-surface-variant">Abertura de requisição de manutenção</p>
+            <p className="text-sm text-on-surface-variant">Abertura de requisição de manutenção ou intervenção técnica</p>
           </div>
         </div>
       </div>
@@ -72,8 +105,8 @@ export const WorkOrderOpeningForm: React.FC = () => {
                 type="text"
                 value={formData.title}
                 onChange={e => setFormData({ ...formData, title: e.target.value })}
-                className="w-full px-4 py-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl outline-none focus:ring-2 focus:ring-[var(--color-brand)]/50 text-sm font-semibold text-[var(--color-text-primary)]"
-                placeholder="Ex: Troca de óleo, Falha no motor..."
+                className="w-full px-4 py-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl outline-none focus:ring-2 focus:ring-[var(--color-brand)]/50 font-semibold text-[var(--color-text-primary)]"
+                placeholder="Ex: Troca de óleo, Falha no motor, Vazamento hidráulico..."
               />
             </div>
             <div>
@@ -82,8 +115,8 @@ export const WorkOrderOpeningForm: React.FC = () => {
                 required
                 value={formData.description}
                 onChange={e => setFormData({ ...formData, description: e.target.value })}
-                className="w-full px-4 py-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl outline-none focus:ring-2 focus:ring-[var(--color-brand)]/50 text-sm h-24 resize-none text-[var(--color-text-primary)]"
-                placeholder="Descreva detalhadamente o sintoma ou o serviço a ser realizado..."
+                className="w-full px-4 py-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl outline-none focus:ring-2 focus:ring-[var(--color-brand)]/50 h-24 resize-none text-[var(--color-text-primary)]"
+                placeholder="Descreva detalhadamente o sintoma apresentado ou o escopo do serviço a ser realizado..."
               />
             </div>
           </div>
@@ -91,35 +124,98 @@ export const WorkOrderOpeningForm: React.FC = () => {
 
         <div className="space-y-4">
           <h3 className="font-title-md font-bold text-[var(--color-brand)] flex items-center gap-2 border-b border-[var(--color-border)] pb-2">
-            <ShieldAlert size={18} /> Classificação e Impacto
+            <ShieldAlert size={18} /> Classificação e Prioridade
           </h3>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-[var(--color-text-secondary)] mb-1 uppercase">Tipo de Manutenção</label>
+              <label className="block text-xs font-bold text-[var(--color-text-secondary)] mb-1 uppercase flex items-center gap-1">
+                Natureza da OS
+                <span className="tooltip-trigger" title="Classifica a natureza da intervenção técnica para diferenciar manutenção de outros serviços.">
+                  <Info size={12} className="text-on-surface-variant cursor-help" />
+                </span>
+              </label>
               <select 
-                value={formData.type}
-                onChange={e => setFormData({ ...formData, type: e.target.value })}
-                className="w-full px-4 py-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl outline-none text-sm font-semibold text-[var(--color-text-primary)]"
+                value={formData.nature}
+                onChange={e => setFormData({ ...formData, nature: e.target.value })}
+                className="w-full px-4 py-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl outline-none font-semibold text-[var(--color-text-primary)]"
               >
-                <option value="corretiva_nao_planejada">Corretiva Não Planejada (Quebra)</option>
-                <option value="corretiva_planejada">Corretiva Planejada</option>
-                <option value="preventiva">Preventiva</option>
-                <option value="inspecao">Inspeção</option>
-                <option value="emergencial">Emergencial (Risco de Segurança)</option>
+                <option value="MAINTENANCE">Manutenção</option>
+                <option value="INSPECTION">Inspeção</option>
+                <option value="DIAGNOSIS">Diagnóstico</option>
+                <option value="INSTALLATION">Instalação</option>
+                <option value="IMPROVEMENT">Melhoria</option>
+                <option value="CAMPAIGN_RECALL">Campanha / Recall</option>
               </select>
             </div>
+
+            {formData.nature === 'MAINTENANCE' && (
+              <div>
+                <label className="block text-xs font-bold text-[var(--color-text-secondary)] mb-1 uppercase flex items-center gap-1">
+                  Tipo de Manutenção
+                  <span className="tooltip-trigger" title="Indica a estratégia da atividade de manutenção.">
+                    <Info size={12} className="text-on-surface-variant cursor-help" />
+                  </span>
+                </label>
+                <select 
+                  value={formData.selectedType}
+                  onChange={e => setFormData({ ...formData, selectedType: e.target.value })}
+                  className="w-full px-4 py-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl outline-none font-semibold text-[var(--color-text-primary)]"
+                >
+                  <option value="PREVENTIVE">Preventiva</option>
+                  <option value="CORRECTIVE_PLANNED">Corretiva Planejada</option>
+                  <option value="CORRECTIVE_EMERGENCY">Corretiva Emergencial</option>
+                  <option value="PREDICTIVE">Preditiva</option>
+                  <option value="CONDITION_BASED">Baseada em Condição</option>
+                  <option value="ROUTINE_INSPECTION">Inspeção / Rotina</option>
+                </select>
+              </div>
+            )}
+
             <div>
-              <label className="block text-xs font-bold text-[var(--color-text-secondary)] mb-1 uppercase">Prioridade</label>
+              <label className="block text-xs font-bold text-[var(--color-text-secondary)] mb-1 uppercase flex items-center gap-1">
+                Gatilho / Origem
+                <span className="tooltip-trigger" title="O fato gerador que disparou a abertura desta Ordem de Serviço.">
+                  <Info size={12} className="text-on-surface-variant cursor-help" />
+                </span>
+              </label>
+              <select 
+                value={formData.trigger}
+                onChange={e => setFormData({ ...formData, trigger: e.target.value })}
+                className="w-full px-4 py-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl outline-none font-semibold text-[var(--color-text-primary)]"
+              >
+                <option value="MANUAL">Ordem Manual</option>
+                <option value="SCHEDULE">Plano Preventivo</option>
+                <option value="CALENDAR">Calendário</option>
+                <option value="HOUR_METER">Horímetro</option>
+                <option value="ODOMETER">Odômetro</option>
+                <option value="CYCLE">Ciclos</option>
+                <option value="CHECKLIST">Checklist</option>
+                <option value="INSPECTION">Inspeção</option>
+                <option value="FAILURE">Falha Reportada</option>
+                <option value="SENSOR">Sensor / Telemetria</option>
+                <option value="ALERT">Alerta</option>
+                <option value="OPERATOR_REPORT">Solicitação do Operador</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-[var(--color-text-secondary)] mb-1 uppercase flex items-center gap-1">
+                Prioridade da OS
+                <span className="tooltip-trigger" title="Classificação da gravidade e impacto operacional do serviço.">
+                  <Info size={12} className="text-on-surface-variant cursor-help" />
+                </span>
+              </label>
               <select 
                 value={formData.priority}
                 onChange={e => setFormData({ ...formData, priority: e.target.value })}
-                className="w-full px-4 py-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl outline-none text-sm font-semibold text-[var(--color-text-primary)]"
+                className="w-full px-4 py-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl outline-none font-semibold text-[var(--color-text-primary)]"
               >
-                <option value="baixa">Baixa</option>
-                <option value="media">Média</option>
-                <option value="alta">Alta</option>
-                <option value="critica">Crítica</option>
+                <option value="LOW">Baixa</option>
+                <option value="NORMAL">Normal</option>
+                <option value="HIGH">Alta</option>
+                <option value="URGENT">Urgente</option>
+                <option value="CRITICAL">Crítica</option>
               </select>
             </div>
           </div>
@@ -132,7 +228,7 @@ export const WorkOrderOpeningForm: React.FC = () => {
                 onChange={e => setFormData({ ...formData, requiresBlock: e.target.checked, equipmentCanOperate: !e.target.checked })}
                 className="w-4 h-4 rounded text-amber-600 focus:ring-amber-500"
               />
-              Bloquear equipamento (Impede operação até a liberação)
+              Bloquear equipamento (Indisponibiliza o ativo para a operação até liberação)
             </label>
           </div>
         </div>

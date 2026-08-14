@@ -23,24 +23,44 @@ export const reportIndicatorsService = {
     const stoppedEquipments = equipmentsList.filter((e: any) => e.status === 'manutencao' || e.status === 'parado' || e.status === 'bloqueado').length;
 
     // Horas totais e de parada
-    const totalOperatingHours = equipmentsList.reduce((acc: number, e: any) => acc + (e.currentReading || 0), 0);
+    const totalOperatingHours = equipmentsList.reduce((acc: number, e: any) => acc + (e.currentHours || e.currentReading || 0), 0);
     const totalParadaHours = stoppedEquipments * 72; // média de horas de parada estimadas
 
     // Ordens de Serviço concluídas e falhas
-    const completedOrders = ordersList.filter((o: any) => o.status === 'concluida' || o.status === 'encerrada');
+    const completedOrders = ordersList.filter((o: any) => o.status === 'concluida' || o.status === 'encerrada' || o.status === 'finalizada');
     const completedRepairsCount = completedOrders.length;
+
+    // Helper para obter o tipo operacional unificado (6 opções)
+    const getOperationalType = (o: any): string => {
+      if (o.nature === 'INSPECTION' || o.type === 'inspecao') return 'ROUTINE_INSPECTION';
+      if (o.nature && o.nature !== 'MAINTENANCE') return o.nature; // ex: DIAGNOSIS, etc.
+      
+      const mType = o.maintenanceType || (o.type === 'preventiva' ? 'PREVENTIVE' : (o.type === 'preditiva' ? 'PREDICTIVE' : 'CORRECTIVE'));
+      if (mType === 'PREVENTIVE') return 'PREVENTIVE';
+      if (mType === 'CORRECTIVE') {
+        const mode = o.correctiveMode || ((o.type === 'corretiva_nao_planejada' || o.type === 'emergencial') ? 'EMERGENCY' : 'PLANNED');
+        return mode === 'EMERGENCY' ? 'CORRECTIVE_EMERGENCY' : 'CORRECTIVE_PLANNED';
+      }
+      if (mType === 'PREDICTIVE') return 'PREDICTIVE';
+      if (mType === 'CONDITION_BASED') return 'CONDITION_BASED';
+      if (mType === 'ROUTINE_INSPECTION') return 'ROUTINE_INSPECTION';
+      return 'PREVENTIVE';
+    };
 
     // Tempo efetivo total de reparo em horas (soma das horas reais da OS)
     const totalRepairHours = completedOrders.reduce((acc: number, o: any) => {
-      if (o.completedAt && o.startedAt) {
-        const diffMs = new Date(o.completedAt).getTime() - new Date(o.startedAt).getTime();
+      if (o.closedAt && o.openedAt) {
+        const diffMs = new Date(o.closedAt).getTime() - new Date(o.openedAt).getTime();
         return acc + Math.max(1, diffMs / (1000 * 60 * 60));
       }
-      return acc + (o.estimatedHours || 4);
+      return acc + 4; // fallback estimativa padrão
     }, 0);
 
-    // Quantidade total de falhas corretivas
-    const correctiveOrders = ordersList.filter((o: any) => o.type === 'corretiva');
+    // Quantidade total de falhas corretivas (emergenciais + planejadas)
+    const correctiveOrders = ordersList.filter((o: any) => {
+      const type = getOperationalType(o);
+      return type === 'CORRECTIVE_PLANNED' || type === 'CORRECTIVE_EMERGENCY';
+    });
     const totalFailuresCount = correctiveOrders.length;
 
     // 1. Disponibilidade (%) = (Tempo Disponível / Tempo Total Previsto) * 100
@@ -57,8 +77,8 @@ export const reportIndicatorsService = {
     const mtbfInsufficient = totalFailuresCount <= 0;
 
     // 4. Cumprimento Preventivo (%) = Preventivas no prazo / Total preventivas previstas * 100
-    const preventiveOrders = ordersList.filter((o: any) => o.type === 'preventiva');
-    const preventiveOnTime = preventiveOrders.filter((o: any) => o.status === 'concluida' || o.status === 'encerrada').length;
+    const preventiveOrders = ordersList.filter((o: any) => getOperationalType(o) === 'PREVENTIVE');
+    const preventiveOnTime = preventiveOrders.filter((o: any) => o.status === 'concluida' || o.status === 'encerrada' || o.status === 'finalizada').length;
     const preventiveComplianceVal = preventiveOrders.length > 0 ? (preventiveOnTime / preventiveOrders.length) * 100 : 0;
     const preventiveComplianceInsufficient = preventiveOrders.length <= 0;
 
@@ -72,6 +92,41 @@ export const reportIndicatorsService = {
     // 6. Taxa de Utilização (%) = Tempo utilizado / Tempo disponível * 100
     const utilizationRateVal = operatingEquipments > 0 ? (operatingEquipments / Math.max(1, totalEquipments)) * 100 : 0;
     const utilizationRateInsufficient = totalEquipments <= 0;
+
+    // Cálculos detalhados da nova taxonomia
+    const distributionByType: Record<string, number> = {};
+    const costByType: Record<string, number> = {};
+    const downtimeByType: Record<string, number> = {};
+    const mttrByType: Record<string, number> = {};
+    const repairHoursByType: Record<string, number> = {};
+    const completedCountByType: Record<string, number> = {};
+
+    ordersList.forEach((o: any) => {
+      const type = getOperationalType(o);
+      distributionByType[type] = (distributionByType[type] || 0) + 1;
+      
+      const cost = typeof o.totalCost === 'number' ? o.totalCost : (parseFloat(o.costEstimate?.replace(/[^\d,-]/g, '').replace(',', '.')) || 0);
+      costByType[type] = (costByType[type] || 0) + cost;
+
+      const downtime = o.totalDowntimeHours || (o.requiresBlock ? 48 : 0);
+      downtimeByType[type] = (downtimeByType[type] || 0) + downtime;
+
+      if (o.status === 'concluida' || o.status === 'encerrada' || o.status === 'finalizada') {
+        let repairHours = 4;
+        if (o.closedAt && o.openedAt) {
+          repairHours = Math.max(1, (new Date(o.closedAt).getTime() - new Date(o.openedAt).getTime()) / (1000 * 60 * 60));
+        }
+        repairHoursByType[type] = (repairHoursByType[type] || 0) + repairHours;
+        completedCountByType[type] = (completedCountByType[type] || 0) + 1;
+      }
+    });
+
+    Object.keys(completedCountByType).forEach(type => {
+      mttrByType[type] = Number((repairHoursByType[type] / completedCountByType[type]).toFixed(1));
+    });
+
+    const totalCorrectives = (distributionByType['CORRECTIVE_PLANNED'] || 0) + (distributionByType['CORRECTIVE_EMERGENCY'] || 0);
+    const emergencyVal = totalCorrectives > 0 ? ((distributionByType['CORRECTIVE_EMERGENCY'] || 0) / totalCorrectives) * 100 : 0;
 
     return {
       availability: {
@@ -134,6 +189,17 @@ export const reportIndicatorsService = {
       totalParadaHours,
       completedRepairsCount,
       totalFailuresCount,
+      
+      emergencyCorrectivePercent: {
+        value: Number(emergencyVal.toFixed(1)),
+        unit: '%',
+        formattedValue: totalCorrectives <= 0 ? 'Sem corretivas' : `${emergencyVal.toFixed(1)}%`,
+        insufficientData: totalCorrectives <= 0,
+      },
+      distributionByType,
+      costByType,
+      downtimeByType,
+      mttrByType,
     };
   },
 };

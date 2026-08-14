@@ -1,4 +1,3 @@
-import type { MaintenancePriority } from './maintenance';
 
 export type WorkOrderStatus =
   | 'rascunho'
@@ -19,24 +18,38 @@ export type WorkOrderStatus =
   | 'encerrada'
   | 'cancelada';
 
-export type WorkOrderOrigin =
-  | 'manual'
-  | 'checklist'
-  | 'nao_conformidade'
-  | 'manutencao_preventiva'
-  | 'alerta'
-  | 'falha'
-  | 'inspecao_pneu'
-  | 'solicitacao_operador';
+export type WorkOrderPriority = 'LOW' | 'NORMAL' | 'HIGH' | 'URGENT' | 'CRITICAL';
 
-export type WorkOrderType =
-  | 'preventiva'
-  | 'corretiva_planejada'
-  | 'corretiva_nao_planejada'
-  | 'preditiva'
-  | 'inspecao'
-  | 'melhoria'
-  | 'emergencial';
+export type WorkOrderNature =
+  | 'MAINTENANCE'
+  | 'INSPECTION'
+  | 'DIAGNOSIS'
+  | 'INSTALLATION'
+  | 'IMPROVEMENT'
+  | 'CAMPAIGN_RECALL';
+
+export type WorkOrderMaintenanceType =
+  | 'PREVENTIVE'
+  | 'CORRECTIVE'
+  | 'PREDICTIVE'
+  | 'CONDITION_BASED'
+  | 'ROUTINE_INSPECTION';
+
+export type WorkOrderCorrectiveMode = 'PLANNED' | 'EMERGENCY';
+
+export type WorkOrderTrigger =
+  | 'SCHEDULE'
+  | 'CALENDAR'
+  | 'HOUR_METER'
+  | 'ODOMETER'
+  | 'CYCLE'
+  | 'CHECKLIST'
+  | 'INSPECTION'
+  | 'FAILURE'
+  | 'SENSOR'
+  | 'ALERT'
+  | 'OPERATOR_REPORT'
+  | 'MANUAL';
 
 export type OperationalImpact =
   | 'sem_impacto'
@@ -61,9 +74,11 @@ export interface WorkOrder {
   id: string;
   code: string;
   status: WorkOrderStatus;
-  origin: WorkOrderOrigin;
-  type: WorkOrderType;
-  priority: MaintenancePriority | 'baixa' | 'media' | 'alta' | 'critica';
+  nature: WorkOrderNature;
+  maintenanceType: WorkOrderMaintenanceType | null;
+  correctiveMode: WorkOrderCorrectiveMode | null;
+  trigger: WorkOrderTrigger;
+  priority: WorkOrderPriority;
   impact: OperationalImpact;
 
   // Abertura / Referências

@@ -23,7 +23,7 @@ const DEFAULT_PLAN: Omit<MaintenancePlan, 'id' | 'createdAt' | 'updatedAt' | 've
       readingInterval: 250,
       alertReadingBefore: 25,
       allowedReadingDelay: 10,
-      priority: 'alta',
+      priority: 'HIGH',
       estimatedDurationMinutes: 120,
       requiresEquipmentStop: true,
       requiresApproval: false,

@@ -21,20 +21,24 @@ model Organization {
   archivedAt DateTime? @db.Timestamptz(3)
   deletedAt  DateTime? @db.Timestamptz(3)
 
-  companies        Company[]
-  units            Unit[]
-  farms            Farm[]
-  equipments       Equipment[]
-  workOrders       WorkOrder[]
-  stockItems       StockItem[]
-  tires            Tire[]
-  tools            Tool[]
-  auditLogs        AuditLog[]
-  legacyMaps       LegacyIdMap[]
-  memberships      OrganizationMembership[]
-  settings         OrganizationSetting?
-  onboardingState  OnboardingState?
-  invitations      UserInvitation[]
+  companies       Company[]
+  units           Unit[]
+  farms           Farm[]
+  equipments      Equipment[]
+  workOrders      WorkOrder[]
+  stockItems      StockItem[]
+  tires           Tire[]
+  tools           Tool[]
+  auditLogs       AuditLog[]
+  legacyMaps      LegacyIdMap[]
+  memberships     OrganizationMembership[]
+  settings        OrganizationSetting?
+  onboardingState OnboardingState?
+  invitations     UserInvitation[]
+
+  maintenancePlans          MaintenancePlan[]
+  maintenancePlanEquipments MaintenancePlanEquipment[]
+  maintenanceSchedules      MaintenanceSchedule[]
 
   @@map("organizations")
 }
@@ -157,7 +161,9 @@ model Workshop {
   createdAt DateTime @default(now()) @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @db.Timestamptz(3)
 
-  workOrders WorkOrder[]
+  workOrders                WorkOrder[]
+  maintenancePlanEquipments MaintenancePlanEquipment[]
+  maintenanceSchedules      MaintenanceSchedule[]
 
   @@map("workshops")
 }
@@ -183,6 +189,8 @@ model Team {
   status    String   @default("ativo")
   createdAt DateTime @default(now()) @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  maintenanceSchedules MaintenanceSchedule[]
 
   @@map("teams")
 }
@@ -330,6 +338,10 @@ model User {
   memberships      OrganizationMembership[]
   preferences      UserPreference?
 
+  maintenancePlansCreated              MaintenancePlan[]          @relation("MaintenancePlanCreator")
+  maintenancePlanEquipmentsResponsible MaintenancePlanEquipment[]
+  maintenanceSchedulesResponsible      MaintenanceSchedule[]
+
   @@map("users")
 }
 
@@ -389,10 +401,12 @@ model Equipment {
   equipmentType EquipmentType @relation(fields: [equipmentTypeId], references: [id], onDelete: Restrict)
   model         Model         @relation(fields: [modelId], references: [id], onDelete: Restrict)
 
-  meters        EquipmentMeter[]
-  meterReadings MeterReading[]
-  workOrders    WorkOrder[]
-  tirePositions TirePosition[]
+  meters               EquipmentMeter[]
+  meterReadings        MeterReading[]
+  workOrders           WorkOrder[]
+  tirePositions        TirePosition[]
+  maintenancePlans     MaintenancePlanEquipment[]
+  maintenanceSchedules MaintenanceSchedule[]
 
   @@unique([organizationId, code])
   @@map("equipments")
@@ -435,22 +449,25 @@ model MeterReading {
 // ==========================================
 
 model WorkOrder {
-  id             String    @id @default(uuid()) @db.Uuid
-  organizationId String    @db.Uuid
-  workshopId     String?   @db.Uuid
-  equipmentId    String    @db.Uuid
-  openedByUserId String?   @db.Uuid
-  code           String
-  type           String    @default("corretiva")
-  priority       String    @default("media")
-  status         String    @default("aberta")
-  description    String
-  totalCost      Decimal   @default(0) @db.Decimal(14, 2)
-  version        Int       @default(1)
-  openedAt       DateTime  @default(now()) @db.Timestamptz(3)
-  closedAt       DateTime? @db.Timestamptz(3)
-  createdAt      DateTime  @default(now()) @db.Timestamptz(3)
-  updatedAt      DateTime  @updatedAt @db.Timestamptz(3)
+  id              String    @id @default(uuid()) @db.Uuid
+  organizationId  String    @db.Uuid
+  workshopId      String?   @db.Uuid
+  equipmentId     String    @db.Uuid
+  openedByUserId  String?   @db.Uuid
+  code            String
+  nature          String    @default("MAINTENANCE")
+  maintenanceType String?
+  correctiveMode  String?
+  trigger         String    @default("MANUAL")
+  priority        String    @default("NORMAL")
+  status          String    @default("aberta")
+  description     String
+  totalCost       Decimal   @default(0) @db.Decimal(14, 2)
+  version         Int       @default(1)
+  openedAt        DateTime  @default(now()) @db.Timestamptz(3)
+  closedAt        DateTime? @db.Timestamptz(3)
+  createdAt       DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt       DateTime  @updatedAt @db.Timestamptz(3)
 
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
   workshop     Workshop?    @relation(fields: [workshopId], references: [id], onDelete: SetNull)
@@ -458,6 +475,7 @@ model WorkOrder {
   openedByUser User?        @relation("WorkOrderOpener", fields: [openedByUserId], references: [id], onDelete: SetNull)
 
   stockMovements StockMovement[]
+  schedules      MaintenanceSchedule[]
 
   @@unique([organizationId, code])
   @@map("work_orders")
@@ -634,35 +652,35 @@ model LegacyIdMap {
 // ==========================================
 
 model OrganizationMembership {
-  id             String             @id @default(uuid()) @db.Uuid
-  organizationId String             @db.Uuid
-  userId         String             @db.Uuid
-  role           String             @default("membro") // proprietario, administrador, tecnico, operador
-  status         String             @default("ativo")  // ativo, pendente, inativo, bloqueado
-  createdAt      DateTime           @default(now()) @db.Timestamptz(3)
-  updatedAt      DateTime           @updatedAt @db.Timestamptz(3)
+  id             String   @id @default(uuid()) @db.Uuid
+  organizationId String   @db.Uuid
+  userId         String   @db.Uuid
+  role           String   @default("membro") // proprietario, administrador, tecnico, operador
+  status         String   @default("ativo") // ativo, pendente, inativo, bloqueado
+  createdAt      DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt      DateTime @updatedAt @db.Timestamptz(3)
 
-  organization   Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  user           User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  scope          OrganizationScope?
+  organization Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  scope        OrganizationScope?
 
   @@unique([organizationId, userId])
   @@map("organization_memberships")
 }
 
 model OrganizationScope {
-  id           String                 @id @default(uuid()) @db.Uuid
-  membershipId String                 @unique @db.Uuid
-  allCompanies Boolean                @default(true)
-  allUnits     Boolean                @default(true)
-  allFarms     Boolean                @default(true)
-  companyIds   Json?                  // Array de UUIDs de empresas permitidas ex: ["uuid-1"]
-  unitIds      Json?                  // Array de UUIDs de unidades permitidas
-  farmIds      Json?                  // Array de UUIDs de fazendas permitidas
-  createdAt    DateTime               @default(now()) @db.Timestamptz(3)
-  updatedAt    DateTime               @updatedAt @db.Timestamptz(3)
+  id           String   @id @default(uuid()) @db.Uuid
+  membershipId String   @unique @db.Uuid
+  allCompanies Boolean  @default(true)
+  allUnits     Boolean  @default(true)
+  allFarms     Boolean  @default(true)
+  companyIds   Json? // Array de UUIDs de empresas permitidas ex: ["uuid-1"]
+  unitIds      Json? // Array de UUIDs de unidades permitidas
+  farmIds      Json? // Array de UUIDs de fazendas permitidas
+  createdAt    DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime @updatedAt @db.Timestamptz(3)
 
-  membership   OrganizationMembership @relation(fields: [membershipId], references: [id], onDelete: Cascade)
+  membership OrganizationMembership @relation(fields: [membershipId], references: [id], onDelete: Cascade)
 
   @@map("organization_scopes")
 }
@@ -675,11 +693,11 @@ model UserPreference {
   tableDensity  String   @default("comfortable")
   dateFormat    String   @default("dd/MM/yyyy")
   timeFormat    String   @default("24h")
-  notifications Json     // Estrutura de flags de notificação
+  notifications Json // Estrutura de flags de notificação
   createdAt     DateTime @default(now()) @db.Timestamptz(3)
   updatedAt     DateTime @updatedAt @db.Timestamptz(3)
 
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("user_preferences")
 }
@@ -690,11 +708,11 @@ model OrganizationSetting {
   timezone       String   @default("America/Sao_Paulo")
   language       String   @default("pt-BR")
   currency       String   @default("BRL")
-  features       Json?    // Flags de features habilitadas
+  features       Json? // Flags de features habilitadas
   createdAt      DateTime @default(now()) @db.Timestamptz(3)
   updatedAt      DateTime @updatedAt @db.Timestamptz(3)
 
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@map("organization_settings")
 }
@@ -703,12 +721,12 @@ model OnboardingState {
   id             String   @id @default(uuid()) @db.Uuid
   organizationId String   @unique @db.Uuid
   currentStep    Int      @default(0) // 0 de 4 etapas
-  stepsCompleted Json     // Objeto indicando status, ex: {"step1": false, "step2": false, "step3": false, "step4": false}
+  stepsCompleted Json // Objeto indicando status, ex: {"step1": false, "step2": false, "step3": false, "step4": false}
   completed      Boolean  @default(false)
   createdAt      DateTime @default(now()) @db.Timestamptz(3)
   updatedAt      DateTime @updatedAt @db.Timestamptz(3)
 
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@map("onboarding_states")
 }
@@ -718,15 +736,181 @@ model UserInvitation {
   organizationId String   @db.Uuid
   email          String
   role           String   @default("tecnico")
-  scope          Json     // Escopo organizacional a ser associado
+  scope          Json // Escopo organizacional a ser associado
   token          String   @unique
   status         String   @default("pendente") // pendente, aceito, expirado, cancelado
   expiresAt      DateTime @db.Timestamptz(3)
   createdAt      DateTime @default(now()) @db.Timestamptz(3)
   updatedAt      DateTime @updatedAt @db.Timestamptz(3)
 
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@map("user_invitations")
 }
 
+// ==========================================
+// 11. SISTEMA DE MANUTENÇÃO (PLANOS E AGENDA)
+// ==========================================
+
+enum MaintenanceScheduleStatus {
+  SCHEDULED
+  DUE
+  OVERDUE
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum MaintenanceType {
+  PREVENTIVE
+  CORRECTIVE
+  PREDICTIVE
+  CONDITION_BASED
+  ROUTINE_INSPECTION
+}
+
+enum MaintenanceTrigger {
+  SCHEDULE
+  CALENDAR
+  HOUR_METER
+  ODOMETER
+  CYCLE
+  CHECKLIST
+  INSPECTION
+  FAILURE
+  SENSOR
+  ALERT
+  OPERATOR_REPORT
+  MANUAL
+}
+
+model MaintenancePlan {
+  id              String   @id @default(uuid()) @db.Uuid
+  organizationId  String   @db.Uuid
+  code            String?
+  name            String
+  description     String?
+  version         Int      @default(1)
+  active          Boolean  @default(true)
+  archived        Boolean  @default(false)
+  createdByUserId String?  @db.Uuid
+  createdAt       DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt       DateTime @updatedAt @db.Timestamptz(3)
+
+  organization  Organization               @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  createdByUser User?                      @relation("MaintenancePlanCreator", fields: [createdByUserId], references: [id], onDelete: SetNull)
+  intervals     MaintenancePlanInterval[]
+  equipments    MaintenancePlanEquipment[]
+  schedules     MaintenanceSchedule[]
+
+  @@unique([organizationId, code])
+  @@index([organizationId])
+  @@map("maintenance_plans")
+}
+
+model MaintenancePlanInterval {
+  id                       String             @id @default(uuid()) @db.Uuid
+  maintenancePlanId        String             @db.Uuid
+  name                     String
+  description              String?
+  triggerType              MaintenanceTrigger
+  rule                     String?
+  meterType                String?
+  readingInterval          Decimal?           @db.Decimal(16, 3)
+  timeInterval             Int?
+  timeUnit                 String?
+  alertReadingBefore       Decimal?           @db.Decimal(16, 3)
+  alertDaysBefore          Int?
+  allowedReadingDelay      Decimal?           @db.Decimal(16, 3)
+  allowedDaysDelay         Int?
+  priority                 String             @default("NORMAL")
+  estimatedDurationMinutes Int?
+  requiresEquipmentStop    Boolean            @default(false)
+  requiresApproval         Boolean            @default(false)
+  tasks                    Json?
+
+  plan      MaintenancePlan       @relation(fields: [maintenancePlanId], references: [id], onDelete: Cascade)
+  schedules MaintenanceSchedule[]
+
+  @@index([maintenancePlanId])
+  @@map("maintenance_plan_intervals")
+}
+
+model MaintenancePlanEquipment {
+  id                          String    @id @default(uuid()) @db.Uuid
+  organizationId              String    @db.Uuid
+  equipmentId                 String    @db.Uuid
+  maintenancePlanId           String    @db.Uuid
+  startDate                   DateTime  @db.Timestamptz(3)
+  baseReading                 Decimal?  @db.Decimal(16, 3)
+  baseDate                    DateTime? @db.Timestamptz(3)
+  lastKnownMaintenanceDate    DateTime? @db.Timestamptz(3)
+  lastKnownMaintenanceReading Decimal?  @db.Decimal(16, 3)
+  active                      Boolean   @default(true)
+  maintenanceResponsibleId    String?   @db.Uuid
+  workshopId                  String?   @db.Uuid
+  observations                String?
+  createdAt                   DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt                   DateTime  @updatedAt @db.Timestamptz(3)
+
+  organization           Organization    @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  equipment              Equipment       @relation(fields: [equipmentId], references: [id], onDelete: Cascade)
+  maintenancePlan        MaintenancePlan @relation(fields: [maintenancePlanId], references: [id], onDelete: Cascade)
+  maintenanceResponsible User?           @relation(fields: [maintenanceResponsibleId], references: [id], onDelete: SetNull)
+  workshop               Workshop?       @relation(fields: [workshopId], references: [id], onDelete: SetNull)
+
+  @@unique([equipmentId, maintenancePlanId])
+  @@index([organizationId])
+  @@index([equipmentId])
+  @@index([maintenancePlanId])
+  @@map("maintenance_plan_equipments")
+}
+
+model MaintenanceSchedule {
+  id                        String                    @id @default(uuid()) @db.Uuid
+  code                      String
+  organizationId            String                    @db.Uuid
+  equipmentId               String                    @db.Uuid
+  maintenancePlanId         String?                   @db.Uuid
+  maintenancePlanIntervalId String?                   @db.Uuid
+  scheduledDate             DateTime                  @db.Timestamptz(3)
+  dueReading                Decimal?                  @db.Decimal(16, 3)
+  meterType                 String?
+  currentReading            Decimal?                  @db.Decimal(16, 3)
+  priority                  String                    @default("NORMAL")
+  status                    MaintenanceScheduleStatus
+  responsibleId             String?                   @db.Uuid
+  teamId                    String?                   @db.Uuid
+  workshopId                String?                   @db.Uuid
+  estimatedDurationMinutes  Int                       @default(0)
+  requiresEquipmentStop     Boolean                   @default(false)
+  observations              String?
+  rescheduleReason          String?
+  canceledReason            String?
+  workOrderId               String?                   @db.Uuid
+  createdAt                 DateTime                  @default(now()) @db.Timestamptz(3)
+  updatedAt                 DateTime                  @updatedAt @db.Timestamptz(3)
+  completedAt               DateTime?                 @db.Timestamptz(3)
+  triggerType               MaintenanceTrigger?
+  maintenanceType           MaintenanceType?
+  tasks                     Json?
+  parts                     Json?
+  supplies                  Json?
+  tools                     Json?
+
+  organization            Organization             @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  equipment               Equipment                @relation(fields: [equipmentId], references: [id], onDelete: Restrict)
+  maintenancePlan         MaintenancePlan?         @relation(fields: [maintenancePlanId], references: [id], onDelete: SetNull)
+  maintenancePlanInterval MaintenancePlanInterval? @relation(fields: [maintenancePlanIntervalId], references: [id], onDelete: SetNull)
+  responsible             User?                    @relation(fields: [responsibleId], references: [id], onDelete: SetNull)
+  team                    Team?                    @relation(fields: [teamId], references: [id], onDelete: SetNull)
+  workshop                Workshop?                @relation(fields: [workshopId], references: [id], onDelete: SetNull)
+  workOrder               WorkOrder?               @relation(fields: [workOrderId], references: [id], onDelete: SetNull)
+
+  @@unique([organizationId, code])
+  @@index([organizationId])
+  @@index([equipmentId])
+  @@index([scheduledDate])
+  @@index([status])
+  @@map("maintenance_schedules")
+}

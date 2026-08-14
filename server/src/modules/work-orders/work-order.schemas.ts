@@ -3,8 +3,24 @@ import { z } from 'zod';
 export const createWorkOrderSchema = z.object({
   equipmentId: z.string().uuid(),
   workshopId: z.string().uuid().optional(),
-  type: z.enum(['preventiva', 'corretiva', 'inspecao', 'preditiva']).default('corretiva'),
-  priority: z.enum(['baixa', 'media', 'alta', 'critica']).default('media'),
+  nature: z.enum(['MAINTENANCE', 'INSPECTION', 'DIAGNOSIS', 'INSTALLATION', 'IMPROVEMENT', 'CAMPAIGN_RECALL']).default('MAINTENANCE'),
+  maintenanceType: z.enum(['PREVENTIVE', 'CORRECTIVE', 'PREDICTIVE', 'CONDITION_BASED', 'ROUTINE_INSPECTION']).optional().nullable(),
+  correctiveMode: z.enum(['PLANNED', 'EMERGENCY']).optional().nullable(),
+  trigger: z.enum([
+    'SCHEDULE',
+    'CALENDAR',
+    'HOUR_METER',
+    'ODOMETER',
+    'CYCLE',
+    'CHECKLIST',
+    'INSPECTION',
+    'FAILURE',
+    'SENSOR',
+    'ALERT',
+    'OPERATOR_REPORT',
+    'MANUAL',
+  ]).default('MANUAL'),
+  priority: z.enum(['LOW', 'NORMAL', 'HIGH', 'URGENT', 'CRITICAL']).default('NORMAL'),
   description: z.string().min(5).max(500),
 });
 

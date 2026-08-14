@@ -23,10 +23,22 @@ export const WorkOrderFilters: React.FC = () => {
       </select>
 
       <select className="px-3 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl text-sm outline-none">
+        <option value="">Natureza: Todas</option>
+        <option value="MAINTENANCE">Manutenção</option>
+        <option value="INSPECTION">Inspeção</option>
+        <option value="DIAGNOSIS">Diagnóstico</option>
+        <option value="INSTALLATION">Instalação</option>
+        <option value="IMPROVEMENT">Melhoria</option>
+        <option value="CAMPAIGN_RECALL">Campanha / Recall</option>
+      </select>
+
+      <select className="px-3 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl text-sm outline-none">
         <option value="">Prioridade: Todas</option>
-        <option value="critica">Crítica</option>
-        <option value="alta">Alta</option>
-        <option value="media">Média</option>
+        <option value="CRITICAL">Crítica</option>
+        <option value="URGENT">Urgente</option>
+        <option value="HIGH">Alta</option>
+        <option value="NORMAL">Normal</option>
+        <option value="LOW">Baixa</option>
       </select>
       
       <Button variant="outline" size="sm" className="flex items-center gap-2">

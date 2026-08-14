@@ -1,6 +1,7 @@
 import type { SupplierMaster } from '../types/material-master-data';
+import { mockStorage } from './mock-storage';
 
-let mockSuppliers: SupplierMaster[] = [
+const defaultSuppliers: SupplierMaster[] = [
   {
     id: 'for-01',
     code: 'FOR-001',
@@ -50,23 +51,26 @@ let mockSuppliers: SupplierMaster[] = [
 
 export const suppliersService = {
   async getAll(): Promise<SupplierMaster[]> {
-    return mockSuppliers;
+    return mockStorage.get<SupplierMaster>('suppliers', defaultSuppliers);
   },
 
   async getSuppliers(): Promise<SupplierMaster[]> {
-    return mockSuppliers;
+    return mockStorage.get<SupplierMaster>('suppliers', defaultSuppliers);
   },
 
   async getSupplierById(id: string): Promise<SupplierMaster | undefined> {
-    return mockSuppliers.find(s => s.id === id || s.code === id);
+    const list = await mockStorage.get<SupplierMaster>('suppliers', defaultSuppliers);
+    return list.find(s => s.id === id || s.code === id);
   },
 
   async saveSupplier(data: Partial<SupplierMaster>): Promise<SupplierMaster> {
+    const list = await mockStorage.get<SupplierMaster>('suppliers', defaultSuppliers);
     if (data.id) {
-      const idx = mockSuppliers.findIndex(s => s.id === data.id);
+      const idx = list.findIndex(s => s.id === data.id);
       if (idx >= 0) {
-        mockSuppliers[idx] = { ...mockSuppliers[idx], ...data, updatedAt: new Date().toISOString() };
-        return mockSuppliers[idx];
+        list[idx] = { ...list[idx], ...data, updatedAt: new Date().toISOString() };
+        await mockStorage.set('suppliers', list);
+        return list[idx];
       }
     }
     const newSup: SupplierMaster = {
@@ -83,7 +87,8 @@ export const suppliersService = {
       updatedAt: new Date().toISOString(),
       createdBy: 'Usuário Logado',
     };
-    mockSuppliers.unshift(newSup);
+    list.unshift(newSup);
+    await mockStorage.set('suppliers', list);
     return newSup;
   },
 
@@ -96,12 +101,20 @@ export const suppliersService = {
   },
 
   async activate(id: string): Promise<void> {
-    const s = mockSuppliers.find(sup => sup.id === id);
-    if (s) s.status = 'ativo';
+    const list = await mockStorage.get<SupplierMaster>('suppliers', defaultSuppliers);
+    const s = list.find(sup => sup.id === id);
+    if (s) {
+      s.status = 'ativo';
+      await mockStorage.set('suppliers', list);
+    }
   },
 
   async deactivate(id: string): Promise<void> {
-    const s = mockSuppliers.find(sup => sup.id === id);
-    if (s) s.status = 'inativo';
+    const list = await mockStorage.get<SupplierMaster>('suppliers', defaultSuppliers);
+    const s = list.find(sup => sup.id === id);
+    if (s) {
+      s.status = 'inativo';
+      await mockStorage.set('suppliers', list);
+    }
   },
 };

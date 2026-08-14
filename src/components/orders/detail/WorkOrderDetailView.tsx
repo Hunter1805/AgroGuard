@@ -87,9 +87,122 @@ export const WorkOrderDetailView: React.FC = () => {
         </div>
 
         {/* Tab Content */}
-        <div className="flex-1 p-6">
+        <div className="flex-1 p-6 text-sm">
           {activeTab === 'historico' ? (
             <WorkOrderTimelineTab events={timeline} />
+          ) : activeTab === 'resumo' ? (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Informações Gerais */}
+                <div className="glass-card p-5 rounded-xl border border-white/5 space-y-4 bg-surface-container-low/20">
+                  <h3 className="font-bold text-base text-primary border-b border-white/10 pb-2">Classificação Geral</h3>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <span className="block text-xs font-bold text-on-surface-variant/70 uppercase">Natureza da OS</span>
+                      <span className="font-bold text-on-surface text-base">
+                        {(() => {
+                          switch (order.nature) {
+                            case 'MAINTENANCE': return 'Manutenção';
+                            case 'INSPECTION': return 'Inspeção';
+                            case 'DIAGNOSIS': return 'Diagnóstico';
+                            case 'INSTALLATION': return 'Instalação';
+                            case 'IMPROVEMENT': return 'Melhoria';
+                            case 'CAMPAIGN_RECALL': return 'Recall';
+                            default: return (order as any).nature || 'Manutenção';
+                          }
+                        })()}
+                      </span>
+                    </div>
+
+                    {order.nature === 'MAINTENANCE' && (
+                      <div>
+                        <span className="block text-xs font-bold text-on-surface-variant/70 uppercase">Tipo de Manutenção</span>
+                        <span className="font-bold text-on-surface text-base">
+                          {(() => {
+                            const mType = order.maintenanceType || ((order as any).type === 'preventiva' ? 'PREVENTIVE' : 'CORRECTIVE');
+                            switch (mType) {
+                              case 'PREVENTIVE': return 'Preventiva';
+                              case 'CORRECTIVE':
+                                return order.correctiveMode === 'EMERGENCY' ? 'Corretiva Emergencial' : 'Corretiva Planejada';
+                              case 'PREDICTIVE': return 'Preditiva';
+                              case 'CONDITION_BASED': return 'Baseada em Condição';
+                              case 'ROUTINE_INSPECTION': return 'Inspeção / Rotina';
+                              default: return mType;
+                            }
+                          })()}
+                        </span>
+                      </div>
+                    )}
+
+                    <div>
+                      <span className="block text-xs font-bold text-on-surface-variant/70 uppercase">Gatilho / Origem</span>
+                      <span className="font-bold text-on-surface text-base">
+                        {(() => {
+                          switch (order.trigger) {
+                            case 'SCHEDULE': return 'Plano Preventivo';
+                            case 'CALENDAR': return 'Calendário';
+                            case 'HOUR_METER': return 'Horímetro';
+                            case 'ODOMETER': return 'Odômetro';
+                            case 'CYCLE': return 'Ciclos';
+                            case 'CHECKLIST': return 'Checklist';
+                            case 'INSPECTION': return 'Inspeção';
+                            case 'FAILURE': return 'Falha Reportada';
+                            case 'SENSOR': return 'Sensor / Telemetria';
+                            case 'ALERT': return 'Alerta';
+                            case 'OPERATOR_REPORT': return 'Solicitação do Operador';
+                            case 'MANUAL': default: return 'Ordem Manual';
+                          }
+                        })()}
+                      </span>
+                    </div>
+
+                    <div>
+                      <span className="block text-xs font-bold text-on-surface-variant/70 uppercase">Prioridade</span>
+                      <div className="mt-1">
+                        <span className={`px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wide ${(() => {
+                          const prio = order.priority ? order.priority.toUpperCase() : 'NORMAL';
+                          switch (prio) {
+                            case 'CRITICAL': return 'bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/20';
+                            case 'URGENT': return 'bg-red-500/15 text-red-600 dark:text-red-400 border border-red-500/20';
+                            case 'HIGH': return 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/20';
+                            case 'NORMAL': return 'bg-blue-500/15 text-blue-600 dark:text-blue-400 border border-blue-500/20';
+                            case 'LOW': default: return 'bg-slate-500/15 text-slate-600 dark:text-slate-400 border border-slate-500/20';
+                          }
+                        })()}`}>
+                          {(() => {
+                            const prio = order.priority ? order.priority.toUpperCase() : 'NORMAL';
+                            switch (prio) {
+                              case 'CRITICAL': return 'Crítica';
+                              case 'URGENT': return 'Urgente';
+                              case 'HIGH': return 'Alta';
+                              case 'NORMAL': return 'Normal';
+                              case 'LOW': default: return 'Baixa';
+                            }
+                          })()}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Status e Descrição */}
+                <div className="glass-card p-5 rounded-xl border border-white/5 space-y-4 bg-surface-container-low/20">
+                  <h3 className="font-bold text-base text-primary border-b border-white/10 pb-2">Status & Problema</h3>
+                  
+                  <div className="space-y-3">
+                    <div>
+                      <span className="block text-xs font-bold text-on-surface-variant/70 uppercase">Título do Serviço</span>
+                      <p className="font-semibold text-on-surface">{order.title}</p>
+                    </div>
+                    <div>
+                      <span className="block text-xs font-bold text-on-surface-variant/70 uppercase">Descrição Detalhada</span>
+                      <p className="text-on-surface-variant bg-black/10 p-3 rounded-lg border border-white/5 min-h-[60px] whitespace-pre-wrap">{order.description}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-20 text-center opacity-60">
               <LayoutList className="w-16 h-16 text-primary/50 mb-4" />

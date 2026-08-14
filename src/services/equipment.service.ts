@@ -7,10 +7,11 @@ import type {
 import type { EquipmentFormData } from '../types/equipment-form';
 import { dataSourceConfig } from '../config/data-source.config';
 import { fetchEquipmentsFromApi } from './api-gateways/equipment.gateway';
+import { mockStorage } from './mock-storage';
 
 const DRAFT_STORAGE_KEY = 'agroguard_equipment_draft';
 
-const mockEquipments: Equipment[] = [
+const defaultEquipments: Equipment[] = [
   // ── TRATORES ───────────────────────────────────────────────────────────────
   {
     id: 'EQ-001', assetId: '1', assetType: 'Trator',
@@ -174,8 +175,9 @@ export const equipmentService = {
     if (dataSourceConfig.equipment === 'api') {
       return fetchEquipmentsFromApi();
     }
-    const list = includeArchived ? mockEquipments : mockEquipments.filter((e) => !e.isArchived);
-    return Promise.resolve([...list]);
+    const list = await mockStorage.get<Equipment>('equipments', defaultEquipments);
+    const filtered = includeArchived ? list : list.filter((e) => !e.isArchived);
+    return [...filtered];
   },
 
   async getEquipmentById(id: string): Promise<Equipment | undefined> {
@@ -183,12 +185,14 @@ export const equipmentService = {
       const list = await fetchEquipmentsFromApi();
       return list.find(e => e.id === id);
     }
-    const item = mockEquipments.find((e) => e.id === id);
-    return Promise.resolve(item ? { ...item } : undefined);
+    const list = await mockStorage.get<Equipment>('equipments', defaultEquipments);
+    const item = list.find((e) => e.id === id);
+    return item ? { ...item } : undefined;
   },
 
   async getEquipmentStats(): Promise<EquipmentStats> {
-    const active = mockEquipments.filter((e) => !e.isArchived);
+    const list = await mockStorage.get<Equipment>('equipments', defaultEquipments);
+    const active = list.filter((e) => !e.isArchived);
     const stats: EquipmentStats = {
       total: active.length,
       operantes: active.filter((e) => e.status === 'operante').length,
@@ -200,14 +204,15 @@ export const equipmentService = {
       manutencoesVencidas: active.filter((e) => e.maintenanceStatus === 'vencida').length,
       leiturasAtrasadas: active.filter((e) => e.isReadingOverdue).length,
     };
-    return Promise.resolve(stats);
+    return stats;
   },
 
   async getLocations(): Promise<string[]> {
+    const list = await mockStorage.get<Equipment>('equipments', defaultEquipments);
     const locs = Array.from(
-      new Set(mockEquipments.filter((e) => !e.isArchived).map((e) => e.location))
+      new Set(list.filter((e) => !e.isArchived).map((e) => e.location))
     ).sort();
-    return Promise.resolve(locs);
+    return locs;
   },
 
   async filterEquipments(options: {
@@ -220,68 +225,70 @@ export const equipmentService = {
     isReadingOverdue?: boolean;
     includeArchived?: boolean;
   }): Promise<Equipment[]> {
-    return new Promise((resolve) => {
-      let result = [...mockEquipments];
+    const list = await mockStorage.get<Equipment>('equipments', defaultEquipments);
+    let result = [...list];
 
-      if (!options.includeArchived) {
-        result = result.filter((e) => !e.isArchived);
-      }
+    if (!options.includeArchived) {
+      result = result.filter((e) => !e.isArchived);
+    }
 
-      if (options.assetType && options.assetType !== 'todos') {
-        result = result.filter((e) => e.assetType === options.assetType);
-      }
+    if (options.assetType && options.assetType !== 'todos') {
+      result = result.filter((e) => e.assetType === options.assetType);
+    }
 
-      if (options.status && options.status !== 'todos') {
-        result = result.filter((e) => e.status === options.status);
-      }
+    if (options.status && options.status !== 'todos') {
+      result = result.filter((e) => e.status === options.status);
+    }
 
-      if (options.location && options.location !== 'todas') {
-        result = result.filter((e) => e.location === options.location);
-      }
+    if (options.location && options.location !== 'todas') {
+      result = result.filter((e) => e.location === options.location);
+    }
 
-      if (options.maintenanceStatus && options.maintenanceStatus !== 'todas') {
-        result = result.filter((e) => e.maintenanceStatus === options.maintenanceStatus);
-      }
+    if (options.maintenanceStatus && options.maintenanceStatus !== 'todas') {
+      result = result.filter((e) => e.maintenanceStatus === options.maintenanceStatus);
+    }
 
-      if (options.hasPendingAlert) {
-        result = result.filter((e) => e.hasPendingAlert);
-      }
+    if (options.hasPendingAlert) {
+      result = result.filter((e) => e.hasPendingAlert);
+    }
 
-      if (options.isReadingOverdue) {
-        result = result.filter((e) => e.isReadingOverdue);
-      }
+    if (options.isReadingOverdue) {
+      result = result.filter((e) => e.isReadingOverdue);
+    }
 
-      if (options.search && options.search.trim() !== '') {
-        const q = options.search.toLowerCase();
-        result = result.filter(
-          (e) =>
-            e.name.toLowerCase().includes(q) ||
-            e.brand.toLowerCase().includes(q) ||
-            e.model.toLowerCase().includes(q) ||
-            e.plateOrCode.toLowerCase().includes(q) ||
-            (e.patrimony && e.patrimony.toLowerCase().includes(q)) ||
-            (e.operatorName && e.operatorName.toLowerCase().includes(q)) ||
-            (e.serialNumber && e.serialNumber.toLowerCase().includes(q))
-        );
-      }
+    if (options.search && options.search.trim() !== '') {
+      const q = options.search.toLowerCase();
+      result = result.filter(
+        (e) =>
+          e.name.toLowerCase().includes(q) ||
+          e.brand.toLowerCase().includes(q) ||
+          e.model.toLowerCase().includes(q) ||
+          e.plateOrCode.toLowerCase().includes(q) ||
+          (e.patrimony && e.patrimony.toLowerCase().includes(q)) ||
+          (e.operatorName && e.operatorName.toLowerCase().includes(q)) ||
+          (e.serialNumber && e.serialNumber.toLowerCase().includes(q))
+      );
+    }
 
-      resolve(result);
-    });
+    return result;
   },
 
   async archiveEquipment(id: string, reason: string): Promise<boolean> {
-    const index = mockEquipments.findIndex((e) => e.id === id);
+    const list = await mockStorage.get<Equipment>('equipments', defaultEquipments);
+    const index = list.findIndex((e) => e.id === id);
     if (index !== -1) {
-      mockEquipments[index].isArchived = true;
-      mockEquipments[index].archiveReason = reason;
-      mockEquipments[index].archivedAt = new Date().toISOString();
-      return Promise.resolve(true);
+      list[index].isArchived = true;
+      list[index].archiveReason = reason;
+      list[index].archivedAt = new Date().toISOString();
+      await mockStorage.set('equipments', list);
+      return true;
     }
-    return Promise.resolve(false);
+    return false;
   },
 
   async createEquipment(formData: EquipmentFormData): Promise<Equipment> {
-    const newId = `EQ-${String(mockEquipments.length + 1).padStart(3, '0')}`;
+    const list = await mockStorage.get<Equipment>('equipments', defaultEquipments);
+    const newId = `EQ-${String(list.length + 1).padStart(3, '0')}`;
     const todayStr = new Date().toLocaleDateString('pt-BR');
 
     // Se meters não for especificado, cria 1 por padrão se houver horímetro/odômetro
@@ -329,18 +336,20 @@ export const equipmentService = {
       images: formData.images || [],
     };
 
-    mockEquipments.unshift(newEquipment);
+    list.unshift(newEquipment);
+    await mockStorage.set('equipments', list);
     this.clearDraft();
-    return Promise.resolve(newEquipment);
+    return newEquipment;
   },
 
   async updateEquipment(id: string, formData: Partial<EquipmentFormData>): Promise<Equipment> {
-    const index = mockEquipments.findIndex((e) => e.id === id);
+    const list = await mockStorage.get<Equipment>('equipments', defaultEquipments);
+    const index = list.findIndex((e) => e.id === id);
     if (index === -1) {
       throw new Error(`Equipamento ${id} não encontrado.`);
     }
 
-    const current = mockEquipments[index];
+    const current = list[index];
 
     const updated: Equipment = {
       ...current,
@@ -352,9 +361,10 @@ export const equipmentService = {
       images: formData.images || current.images || [],
     };
 
-    mockEquipments[index] = updated;
+    list[index] = updated;
+    await mockStorage.set('equipments', list);
     this.clearDraft();
-    return Promise.resolve(updated);
+    return updated;
   },
 
   // Centralização de dados auxiliares para o formulário

@@ -5,8 +5,9 @@ import type {
   ToolHistoryLog,
   TirePressureEntry,
 } from '../types/tools';
+import { mockStorage } from './mock-storage';
 
-let mockTools: Tool[] = [
+const defaultTools: Tool[] = [
   {
     id: 'TOOL-001',
     code: 'FER-001',
@@ -182,7 +183,7 @@ let mockTools: Tool[] = [
   },
 ];
 
-let mockHistory: ToolHistoryLog[] = [
+const defaultHistory: ToolHistoryLog[] = [
   {
     id: 'HIST-001',
     toolId: 'TOOL-001',
@@ -201,17 +202,18 @@ const mockTirePressures: TirePressureEntry[] = [
 
 export const toolsService = {
   async getToolsDashboard(): Promise<ToolsDashboardStats> {
-    const totalTools = mockTools.length;
-    const availableTools = mockTools.filter(t => t.status === 'disponivel').length;
-    const loanedTools = mockTools.filter(t => t.status === 'emprestada').length;
-    const reservedTools = mockTools.filter(t => t.status === 'reservada').length;
-    const inMaintenanceTools = mockTools.filter(t => t.status === 'em_manutencao' || t.status === 'aguardando_manutencao').length;
-    const damagedTools = mockTools.filter(t => t.status === 'danificada').length;
-    const lostTools = mockTools.filter(t => t.status === 'perdida').length;
+    const list = await mockStorage.get<Tool>('tools', defaultTools);
+    const totalTools = list.length;
+    const availableTools = list.filter(t => t.status === 'disponivel').length;
+    const loanedTools = list.filter(t => t.status === 'emprestada').length;
+    const reservedTools = list.filter(t => t.status === 'reservada').length;
+    const inMaintenanceTools = list.filter(t => t.status === 'em_manutencao' || t.status === 'aguardando_manutencao').length;
+    const damagedTools = list.filter(t => t.status === 'danificada').length;
+    const lostTools = list.filter(t => t.status === 'perdida').length;
 
     const todayStr = new Date().toISOString().split('T')[0];
 
-    const expiredCalibrations = mockTools.filter(
+    const expiredCalibrations = list.filter(
       t => t.requiresCalibration && t.nextCalibrationDate && t.nextCalibrationDate < todayStr
     ).length;
 
@@ -219,7 +221,7 @@ export const toolsService = {
     next30Days.setDate(next30Days.getDate() + 30);
     const next30DaysStr = next30Days.toISOString().split('T')[0];
 
-    const upcomingCalibrations = mockTools.filter(
+    const upcomingCalibrations = list.filter(
       t =>
         t.requiresCalibration &&
         t.nextCalibrationDate &&
@@ -227,7 +229,7 @@ export const toolsService = {
         t.nextCalibrationDate <= next30DaysStr
     ).length;
 
-    const totalPatrimonyValue = mockTools.reduce((acc, t) => acc + (t.acquisitionValue || 0), 0);
+    const totalPatrimonyValue = list.reduce((acc, t) => acc + (t.acquisitionValue || 0), 0);
 
     return {
       totalTools,
@@ -246,7 +248,8 @@ export const toolsService = {
   },
 
   async getTools(filter?: ToolFilter): Promise<Tool[]> {
-    let result = [...mockTools];
+    const list = await mockStorage.get<Tool>('tools', defaultTools);
+    let result = [...list];
 
     if (filter?.search) {
       const q = filter.search.toLowerCase();
@@ -286,17 +289,19 @@ export const toolsService = {
       result = result.filter(t => t.requiresCalibration && t.nextCalibrationDate && t.nextCalibrationDate < todayStr);
     }
 
-    return Promise.resolve(result);
+    return result;
   },
 
   async getToolById(id: string): Promise<Tool | undefined> {
-    const tool = mockTools.find(t => t.id === id || t.code === id);
-    return Promise.resolve(tool ? { ...tool } : undefined);
+    const list = await mockStorage.get<Tool>('tools', defaultTools);
+    const tool = list.find(t => t.id === id || t.code === id);
+    return tool ? { ...tool } : undefined;
   },
 
   async createTool(data: Partial<Tool>): Promise<Tool> {
-    const id = `TOOL-${String(mockTools.length + 1).padStart(3, '0')}`;
-    const code = data.code || `FER-${String(mockTools.length + 1).padStart(3, '0')}`;
+    const list = await mockStorage.get<Tool>('tools', defaultTools);
+    const id = `TOOL-${String(list.length + 1).padStart(3, '0')}`;
+    const code = data.code || `FER-${String(list.length + 1).padStart(3, '0')}`;
 
     const newTool: Tool = {
       id,
@@ -322,9 +327,11 @@ export const toolsService = {
       notes: data.notes,
     };
 
-    mockTools.unshift(newTool);
+    list.unshift(newTool);
+    await mockStorage.set('tools', list);
 
-    mockHistory.unshift({
+    const history = await mockStorage.get<ToolHistoryLog>('tool_history', defaultHistory);
+    history.unshift({
       id: `HIST-${Date.now()}`,
       toolId: newTool.id,
       toolCode: newTool.code,
@@ -333,18 +340,22 @@ export const toolsService = {
       responsibleName: 'Operador do Sistema',
       notes: `Cadastro de ferramenta ${newTool.code}`,
     });
+    await mockStorage.set('tool_history', history);
 
-    return Promise.resolve(newTool);
+    return newTool;
   },
 
   async updateTool(id: string, data: Partial<Tool>): Promise<Tool> {
-    const index = mockTools.findIndex(t => t.id === id || t.code === id);
+    const list = await mockStorage.get<Tool>('tools', defaultTools);
+    const index = list.findIndex(t => t.id === id || t.code === id);
     if (index === -1) throw new Error('Ferramenta não encontrada.');
 
-    const updated = { ...mockTools[index], ...data };
-    mockTools[index] = updated;
+    const updated = { ...list[index], ...data };
+    list[index] = updated;
+    await mockStorage.set('tools', list);
 
-    mockHistory.unshift({
+    const history = await mockStorage.get<ToolHistoryLog>('tool_history', defaultHistory);
+    history.unshift({
       id: `HIST-${Date.now()}`,
       toolId: updated.id,
       toolCode: updated.code,
@@ -353,8 +364,9 @@ export const toolsService = {
       responsibleName: 'Operador do Sistema',
       notes: `Edição dos dados cadastrais da ferramenta ${updated.code}`,
     });
+    await mockStorage.set('tool_history', history);
 
-    return Promise.resolve(updated);
+    return updated;
   },
 
   async transferTool(
@@ -369,7 +381,8 @@ export const toolsService = {
     tool.location.detailedLocation = params.destinationLocation;
     await this.updateTool(tool.id, { location: tool.location });
 
-    mockHistory.unshift({
+    const history = await mockStorage.get<ToolHistoryLog>('tool_history', defaultHistory);
+    history.unshift({
       id: `HIST-${Date.now()}`,
       toolId: tool.id,
       toolCode: tool.code,
@@ -380,6 +393,7 @@ export const toolsService = {
       destinationLocation: params.destinationLocation,
       notes: params.notes,
     });
+    await mockStorage.set('tool_history', history);
 
     return tool;
   },
@@ -399,7 +413,8 @@ export const toolsService = {
       unavailabilityReason: params.description,
     });
 
-    mockHistory.unshift({
+    const history = await mockStorage.get<ToolHistoryLog>('tool_history', defaultHistory);
+    history.unshift({
       id: `HIST-${Date.now()}`,
       toolId: tool.id,
       toolCode: tool.code,
@@ -410,6 +425,7 @@ export const toolsService = {
       newCondition: 'ruim',
       notes: params.description,
     });
+    await mockStorage.set('tool_history', history);
 
     return updated;
   },
@@ -427,7 +443,8 @@ export const toolsService = {
       unavailabilityReason: params.description,
     });
 
-    mockHistory.unshift({
+    const history = await mockStorage.get<ToolHistoryLog>('tool_history', defaultHistory);
+    history.unshift({
       id: `HIST-${Date.now()}`,
       toolId: tool.id,
       toolCode: tool.code,
@@ -436,6 +453,7 @@ export const toolsService = {
       responsibleName: params.responsibleName,
       notes: params.description,
     });
+    await mockStorage.set('tool_history', history);
 
     return updated;
   },
@@ -454,7 +472,8 @@ export const toolsService = {
       unavailabilityReason: undefined,
     });
 
-    mockHistory.unshift({
+    const history = await mockStorage.get<ToolHistoryLog>('tool_history', defaultHistory);
+    history.unshift({
       id: `HIST-${Date.now()}`,
       toolId: tool.id,
       toolCode: tool.code,
@@ -465,6 +484,7 @@ export const toolsService = {
       newCondition: params.condition,
       notes: params.notes,
     });
+    await mockStorage.set('tool_history', history);
 
     return updated;
   },
@@ -483,7 +503,8 @@ export const toolsService = {
       unavailabilityReason: `Baixa física: ${params.reason}`,
     });
 
-    mockHistory.unshift({
+    const history = await mockStorage.get<ToolHistoryLog>('tool_history', defaultHistory);
+    history.unshift({
       id: `HIST-${Date.now()}`,
       toolId: tool.id,
       toolCode: tool.code,
@@ -493,13 +514,15 @@ export const toolsService = {
       cost: params.residualValue,
       notes: `Motivo da baixa: ${params.reason}. ${params.notes || ''}`,
     });
+    await mockStorage.set('tool_history', history);
 
     return updated;
   },
 
   async getToolHistory(toolId?: string): Promise<ToolHistoryLog[]> {
-    if (!toolId) return Promise.resolve([...mockHistory]);
-    return Promise.resolve(mockHistory.filter(h => h.toolId === toolId || h.toolCode === toolId));
+    const history = await mockStorage.get<ToolHistoryLog>('tool_history', defaultHistory);
+    if (!toolId) return [...history];
+    return history.filter(h => h.toolId === toolId || h.toolCode === toolId);
   },
 
   // Suporte a métodos legados
@@ -507,7 +530,8 @@ export const toolsService = {
     return this.getTools();
   },
   async getToolsByPriority(priority: 'Alta' | 'Média'): Promise<Tool[]> {
-    return mockTools.filter(t => t.priority === priority);
+    const list = await mockStorage.get<Tool>('tools', defaultTools);
+    return list.filter(t => t.priority === priority);
   },
 };
 

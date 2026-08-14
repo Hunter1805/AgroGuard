@@ -25,7 +25,7 @@ export const MaintenanceTaskBuilder: React.FC<MaintenanceTaskBuilderProps> = ({ 
       id: `TSK-${Date.now()}`,
       order: (activeInterval.tasks?.length || 0) + 1,
       title: title.trim(),
-      criticality: 'alta',
+      criticality: 'HIGH',
       estimatedDurationMinutes: Number(duration) || 30,
       required: true,
       requirePhotoBefore: false,

@@ -1,7 +1,8 @@
 import type { Tire, EquipmentTireConfiguration, TireStatus, TireCondition } from '../types/tires';
+import { mockStorage } from './mock-storage';
 
 // Mock DB de pneus com dados representativos de fazenda
-let tires: Tire[] = [
+const defaultTires: Tire[] = [
   {
     id: 'PN-0891',
     internalCode: 'PN-0891',
@@ -231,8 +232,8 @@ let tires: Tire[] = [
 ];
 
 // Configurações de eixos mockadas por equipamento
-let configs: Record<string, EquipmentTireConfiguration> = {
-  'EQ-003': {
+const defaultConfigs: EquipmentTireConfiguration[] = [
+  {
     id: 'CONF-EQ-003',
     equipmentId: 'EQ-003',
     axleCount: 2,
@@ -310,25 +311,26 @@ let configs: Record<string, EquipmentTireConfiguration> = {
     createdAt: '2025-01-01T10:00:00Z',
     updatedAt: '2025-01-01T10:00:00Z',
   },
-};
+];
 
 export const tiresService = {
   // ─── Indicadores do Dashboard de Pneus ─────────────────────────────────────
   async getTireDashboard() {
     await new Promise(resolve => setTimeout(resolve, 200));
+    const list = await mockStorage.get<Tire>('tires', defaultTires);
     
-    const total = tires.length;
-    const instalados = tires.filter(t => t.status === 'instalado').length;
-    const estoque = tires.filter(t => t.status === 'disponivel' || t.status === 'recapado').length;
-    const emReparo = tires.filter(t => t.status === 'em_reparo').length;
-    const emRecapagem = tires.filter(t => t.status === 'em_recapagem').length;
-    const anomalias = tires.filter(t => t.condition === 'atencao' || t.condition === 'critico').length;
-    const sulcoCritico = tires.filter(t => (t.currentTreadDepth || 0) <= (t.minimumTreadDepth || 0)).length;
-    const pressaoIrregular = tires.filter(t => t.status === 'instalado' && t.condition === 'atencao').length; // mock
+    const total = list.length;
+    const instalados = list.filter(t => t.status === 'instalado').length;
+    const estoque = list.filter(t => t.status === 'disponivel' || t.status === 'recapado').length;
+    const emReparo = list.filter(t => t.status === 'em_reparo').length;
+    const emRecapagem = list.filter(t => t.status === 'em_recapagem').length;
+    const anomalias = list.filter(t => t.condition === 'atencao' || t.condition === 'critico').length;
+    const sulcoCritico = list.filter(t => (t.currentTreadDepth || 0) <= (t.minimumTreadDepth || 0)).length;
+    const pressaoIrregular = list.filter(t => t.status === 'instalado' && t.condition === 'atencao').length; // mock
     const inspecoesAtrasadas = 2; // mock
-    const proximosSubstituicao = tires.filter(t => t.condition === 'critico').length;
+    const proximosSubstituicao = list.filter(t => t.condition === 'critico').length;
     
-    const custoAcumulado = tires.reduce((acc, t) => acc + (t.acquisitionValue || 0), 0);
+    const custoAcumulado = list.reduce((acc, t) => acc + (t.acquisitionValue || 0), 0);
     const custoMedio = total > 0 ? custoAcumulado / total : 0;
 
     return {
@@ -360,7 +362,8 @@ export const tiresService = {
     treadCritical?: boolean;
   }): Promise<Tire[]> {
     await new Promise(resolve => setTimeout(resolve, 250));
-    let result = [...tires].filter(t => !t.archivedAt);
+    const list = await mockStorage.get<Tire>('tires', defaultTires);
+    let result = [...list].filter(t => !t.archivedAt);
 
     if (filters?.search) {
       const q = filters.search.toLowerCase();
@@ -400,16 +403,18 @@ export const tiresService = {
 
   async getTireById(id: string): Promise<Tire | undefined> {
     await new Promise(resolve => setTimeout(resolve, 150));
-    return tires.find(t => t.id === id);
+    const list = await mockStorage.get<Tire>('tires', defaultTires);
+    return list.find(t => t.id === id);
   },
 
   async createTire(data: Partial<Tire>): Promise<Tire> {
     await new Promise(resolve => setTimeout(resolve, 350));
+    const list = await mockStorage.get<Tire>('tires', defaultTires);
     
     if (!data.internalCode) {
       throw new Error('O código interno do pneu é obrigatório.');
     }
-    if (tires.some(t => t.internalCode.toLowerCase() === data.internalCode!.toLowerCase())) {
+    if (list.some(t => t.internalCode.toLowerCase() === data.internalCode!.toLowerCase())) {
       throw new Error('Já existe um pneu cadastrado com este código interno.');
     }
     if (!data.size) {
@@ -449,51 +454,61 @@ export const tiresService = {
       updatedAt: new Date().toISOString(),
     } as Tire;
 
-    tires.push(newTire);
+    list.push(newTire);
+    await mockStorage.set('tires', list);
     return newTire;
   },
 
   async updateTire(id: string, data: Partial<Tire>): Promise<Tire> {
     await new Promise(resolve => setTimeout(resolve, 350));
-    const index = tires.findIndex(t => t.id === id);
+    const list = await mockStorage.get<Tire>('tires', defaultTires);
+    const index = list.findIndex(t => t.id === id);
     if (index === -1) throw new Error('Pneu não encontrado.');
 
-    if (data.internalCode && data.internalCode !== tires[index].internalCode) {
-      if (tires.some(t => t.internalCode.toLowerCase() === data.internalCode!.toLowerCase())) {
+    if (data.internalCode && data.internalCode !== list[index].internalCode) {
+      if (list.some(t => t.internalCode.toLowerCase() === data.internalCode!.toLowerCase())) {
         throw new Error('Já existe um pneu com este código interno.');
       }
     }
 
-    const updated = { ...tires[index], ...data, updatedAt: new Date().toISOString() };
-    tires[index] = updated;
+    const updated = { ...list[index], ...data, updatedAt: new Date().toISOString() };
+    list[index] = updated;
+    await mockStorage.set('tires', list);
     return updated;
   },
 
   async archiveTire(id: string): Promise<void> {
-    const index = tires.findIndex(t => t.id === id);
+    const list = await mockStorage.get<Tire>('tires', defaultTires);
+    const index = list.findIndex(t => t.id === id);
     if (index !== -1) {
-      tires[index].archivedAt = new Date().toISOString();
-      tires[index].updatedAt = new Date().toISOString();
+      list[index].archivedAt = new Date().toISOString();
+      list[index].updatedAt = new Date().toISOString();
+      await mockStorage.set('tires', list);
     }
   },
 
   // ─── Configuração de Eixos ────────────────────────────────────────────────
   async getEquipmentTireConfiguration(equipmentId: string): Promise<EquipmentTireConfiguration | undefined> {
     await new Promise(resolve => setTimeout(resolve, 150));
-    return configs[equipmentId];
+    const list = await mockStorage.get<EquipmentTireConfiguration>('tire_configs', defaultConfigs);
+    return list.find(c => c.equipmentId === equipmentId);
   },
 
   async saveEquipmentTireConfiguration(equipmentId: string, data: Partial<EquipmentTireConfiguration>): Promise<EquipmentTireConfiguration> {
     await new Promise(resolve => setTimeout(resolve, 350));
+    const list = await mockStorage.get<EquipmentTireConfiguration>('tire_configs', defaultConfigs);
+    const index = list.findIndex(c => c.equipmentId === equipmentId);
     
-    if (configs[equipmentId]) {
-      configs[equipmentId] = {
-        ...configs[equipmentId],
+    let result: EquipmentTireConfiguration;
+    if (index !== -1) {
+      result = {
+        ...list[index],
         ...data,
         updatedAt: new Date().toISOString(),
       } as EquipmentTireConfiguration;
+      list[index] = result;
     } else {
-      configs[equipmentId] = {
+      result = {
         id: `CONF-${Date.now()}`,
         equipmentId,
         axleCount: data.axleCount || 2,
@@ -504,9 +519,11 @@ export const tiresService = {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
+      list.push(result);
     }
 
-    return configs[equipmentId];
+    await mockStorage.set('tire_configs', list);
+    return result;
   }
 };
 

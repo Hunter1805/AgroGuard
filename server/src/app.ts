@@ -18,6 +18,7 @@ import { stockRoutes } from './modules/stock/stock.routes';
 import { fileRoutes } from './modules/files/file.routes';
 import { importRoutes } from './modules/imports/import.routes';
 import { jobRoutes } from './modules/jobs/job.routes';
+import { maintenanceRoutes } from './modules/maintenance/maintenance.routes';
 import type { ApiErrorResponse } from './shared/http/ApiResponse';
 
 import helmet from '@fastify/helmet';
@@ -119,6 +120,7 @@ export async function buildApp() {
   await app.register(fileRoutes);
   await app.register(importRoutes);
   await app.register(jobRoutes);
+  await app.register(maintenanceRoutes);
 
   return app;
 }

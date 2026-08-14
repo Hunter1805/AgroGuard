@@ -47,7 +47,10 @@ export class WorkOrderRepository {
     workshopId?: string;
     openedByUserId?: string;
     code: string;
-    type: string;
+    nature: string;
+    maintenanceType?: string | null;
+    correctiveMode?: string | null;
+    trigger: string;
     priority: string;
     description: string;
   }) {

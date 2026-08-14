@@ -23,7 +23,16 @@ export class WorkOrderService {
     return wo;
   }
 
-  async createWorkOrder(actor: RequestActor, data: { equipmentId: string; workshopId?: string; type?: string; priority?: string; description: string }) {
+  async createWorkOrder(actor: RequestActor, data: {
+    equipmentId: string;
+    workshopId?: string;
+    nature?: string;
+    maintenanceType?: string | null;
+    correctiveMode?: string | null;
+    trigger?: string;
+    priority?: string;
+    description: string;
+  }) {
     const code = `OS-2026-${Math.floor(1000 + Math.random() * 9000)}`;
 
     return this.repo.createWorkOrder({
@@ -32,8 +41,11 @@ export class WorkOrderService {
       workshopId: data.workshopId,
       openedByUserId: actor.userId,
       code,
-      type: data.type || 'corretiva',
-      priority: data.priority || 'media',
+      nature: data.nature || 'MAINTENANCE',
+      maintenanceType: data.maintenanceType || null,
+      correctiveMode: data.correctiveMode || null,
+      trigger: data.trigger || 'MANUAL',
+      priority: data.priority || 'NORMAL',
       description: data.description,
     });
   }

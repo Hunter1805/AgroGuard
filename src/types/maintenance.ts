@@ -39,7 +39,7 @@ export type MaintenanceScheduleStatus =
   | 'adiada'
   | 'cancelada';
 
-export type MaintenancePriority = 'baixa' | 'media' | 'alta' | 'critica';
+export type MaintenancePriority = 'LOW' | 'NORMAL' | 'HIGH' | 'URGENT' | 'CRITICAL';
 
 // ─── Indicadores da Visão Geral de Manutenções (Dashboard) ───────────────────
 export interface MaintenanceOverviewStats {

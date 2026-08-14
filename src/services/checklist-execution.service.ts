@@ -3,8 +3,9 @@ import { checklistTemplateService } from './checklist-template.service';
 import { checklistNonConformityService } from './checklist-nonconformity.service';
 import { equipmentReadingsService } from './equipment-readings.service';
 import { equipmentService } from './equipment.service';
+import { mockStorage } from './mock-storage';
 
-const MOCK_EXECUTIONS: ChecklistExecution[] = [
+const defaultExecutions: ChecklistExecution[] = [
   {
     id: 'exec-101',
     code: 'CHK-2026-00101',
@@ -113,8 +114,6 @@ const MOCK_EXECUTIONS: ChecklistExecution[] = [
 ];
 
 class ChecklistExecutionService {
-  private executions: ChecklistExecution[] = [...MOCK_EXECUTIONS];
-
   async getChecklistExecutions(filters?: {
     search?: string;
     equipmentId?: string;
@@ -125,7 +124,8 @@ class ChecklistExecutionService {
     onlyBlockedEquipment?: boolean;
   }): Promise<ChecklistExecution[]> {
     await new Promise((r) => setTimeout(r, 120));
-    return this.executions.filter((ex) => {
+    const list = await mockStorage.get<ChecklistExecution>('checklist_executions', defaultExecutions);
+    return list.filter((ex) => {
       if (filters?.equipmentId && ex.equipmentId !== filters.equipmentId) return false;
       if (filters?.templateId && filters.templateId !== 'todos' && ex.templateId !== filters.templateId) return false;
       if (filters?.type && filters.type !== 'todos' && ex.templateType !== filters.type) return false;
@@ -147,7 +147,8 @@ class ChecklistExecutionService {
 
   async getChecklistExecutionById(id: string): Promise<ChecklistExecution | undefined> {
     await new Promise((r) => setTimeout(r, 80));
-    return this.executions.find((i) => i.id === id || i.code === id);
+    const list = await mockStorage.get<ChecklistExecution>('checklist_executions', defaultExecutions);
+    return list.find((i) => i.id === id || i.code === id);
   }
 
   async startChecklistExecution(data: {
@@ -170,7 +171,8 @@ class ChecklistExecutionService {
     const eqName = equipment ? equipment.name : 'Equipamento AgroGuard';
 
     const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
-    const nextCodeNum = this.executions.length + 101;
+    const list = await mockStorage.get<ChecklistExecution>('checklist_executions', defaultExecutions);
+    const nextCodeNum = list.length + 101;
     const code = `CHK-2026-00${nextCodeNum}`;
 
     // Integração Fase 3D: registrar leitura no medidor se fornecido horímetro ou odômetro
@@ -221,13 +223,17 @@ class ChecklistExecutionService {
       updatedAt: now,
     };
 
-    this.executions.unshift(newExecution);
+    list.unshift(newExecution);
+    await mockStorage.set('checklist_executions', list);
     return newExecution;
   }
 
   async saveChecklistProgress(id: string, answers: ChecklistAnswer[], generalNotes?: string): Promise<ChecklistExecution> {
-    const ex = this.executions.find((i) => i.id === id);
-    if (!ex) throw new Error('Execução de checklist não encontrada');
+    const list = await mockStorage.get<ChecklistExecution>('checklist_executions', defaultExecutions);
+    const exIdx = list.findIndex((i) => i.id === id);
+    if (exIdx === -1) throw new Error('Execução de checklist não encontrada');
+
+    const ex = list[exIdx];
 
     // Merge inteligente de respostas sem perder itens respondidos anteriormente
     answers.forEach((newAns) => {
@@ -243,6 +249,9 @@ class ChecklistExecutionService {
       ex.generalNotes = generalNotes;
     }
     ex.updatedAt = new Date().toISOString().slice(0, 19).replace('T', ' ');
+
+    list[exIdx] = ex;
+    await mockStorage.set('checklist_executions', list);
     return ex;
   }
 
@@ -332,13 +341,25 @@ class ChecklistExecutionService {
     }
 
     ex.updatedAt = now;
+
+    // Atualizar no localStorage
+    const list = await mockStorage.get<ChecklistExecution>('checklist_executions', defaultExecutions);
+    const idx = list.findIndex((i) => i.id === ex.id);
+    if (idx !== -1) {
+      list[idx] = ex;
+      await mockStorage.set('checklist_executions', list);
+    }
+
     return ex;
   }
 
   async validateChecklistExecution(id: string, data: { validatorName: string; comments?: string }): Promise<ChecklistExecution> {
     await new Promise((r) => setTimeout(r, 150));
-    const ex = this.executions.find((i) => i.id === id);
-    if (!ex) throw new Error('Execução não encontrada');
+    const list = await mockStorage.get<ChecklistExecution>('checklist_executions', defaultExecutions);
+    const idx = list.findIndex((i) => i.id === id);
+    if (idx === -1) throw new Error('Execução não encontrada');
+
+    const ex = list[idx];
     const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
     ex.status = ex.answers.some((a) => a.result === 'nao_conforme') ? 'concluido_com_nao_conformidade' : 'concluido';
     ex.validatorName = data.validatorName;
@@ -347,29 +368,44 @@ class ChecklistExecutionService {
       ex.generalNotes = `${ex.generalNotes || ''}\n[Parecer do Supervisor: ${data.comments}]`;
     }
     ex.updatedAt = now;
+
+    list[idx] = ex;
+    await mockStorage.set('checklist_executions', list);
     return ex;
   }
 
   async rejectChecklistExecution(id: string, reason: string, validatorName: string): Promise<ChecklistExecution> {
     await new Promise((r) => setTimeout(r, 150));
-    const ex = this.executions.find((i) => i.id === id);
-    if (!ex) throw new Error('Execução não encontrada');
+    const list = await mockStorage.get<ChecklistExecution>('checklist_executions', defaultExecutions);
+    const idx = list.findIndex((i) => i.id === id);
+    if (idx === -1) throw new Error('Execução não encontrada');
+
+    const ex = list[idx];
     const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
     ex.status = 'reprovado' as ChecklistExecutionStatus;
     ex.rejectionReason = reason;
     ex.validatorName = validatorName;
     ex.validatorSignature = `${validatorName} - REPROVADO em ${now.slice(0, 10)}`;
     ex.updatedAt = now;
+
+    list[idx] = ex;
+    await mockStorage.set('checklist_executions', list);
     return ex;
   }
 
   async cancelChecklistExecution(id: string, reason: string): Promise<ChecklistExecution> {
     await new Promise((r) => setTimeout(r, 120));
-    const ex = this.executions.find((i) => i.id === id);
-    if (!ex) throw new Error('Execução não encontrada');
+    const list = await mockStorage.get<ChecklistExecution>('checklist_executions', defaultExecutions);
+    const idx = list.findIndex((i) => i.id === id);
+    if (idx === -1) throw new Error('Execução não encontrada');
+
+    const ex = list[idx];
     ex.status = 'cancelado';
     ex.generalNotes = `${ex.generalNotes || ''}\n[CANCELADO: ${reason}]`;
     ex.updatedAt = new Date().toISOString().slice(0, 19).replace('T', ' ');
+
+    list[idx] = ex;
+    await mockStorage.set('checklist_executions', list);
     return ex;
   }
 }

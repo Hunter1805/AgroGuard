@@ -20,9 +20,9 @@ export const MaintenanceIntervalBuilder: React.FC<MaintenanceIntervalBuilderProp
   const [readingInterval, setReadingInterval] = useState(250);
   const [timeInterval, setTimeInterval] = useState(6);
   const [timeUnit] = useState<MaintenancePlanInterval['timeUnit']>('meses');
-  const [priority] = useState<MaintenancePlanInterval['priority']>('alta');
+  const [priority] = useState<MaintenancePlanInterval['priority']>('HIGH');
   const [stopDuration] = useState(120);
-
+ 
   const handleCreate = () => {
     if (!name.trim()) return;
     const newIntv: MaintenancePlanInterval = {
@@ -39,7 +39,7 @@ export const MaintenanceIntervalBuilder: React.FC<MaintenanceIntervalBuilderProp
       priority,
       estimatedDurationMinutes: Number(stopDuration),
       requiresEquipmentStop: true,
-      requiresApproval: priority === 'critica',
+      requiresApproval: priority === 'CRITICAL',
       tasks: [],
     };
     onAddInterval(newIntv);

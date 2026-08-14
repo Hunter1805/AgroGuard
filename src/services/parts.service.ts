@@ -2,8 +2,9 @@ import type { StockItem, StockDashboardStats, StockItemFilter, StockHistoryLog }
 import { stockCalculationService } from './stock-calculation.service';
 import { dataSourceConfig } from '../config/data-source.config';
 import { fetchStockItemsFromApi } from './api-gateways/stock.gateway';
+import { mockStorage } from './mock-storage';
 
-let stockItemsStore: StockItem[] = [
+const defaultStockItems: StockItem[] = [
   {
     id: 'PART-001',
     internalCode: 'FLT-0150',
@@ -180,7 +181,7 @@ let stockItemsStore: StockItem[] = [
   },
 ];
 
-let stockHistoryStore: StockHistoryLog[] = [
+const defaultStockHistory: StockHistoryLog[] = [
   {
     id: 'LOG-001',
     itemId: 'PART-001',
@@ -194,11 +195,12 @@ let stockHistoryStore: StockHistoryLog[] = [
 
 export const partsService = {
   async getStockDashboardStats(): Promise<StockDashboardStats> {
-    const totalItems = stockItemsStore.filter(i => i.status !== 'arquivado').length;
-    const totalStockValue = stockItemsStore.reduce((acc, i) => acc + (i.status !== 'arquivado' ? i.totalStockValue : 0), 0);
-    const itemsBelowMinimum = stockItemsStore.filter(i => i.currentQuantity <= i.minimumQuantity && i.currentQuantity > 0 && i.status !== 'arquivado').length;
-    const itemsOutOfStock = stockItemsStore.filter(i => i.currentQuantity <= 0 && i.status !== 'arquivado').length;
-    const reservedItems = stockItemsStore.filter(i => i.reservedQuantity > 0 && i.status !== 'arquivado').length;
+    const list = await mockStorage.get<StockItem>('stock_items', defaultStockItems);
+    const totalItems = list.filter(i => i.status !== 'arquivado').length;
+    const totalStockValue = list.reduce((acc, i) => acc + (i.status !== 'arquivado' ? i.totalStockValue : 0), 0);
+    const itemsBelowMinimum = list.filter(i => i.currentQuantity <= i.minimumQuantity && i.currentQuantity > 0 && i.status !== 'arquivado').length;
+    const itemsOutOfStock = list.filter(i => i.currentQuantity <= 0 && i.status !== 'arquivado').length;
+    const reservedItems = list.filter(i => i.reservedQuantity > 0 && i.status !== 'arquivado').length;
 
     return {
       totalItems,
@@ -251,7 +253,8 @@ export const partsService = {
         updatedAt: new Date().toISOString(),
       }));
     }
-    let items = [...stockItemsStore];
+    const list = await mockStorage.get<StockItem>('stock_items', defaultStockItems);
+    let items = [...list];
 
     if (filters?.search) {
       const q = filters.search.toLowerCase();
@@ -288,11 +291,13 @@ export const partsService = {
   },
 
   async getStockItemById(id: string): Promise<StockItem | undefined> {
-    return stockItemsStore.find(i => i.id === id);
+    const list = await mockStorage.get<StockItem>('stock_items', defaultStockItems);
+    return list.find(i => i.id === id);
   },
 
   async createStockItem(data: Omit<StockItem, 'id' | 'createdAt' | 'updatedAt' | 'availableQuantity' | 'totalStockValue'>): Promise<StockItem> {
-    const existing = stockItemsStore.find(i => i.internalCode.toLowerCase() === data.internalCode.toLowerCase());
+    const list = await mockStorage.get<StockItem>('stock_items', defaultStockItems);
+    const existing = list.find(i => i.internalCode.toLowerCase() === data.internalCode.toLowerCase());
     if (existing) {
       throw new Error(`O código interno ${data.internalCode} já está em uso por outro item.`);
     }
@@ -309,9 +314,11 @@ export const partsService = {
       updatedAt: new Date().toISOString(),
     };
 
-    stockItemsStore.push(newItem);
+    list.push(newItem);
+    await mockStorage.set('stock_items', list);
 
-    stockHistoryStore.unshift({
+    const history = await mockStorage.get<StockHistoryLog>('stock_history', defaultStockHistory);
+    history.unshift({
       id: `LOG-${Date.now()}`,
       itemId: newItem.id,
       itemCode: newItem.internalCode,
@@ -320,24 +327,28 @@ export const partsService = {
       responsibleName: 'Roberto Alves (Almoxarife)',
       notes: `Item ${newItem.name} (${newItem.internalCode}) cadastrado no estoque.`,
     });
+    await mockStorage.set('stock_history', history);
 
     return newItem;
   },
 
   async updateStockItem(id: string, data: Partial<StockItem>): Promise<StockItem> {
-    const index = stockItemsStore.findIndex(i => i.id === id);
+    const list = await mockStorage.get<StockItem>('stock_items', defaultStockItems);
+    const index = list.findIndex(i => i.id === id);
     if (index === -1) throw new Error('Item de estoque não encontrado.');
 
     const updated = {
-      ...stockItemsStore[index],
+      ...list[index],
       ...data,
       updatedAt: new Date().toISOString(),
     };
 
     const finalItem = stockCalculationService.updateCalculatedItemFields(updated);
-    stockItemsStore[index] = finalItem;
+    list[index] = finalItem;
+    await mockStorage.set('stock_items', list);
 
-    stockHistoryStore.unshift({
+    const history = await mockStorage.get<StockHistoryLog>('stock_history', defaultStockHistory);
+    history.unshift({
       id: `LOG-${Date.now()}`,
       itemId: id,
       itemCode: finalItem.internalCode,
@@ -346,6 +357,7 @@ export const partsService = {
       responsibleName: 'Roberto Alves (Almoxarife)',
       notes: 'Alteração dos dados cadastrais do item de estoque.',
     });
+    await mockStorage.set('stock_history', history);
 
     return finalItem;
   },
@@ -362,9 +374,10 @@ export const partsService = {
   },
 
   async getStockHistory(itemId?: string): Promise<StockHistoryLog[]> {
+    const history = await mockStorage.get<StockHistoryLog>('stock_history', defaultStockHistory);
     if (itemId) {
-      return stockHistoryStore.filter(h => h.itemId === itemId);
+      return history.filter(h => h.itemId === itemId);
     }
-    return stockHistoryStore;
+    return history;
   },
 };

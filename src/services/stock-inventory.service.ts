@@ -1,7 +1,8 @@
 import type { StockInventory, StockInventoryFilter, StockInventoryItem } from '../types/stock-inventory';
 import { partsService } from './parts.service';
+import { mockStorage } from './mock-storage';
 
-let inventoriesStore: StockInventory[] = [
+const defaultInventories: StockInventory[] = [
   {
     id: 'INV-001',
     code: 'INV-2026-001',
@@ -46,7 +47,8 @@ let inventoriesStore: StockInventory[] = [
 
 export const stockInventoryService = {
   async getStockInventories(filters?: StockInventoryFilter): Promise<StockInventory[]> {
-    let items = [...inventoriesStore];
+    const list = await mockStorage.get<StockInventory>('stock_inventories', defaultInventories);
+    let items = [...list];
 
     if (filters?.search) {
       const q = filters.search.toLowerCase();
@@ -88,6 +90,7 @@ export const stockInventoryService = {
       status: 'pendente',
     }));
 
+    const list = await mockStorage.get<StockInventory>('stock_inventories', defaultInventories);
     const newInventory: StockInventory = {
       id: `INV-${Date.now()}`,
       code: `INV-${Math.floor(1000 + Math.random() * 9000)}`,
@@ -110,15 +113,17 @@ export const stockInventoryService = {
       item.inventoryId = newInventory.id;
     });
 
-    inventoriesStore.unshift(newInventory);
+    list.unshift(newInventory);
+    await mockStorage.set('stock_inventories', list);
     return newInventory;
   },
 
   async registerInventoryCount(id: string, counts: { itemId: string; count: number }[]): Promise<StockInventory> {
-    const index = inventoriesStore.findIndex(i => i.id === id);
+    const list = await mockStorage.get<StockInventory>('stock_inventories', defaultInventories);
+    const index = list.findIndex(i => i.id === id);
     if (index === -1) throw new Error('Inventário não encontrado.');
 
-    const inv = inventoriesStore[index];
+    const inv = list[index];
     let divergentCount = 0;
     let totalDiffVal = 0;
 
@@ -156,15 +161,17 @@ export const stockInventoryService = {
       updatedAt: new Date().toISOString(),
     };
 
-    inventoriesStore[index] = updatedInv;
+    list[index] = updatedInv;
+    await mockStorage.set('stock_inventories', list);
     return updatedInv;
   },
 
   async approveStockInventory(id: string, approverName: string): Promise<StockInventory> {
-    const index = inventoriesStore.findIndex(i => i.id === id);
+    const list = await mockStorage.get<StockInventory>('stock_inventories', defaultInventories);
+    const index = list.findIndex(i => i.id === id);
     if (index === -1) throw new Error('Inventário não encontrado.');
 
-    const inv = inventoriesStore[index];
+    const inv = list[index];
 
     // Para cada item divergente, aplicar o ajuste físico
     for (const item of inv.items) {
@@ -186,7 +193,8 @@ export const stockInventoryService = {
       updatedAt: new Date().toISOString(),
     };
 
-    inventoriesStore[index] = updatedInv;
+    list[index] = updatedInv;
+    await mockStorage.set('stock_inventories', list);
     return updatedInv;
   },
 };

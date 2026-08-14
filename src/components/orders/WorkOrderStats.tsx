@@ -5,7 +5,7 @@ import { Activity, AlertTriangle, Clock, ShieldAlert } from 'lucide-react';
 export const WorkOrderStats: React.FC<{ orders: WorkOrder[] }> = ({ orders }) => {
   const abertas = orders.filter(o => !['encerrada', 'cancelada', 'finalizada'].includes(o.status)).length;
   const emExecucao = orders.filter(o => o.status === 'em_execucao').length;
-  const criticas = orders.filter(o => o.priority === 'critica').length;
+  const criticas = orders.filter(o => o.priority === 'CRITICAL').length;
   const pausadas = orders.filter(o => o.status === 'pausada' || o.status.startsWith('aguardando_')).length;
 
   const stats = [

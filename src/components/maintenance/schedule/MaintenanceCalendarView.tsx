@@ -123,7 +123,7 @@ export const MaintenanceCalendarView: React.FC = () => {
     if (sch.status === 'concluida' || sch.status === 'cancelada') {
       return 'bg-gray-100 border-gray-300 text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400';
     }
-    if (sch.priority === 'critica') {
+    if (sch.priority === 'CRITICAL') {
       return 'bg-rose-50 border-rose-300 text-rose-800 dark:bg-rose-950/20 dark:border-rose-900/50 dark:text-rose-400';
     }
     if (sch.status === 'em_execucao') {
@@ -665,7 +665,7 @@ export const MaintenanceCalendarView: React.FC = () => {
                   </div>
                   <div>
                     <span className="block text-[10px] text-[var(--color-text-muted)] uppercase font-bold">Prioridade</span>
-                    <span className={`font-extrabold uppercase ${selectedEvent.priority === 'critica' || selectedEvent.priority === 'alta' ? 'text-[var(--color-danger)]' : 'text-[var(--color-brand)]'}`}>
+                    <span className={`font-extrabold uppercase ${selectedEvent.priority === 'CRITICAL' || selectedEvent.priority === 'URGENT' || selectedEvent.priority === 'HIGH' ? 'text-[var(--color-danger)]' : 'text-[var(--color-brand)]'}`}>
                       {selectedEvent.priority}
                     </span>
                   </div>

@@ -22,4 +22,10 @@ export interface ReportOperationalIndicators {
   totalParadaHours: number;
   completedRepairsCount: number;
   totalFailuresCount: number;
+
+  emergencyCorrectivePercent?: IndicatorMetric;
+  distributionByType?: Record<string, number>;
+  costByType?: Record<string, number>;
+  downtimeByType?: Record<string, number>;
+  mttrByType?: Record<string, number>;
 }
