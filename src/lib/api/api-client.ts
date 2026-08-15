@@ -33,19 +33,34 @@ export async function apiClient<T>(
     headers['Authorization'] = `Bearer ${session.access_token}`;
   }
 
-  const response = await fetch(url, {
-    ...options,
-    headers,
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 15000);
 
-  const data = await response.json().catch(() => ({}));
+  try {
+    const response = await fetch(url, {
+      ...options,
+      headers,
+      signal: options.signal || controller.signal,
+    });
 
-  if (!response.ok) {
-    const errorPayload = data as ApiErrorResponse;
-    const msg = errorPayload.error?.message || 'Erro inesperado na comunicação com o servidor.';
-    const code = errorPayload.error?.code || 'INTERNAL_ERROR';
-    throw new ApiError(msg, code, response.status, errorPayload.error?.fieldErrors);
+    clearTimeout(timeoutId);
+
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      const errorPayload = data as ApiErrorResponse;
+      const msg = errorPayload.error?.message || 'Erro inesperado na comunicação com o servidor.';
+      const code = errorPayload.error?.code || 'INTERNAL_ERROR';
+      throw new ApiError(msg, code, response.status, errorPayload.error?.fieldErrors);
+    }
+
+    return data as ApiResponse<T>;
+  } catch (err: any) {
+    clearTimeout(timeoutId);
+    if (err instanceof ApiError) throw err;
+    if (err.name === 'AbortError') {
+      throw new ApiError('Tempo limite excedido na resposta do servidor. Tente novamente.', 'REQUEST_TIMEOUT', 408);
+    }
+    throw new ApiError(err.message || 'Erro de conexão com o servidor.', 'NETWORK_ERROR', 500);
   }
-
-  return data as ApiResponse<T>;
 }

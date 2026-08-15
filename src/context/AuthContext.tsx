@@ -126,7 +126,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         },
         body: JSON.stringify(payload),
       });
-      // Recarrega o perfil para obter a organização recém-vinculada
+
+      if (res.data?.organizationId) {
+        setProfile((prev) => (prev ? { ...prev, organizationId: res.data.organizationId } : prev));
+      }
+
       if (user) {
         await fetchUserProfile(user);
       }

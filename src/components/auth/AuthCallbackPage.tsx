@@ -64,23 +64,23 @@ export const AuthCallbackPage: React.FC = () => {
           const pendingDataString = localStorage.getItem('agroguard_onboarding_pending');
           const pendingData = pendingDataString ? JSON.parse(pendingDataString) : {};
 
-          let provisionError: any = null;
-          for (let retry = 0; retry < 3; retry += 1) {
-            const result = await provisionOrganization(pendingData);
-            provisionError = result.error;
-            if (!provisionError) break;
-            if (provisionError.code === 'ONBOARDING_DATA_MISSING') break;
-            await new Promise((resolve) => setTimeout(resolve, 1200 * (retry + 1)));
-          }
+          // Tenta o provisionamento direto sem retries desnecessários se os dados estiverem visivelmente ausentes
+          const result = await provisionOrganization(pendingData);
+          const provisionError = result.error;
 
           if (cancelled) return;
+
           if (provisionError) {
-            // Se faltarem dados do onboarding (metadados indisponíveis na nuvem)
+            const msg = provisionError.message || '';
+            const code = provisionError.code || '';
+            // Se faltarem dados do onboarding, redireciona IMEDIATAMENTE para a tela com formulário manual
             if (
-              provisionError.code === 'ONBOARDING_DATA_MISSING' ||
-              (provisionError.message && provisionError.message.includes('não localizados'))
+              code === 'ONBOARDING_DATA_MISSING' ||
+              msg.includes('não localizados') ||
+              msg.includes('indisponíveis') ||
+              !pendingData.organizationName
             ) {
-              navigate('/onboarding/preparando-ambiente?erro=dados_ausentes');
+              navigate('/onboarding/preparando-ambiente?erro=dados_ausentes', { replace: true });
             } else {
               setError(provisionError.message || 'Erro ao criar seu ambiente. Tente novamente.');
             }
@@ -89,9 +89,7 @@ export const AuthCallbackPage: React.FC = () => {
 
           // Limpa o localStorage de forma segura
           localStorage.removeItem('agroguard_onboarding_pending');
-
-          setStatusText('Ambiente pronto! Preparando seu primeiro acesso...');
-          navigate('/boas-vindas');
+          navigate('/boas-vindas', { replace: true });
           return;
         } catch (err: any) {
           if (cancelled) return;
