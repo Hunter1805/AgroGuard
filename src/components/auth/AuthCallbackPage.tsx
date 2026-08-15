@@ -91,9 +91,7 @@ export const AuthCallbackPage: React.FC = () => {
           localStorage.removeItem('agroguard_onboarding_pending');
 
           setStatusText('Ambiente pronto! Preparando seu primeiro acesso...');
-          setTimeout(() => {
-            if (!cancelled) navigate('/boas-vindas');
-          }, 700);
+          navigate('/boas-vindas');
           return;
         } catch (err: any) {
           if (cancelled) return;

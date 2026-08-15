@@ -3,9 +3,10 @@ import { validateStatusTransition, type WorkOrderStatus } from './work-order.sta
 import { AppError } from '../../shared/errors/AppError';
 import { createPaginationMeta } from '../../shared/utils/pagination';
 import type { RequestActor } from '../../shared/http/RequestActor';
+import { AuditService } from '../../shared/services/audit.service';
 
 export class WorkOrderService {
-  constructor(private repo: WorkOrderRepository) {}
+  constructor(private repo: WorkOrderRepository, private audit?: AuditService) {}
 
   async listWorkOrders(actor: RequestActor, page?: number, pageSize?: number, query?: string) {
     const result = await this.repo.findWorkOrders(actor.organizationId, { page, pageSize }, query);
@@ -35,7 +36,7 @@ export class WorkOrderService {
   }) {
     const code = `OS-2026-${Math.floor(1000 + Math.random() * 9000)}`;
 
-    return this.repo.createWorkOrder({
+    const created = await this.repo.createWorkOrder({
       organizationId: actor.organizationId,
       equipmentId: data.equipmentId,
       workshopId: data.workshopId,
@@ -48,6 +49,8 @@ export class WorkOrderService {
       priority: data.priority || 'NORMAL',
       description: data.description,
     });
+    if (this.audit) await this.audit.log({ actor, module: 'work-orders', entityType: 'WorkOrder', entityId: created.id, action: 'CREATED' });
+    return created;
   }
 
   async transitionStatus(actor: RequestActor, id: string, targetStatus: WorkOrderStatus) {

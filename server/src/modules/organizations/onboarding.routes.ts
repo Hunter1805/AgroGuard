@@ -132,7 +132,13 @@ export async function onboardingRoutes(app: FastifyInstance) {
 
     // 3. Executar a transação Prisma para provisionamento completo e idempotente
     const result = await prisma.$transaction(async (tx) => {
-      let internalUser: any = user;
+      // Serializa o provisionamento por usuário dentro da transação. O lookup
+      // fora dela não é suficiente quando duas requisições chegam juntas.
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${authUserId}))`;
+      let internalUser: any = await tx.user.findUnique({ where: { authUserId } });
+      if (!internalUser) {
+        internalUser = user || await tx.user.findUnique({ where: { email } });
+      }
       if (!internalUser) {
         internalUser = await tx.user.create({
           data: {
@@ -150,6 +156,15 @@ export async function onboardingRoutes(app: FastifyInstance) {
         });
       }
 
+      const existingMembership = await tx.organizationMembership.findFirst({
+        where: { userId: internalUser.id, status: 'ativo' },
+        select: { organizationId: true },
+      });
+
+      if (existingMembership) {
+        return { organizationId: existingMembership.organizationId };
+      }
+
       const baseSlug = organizationName
         .toLowerCase()
         .normalize('NFD')
@@ -158,10 +173,8 @@ export async function onboardingRoutes(app: FastifyInstance) {
         .replace(/-+/g, '-')
         .replace(/^-|-$/g, '')
         .substring(0, 15);
-      
-      const randomSuffix = Math.random().toString(36).substring(2, 7);
-      const orgCode = `${baseSlug}-${randomSuffix}`;
 
+      const orgCode = `${baseSlug}-${authUserId.slice(0, 8)}`;
       const organization = await tx.organization.create({
         data: {
           name: organizationName,

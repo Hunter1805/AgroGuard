@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Shield, CheckCircle2, ArrowRight, Building, Cpu, Users, Calendar, Play, ExternalLink } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { Building2 } from 'lucide-react';
 
 export const WelcomeOnboardingPage: React.FC = () => {
   const { profile, updateOnboardingStep } = useAuth();
@@ -9,6 +10,8 @@ export const WelcomeOnboardingPage: React.FC = () => {
 
   // O progresso de onboarding atual pode ser lido do profile (onboardingStep)
   const currentStep = profile?.onboardingStep || 0;
+  const displayName = profile?.name || profile?.email?.split('@')[0] || 'seu ambiente';
+  const organizationName = profile?.organizationName || 'seu ambiente';
 
   const [loadingStep, setLoadingStep] = useState<number | null>(null);
 
@@ -61,7 +64,7 @@ export const WelcomeOnboardingPage: React.FC = () => {
 
   const handleSkipOnboarding = async () => {
     try {
-      // Ao explorar, podemos marcar como completo ou apenas ir para o dashboard
+      // A entrada no ambiente acontece somente por ação explícita do usuário.
       // O prompt diz: "O usuário também poderá selecionar: Explorar o sistema. O progresso ficará salvo e poderá ser retomado depois."
       // Se ele for para o dashboard, ele pode retomar o onboarding a partir do dashboard.
       // E para marcar como concluído de verdade, ele precisa terminar a etapa 4 ou clicar em concluir.
@@ -87,7 +90,7 @@ export const WelcomeOnboardingPage: React.FC = () => {
   return (
     <div className="min-h-screen w-full flex bg-slate-50 justify-center items-center p-6 text-slate-800 font-sans">
       <div className="w-full max-w-[640px] bg-white p-8 rounded-lg border border-slate-200 shadow-sm space-y-6">
-        
+
         {/* Cabeçalho */}
         <div className="flex justify-between items-start pb-4 border-b border-slate-100">
           <div className="space-y-1">
@@ -99,6 +102,13 @@ export const WelcomeOnboardingPage: React.FC = () => {
               <Shield size={20} />
             </div>
           </div>
+        </div>
+
+        <div className="rounded-md border-emerald-100 bg-emerald-50 p-4">
+          <p className="text-lg font-bold text-slate-900">Olá, {displayName}.</p>
+          <p className="mt-1 text-sm text-slate-600">Seu ambiente está pronto!</p>
+          <div className="mt-3 flex items-center gap-2 text-sm font-semibold text-emerald-800"><Building2 size={16} />{organizationName}</div>
+          <p className="mt-1 text-xs text-slate-500">Seu AgroGuard foi criado e está pronto para você começar.</p>
         </div>
 
         {/* Progresso de Onboarding */}

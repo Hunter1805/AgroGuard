@@ -5,10 +5,11 @@ import { WorkOrderService } from './work-order.service';
 import { createWorkOrderSchema, updateStatusSchema } from './work-order.schemas';
 import { AppError } from '../../shared/errors/AppError';
 import type { ApiResponse } from '../../shared/http/ApiResponse';
+import { AuditService } from '../../shared/services/audit.service';
 
 const prisma = new PrismaClient();
 const repo = new WorkOrderRepository(prisma);
-const service = new WorkOrderService(repo);
+const service = new WorkOrderService(repo, new AuditService(prisma));
 
 export async function workOrderRoutes(app: FastifyInstance) {
   app.get('/api/v1/work-orders', {

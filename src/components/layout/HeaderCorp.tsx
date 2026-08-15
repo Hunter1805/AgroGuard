@@ -2,6 +2,8 @@ import React, { useEffect, useState, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Bell, HelpCircle, Sun, Moon, Menu, Search, ChevronDown, X } from 'lucide-react';
 import { ROUTES } from '../../types/routes';
+import { isExplicitMockMode } from '../../config/data-source.config';
+import { useAuth } from '../../context/AuthContext';
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 export interface HeaderCorpProps {
@@ -161,7 +163,8 @@ export const HeaderCorp: React.FC<HeaderCorpProps> = ({
   onMobileMenuOpen,
   pendingAlerts = 0,
 }) => {
-  const [notifications, setNotifications] = useState<Notification[]>(MOCK_NOTIFICATIONS);
+  const { profile, loading: authLoading } = useAuth();
+  const [notifications, setNotifications] = useState<Notification[]>(isExplicitMockMode ? MOCK_NOTIFICATIONS : []);
   const [showNotifications, setShowNotifications] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
   const [darkMode, setDarkMode] = useState(() =>
@@ -204,6 +207,8 @@ export const HeaderCorp: React.FC<HeaderCorpProps> = ({
   };
 
   const unread = pendingAlerts > 0 ? pendingAlerts : notifications.length;
+  const userName = profile?.name || (authLoading ? 'Carregando...' : '');
+  const initials = userName ? userName.split(' ').filter(Boolean).slice(0, 2).map((part) => part[0]).join('').toUpperCase() : '—';
 
   return (
     <header
@@ -351,11 +356,11 @@ export const HeaderCorp: React.FC<HeaderCorpProps> = ({
             style={{ backgroundColor: 'var(--color-sidebar)' }}
             aria-hidden
           >
-            JS
+            {initials}
           </div>
           <div className="hidden sm:flex flex-col items-start leading-none gap-0.5">
             <span className="text-[13px] font-medium" style={{ color: 'var(--color-text-primary)' }}>
-              João Silva
+              {userName}
             </span>
             <span className="text-[11px]" style={{ color: 'var(--color-text-muted)' }}>
               Administrador

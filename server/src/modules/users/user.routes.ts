@@ -29,6 +29,7 @@ export async function userRoutes(app: FastifyInstance) {
             organization: {
               include: {
                 onboardingState: true,
+                companies: { take: 1, orderBy: { createdAt: 'asc' } },
               },
             },
           },
@@ -61,6 +62,8 @@ export async function userRoutes(app: FastifyInstance) {
       email: user.email,
       role: membership ? membership.role : '',
       organizationId: membership ? membership.organizationId : '',
+      organizationName: membership?.organization.name || '',
+      workspaceName: membership?.organization.companies?.[0]?.name || membership?.organization.name || '',
       status: membership ? membership.status : 'sem_organizacao',
       onboardingCompleted: membership && membership.organization.onboardingState ? membership.organization.onboardingState.completed : false,
       onboardingStep: membership && membership.organization.onboardingState ? membership.organization.onboardingState.currentStep : 0,

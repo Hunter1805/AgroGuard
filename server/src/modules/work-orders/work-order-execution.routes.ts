@@ -1,0 +1,32 @@
+import { FastifyInstance } from 'fastify';
+import { PrismaClient } from '@prisma/client';
+import { requireAuthentication, requirePermission } from '../../shared/middleware/authGuard';
+import { AuditService } from '../../shared/services/audit.service';
+import type { ApiResponse } from '../../shared/http/ApiResponse';
+import { WorkOrderExecutionRepository } from './work-order-execution.repository';
+import { WorkOrderExecutionService } from './work-order-execution.service';
+import { executionPatchSchema, laborCreateSchema, laborPatchSchema, materialCreateSchema, materialPatchSchema, toolCreateSchema, toolPatchSchema, noteSchema, timelineQuerySchema } from './work-order-execution.schemas';
+const prisma = new PrismaClient();
+const service = new WorkOrderExecutionService(new WorkOrderExecutionRepository(prisma), new AuditService(prisma));
+export async function workOrderExecutionRoutes(app: FastifyInstance) {
+  const read = { preHandler: [requireAuthentication(), requirePermission('work-orders', 'read')] };
+  const update = { preHandler: [requireAuthentication(), requirePermission('work-orders', 'update')] };
+  const execute = { preHandler: [requireAuthentication(), requirePermission('work-orders', 'execute')] };
+  const send = (reply: any, data: any) => reply.send({ data } satisfies ApiResponse<any>);
+  app.get('/api/v1/work-orders/:id/execution', read, async (q: any, r) => send(r, await service.getExecution(q.request.actor, q.params.id)));
+  app.patch('/api/v1/work-orders/:id/execution', update, async (q: any, r) => send(r, await service.patchExecution(q.request.actor, q.params.id, executionPatchSchema.parse(q.body))));
+  app.get('/api/v1/work-orders/:id/labor', read, async (q: any, r) => send(r, await service.listLabor(q.request.actor, q.params.id)));
+  app.post('/api/v1/work-orders/:id/labor', execute, async (q: any, r) => r.status(201).send({ data: await service.createLabor(q.request.actor, q.params.id, laborCreateSchema.parse(q.body)) }));
+  app.patch('/api/v1/work-orders/:id/labor/:entryId', update, async (q: any, r) => send(r, await service.updateLabor(q.request.actor, q.params.id, q.params.entryId, laborPatchSchema.parse(q.body))));
+  app.delete('/api/v1/work-orders/:id/labor/:entryId', update, async (q: any, r) => send(r, await service.deleteLabor(q.request.actor, q.params.id, q.params.entryId)));
+  app.get('/api/v1/work-orders/:id/materials', read, async (q: any, r) => send(r, await service.listMaterials(q.request.actor, q.params.id)));
+  app.post('/api/v1/work-orders/:id/materials', execute, async (q: any, r) => r.status(201).send({ data: await service.createMaterial(q.request.actor, q.params.id, materialCreateSchema.parse(q.body)) }));
+  app.patch('/api/v1/work-orders/:id/materials/:usageId', update, async (q: any, r) => send(r, await service.updateMaterial(q.request.actor, q.params.id, q.params.usageId, materialPatchSchema.parse(q.body))));
+  app.delete('/api/v1/work-orders/:id/materials/:usageId', update, async (q: any, r) => send(r, await service.deleteMaterial(q.request.actor, q.params.id, q.params.usageId)));
+  app.get('/api/v1/work-orders/:id/tools', read, async (q: any, r) => send(r, await service.listTools(q.request.actor, q.params.id)));
+  app.post('/api/v1/work-orders/:id/tools', execute, async (q: any, r) => r.status(201).send({ data: await service.createTool(q.request.actor, q.params.id, toolCreateSchema.parse(q.body)) }));
+  app.patch('/api/v1/work-orders/:id/tools/:usageId', update, async (q: any, r) => send(r, await service.updateTool(q.request.actor, q.params.id, q.params.usageId, toolPatchSchema.parse(q.body))));
+  app.delete('/api/v1/work-orders/:id/tools/:usageId', update, async (q: any, r) => send(r, await service.deleteTool(q.request.actor, q.params.id, q.params.usageId)));
+  app.get('/api/v1/work-orders/:id/timeline', read, async (q: any, r) => { const query = timelineQuerySchema.parse(q.query); return send(r, await service.timeline(q.request.actor, q.params.id, query.page, query.pageSize)); });
+  app.post('/api/v1/work-orders/:id/notes', update, async (q: any, r) => r.status(201).send({ data: await service.note(q.request.actor, q.params.id, noteSchema.parse(q.body).message) }));
+}

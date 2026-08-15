@@ -21,20 +21,25 @@ model Organization {
   archivedAt DateTime? @db.Timestamptz(3)
   deletedAt  DateTime? @db.Timestamptz(3)
 
-  companies       Company[]
-  units           Unit[]
-  farms           Farm[]
-  equipments      Equipment[]
-  workOrders      WorkOrder[]
-  stockItems      StockItem[]
-  tires           Tire[]
-  tools           Tool[]
-  auditLogs       AuditLog[]
-  legacyMaps      LegacyIdMap[]
-  memberships     OrganizationMembership[]
-  settings        OrganizationSetting?
-  onboardingState OnboardingState?
-  invitations     UserInvitation[]
+  companies               Company[]
+  units                   Unit[]
+  farms                   Farm[]
+  equipments              Equipment[]
+  workOrders              WorkOrder[]
+  stockItems              StockItem[]
+  tires                   Tire[]
+  tools                   Tool[]
+  workOrderExecutions     WorkOrderExecution[]
+  workOrderLaborEntries   WorkOrderLaborEntry[]
+  workOrderMaterialUsages WorkOrderMaterialUsage[]
+  workOrderToolUsages     WorkOrderToolUsage[]
+  workOrderTimeline       WorkOrderTimeline[]
+  auditLogs               AuditLog[]
+  legacyMaps              LegacyIdMap[]
+  memberships             OrganizationMembership[]
+  settings                OrganizationSetting?
+  onboardingState         OnboardingState?
+  invitations             UserInvitation[]
 
   maintenancePlans          MaintenancePlan[]
   maintenancePlanEquipments MaintenancePlanEquipment[]
@@ -331,12 +336,16 @@ model User {
   archivedAt   DateTime? @db.Timestamptz(3)
   deletedAt    DateTime? @db.Timestamptz(3)
 
-  userRoles        UserRole[]
-  workOrdersOpened WorkOrder[]              @relation("WorkOrderOpener")
-  meterReadings    MeterReading[]
-  auditLogs        AuditLog[]
-  memberships      OrganizationMembership[]
-  preferences      UserPreference?
+  userRoles               UserRole[]
+  workOrdersOpened        WorkOrder[]              @relation("WorkOrderOpener")
+  meterReadings           MeterReading[]
+  auditLogs               AuditLog[]
+  memberships             OrganizationMembership[]
+  preferences             UserPreference?
+  workOrderLaborEntries   WorkOrderLaborEntry[]
+  workOrderMaterialUsages WorkOrderMaterialUsage[]
+  workOrderToolUsages     WorkOrderToolUsage[]
+  workOrderTimelineEvents WorkOrderTimeline[]
 
   maintenancePlansCreated              MaintenancePlan[]          @relation("MaintenancePlanCreator")
   maintenancePlanEquipmentsResponsible MaintenancePlanEquipment[]
@@ -469,16 +478,159 @@ model WorkOrder {
   createdAt       DateTime  @default(now()) @db.Timestamptz(3)
   updatedAt       DateTime  @updatedAt @db.Timestamptz(3)
 
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
-  workshop     Workshop?    @relation(fields: [workshopId], references: [id], onDelete: SetNull)
-  equipment    Equipment    @relation(fields: [equipmentId], references: [id], onDelete: Restrict)
-  openedByUser User?        @relation("WorkOrderOpener", fields: [openedByUserId], references: [id], onDelete: SetNull)
-
+  organization   Organization             @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  workshop       Workshop?                @relation(fields: [workshopId], references: [id], onDelete: SetNull)
+  equipment      Equipment                @relation(fields: [equipmentId], references: [id], onDelete: Restrict)
+  openedByUser   User?                    @relation("WorkOrderOpener", fields: [openedByUserId], references: [id], onDelete: SetNull)
   stockMovements StockMovement[]
   schedules      MaintenanceSchedule[]
+  execution      WorkOrderExecution?
+  laborEntries   WorkOrderLaborEntry[]
+  materialUsages WorkOrderMaterialUsage[]
+  toolUsages     WorkOrderToolUsage[]
+  timeline       WorkOrderTimeline[]
 
   @@unique([organizationId, code])
   @@map("work_orders")
+}
+
+enum WorkOrderLaborEntryType {
+  SERVICE
+  PAUSE
+}
+
+enum WorkOrderLaborEntryStatus {
+  OPEN
+  COMPLETED
+  CANCELLED
+}
+
+enum WorkOrderTimelineEventType {
+  CREATED
+  UPDATED
+  STATUS_CHANGED
+  STARTED
+  PAUSED
+  RESUMED
+  MATERIAL_ADDED
+  MATERIAL_REMOVED
+  TOOL_ADDED
+  TOOL_REMOVED
+  NOTE_ADDED
+  COMPLETED
+  CANCELLED
+}
+
+model WorkOrderExecution {
+  id                   String    @id @default(uuid()) @db.Uuid
+  organizationId       String    @db.Uuid
+  workOrderId          String    @unique @db.Uuid
+  executionStartedAt   DateTime? @db.Timestamptz(3)
+  executionEndedAt     DateTime? @db.Timestamptz(3)
+  technicalDiagnosis   String?
+  foundCause           String?
+  rootCause            String?
+  failureConfirmed     Boolean?
+  recurrentFailure     Boolean?
+  futureRecommendation String?
+  createdAt            DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt            DateTime  @updatedAt @db.Timestamptz(3)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  workOrder    WorkOrder    @relation(fields: [workOrderId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, executionStartedAt])
+  @@map("work_order_executions")
+}
+
+model WorkOrderLaborEntry {
+  id              String                    @id @default(uuid()) @db.Uuid
+  organizationId  String                    @db.Uuid
+  workOrderId     String                    @db.Uuid
+  executorUserId  String?                   @db.Uuid
+  entryType       WorkOrderLaborEntryType   @default(SERVICE)
+  status          WorkOrderLaborEntryStatus @default(OPEN)
+  startedAt       DateTime                  @db.Timestamptz(3)
+  endedAt         DateTime?                 @db.Timestamptz(3)
+  durationMinutes Int?
+  observation     String?
+  hourlyCost      Decimal?                  @db.Decimal(14, 2)
+  createdAt       DateTime                  @default(now()) @db.Timestamptz(3)
+  updatedAt       DateTime                  @updatedAt @db.Timestamptz(3)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  workOrder    WorkOrder    @relation(fields: [workOrderId], references: [id], onDelete: Cascade)
+  executor     User?        @relation(fields: [executorUserId], references: [id], onDelete: SetNull)
+
+  @@index([organizationId, workOrderId, startedAt])
+  @@index([organizationId, executorUserId, startedAt])
+  @@map("work_order_labor_entries")
+}
+
+model WorkOrderMaterialUsage {
+  id                String   @id @default(uuid()) @db.Uuid
+  organizationId    String   @db.Uuid
+  workOrderId       String   @db.Uuid
+  stockItemId       String   @db.Uuid
+  responsibleUserId String?  @db.Uuid
+  quantity          Decimal  @db.Decimal(16, 3)
+  unitCost          Decimal  @db.Decimal(14, 2)
+  totalCost         Decimal? @db.Decimal(14, 2)
+  consumedAt        DateTime @default(now()) @db.Timestamptz(3)
+  batchOrReference  String?
+  createdAt         DateTime @default(now()) @db.Timestamptz(3)
+
+  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  workOrder       WorkOrder    @relation(fields: [workOrderId], references: [id], onDelete: Cascade)
+  stockItem       StockItem    @relation(fields: [stockItemId], references: [id], onDelete: Restrict)
+  responsibleUser User?        @relation(fields: [responsibleUserId], references: [id], onDelete: SetNull)
+
+  @@index([organizationId, workOrderId, consumedAt])
+  @@index([organizationId, stockItemId])
+  @@map("work_order_material_usages")
+}
+
+model WorkOrderToolUsage {
+  id                String    @id @default(uuid()) @db.Uuid
+  organizationId    String    @db.Uuid
+  workOrderId       String    @db.Uuid
+  toolId            String    @db.Uuid
+  responsibleUserId String?   @db.Uuid
+  quantity          Decimal   @default(1) @db.Decimal(16, 3)
+  withdrawnAt       DateTime? @db.Timestamptz(3)
+  returnedAt        DateTime? @db.Timestamptz(3)
+  stateBefore       String?
+  stateAfter        String?
+  createdAt         DateTime  @default(now()) @db.Timestamptz(3)
+
+  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  workOrder       WorkOrder    @relation(fields: [workOrderId], references: [id], onDelete: Cascade)
+  tool            Tool         @relation(fields: [toolId], references: [id], onDelete: Restrict)
+  responsibleUser User?        @relation(fields: [responsibleUserId], references: [id], onDelete: SetNull)
+
+  @@index([organizationId, workOrderId, withdrawnAt])
+  @@index([organizationId, toolId])
+  @@map("work_order_tool_usages")
+}
+
+model WorkOrderTimeline {
+  id             String                     @id @default(uuid()) @db.Uuid
+  organizationId String                     @db.Uuid
+  workOrderId    String                     @db.Uuid
+  actorUserId    String?                    @db.Uuid
+  eventType      WorkOrderTimelineEventType
+  timestamp      DateTime                   @default(now()) @db.Timestamptz(3)
+  message        String?
+  metadata       Json?
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  workOrder    WorkOrder    @relation(fields: [workOrderId], references: [id], onDelete: Cascade)
+  actorUser    User?        @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@index([organizationId, workOrderId, timestamp])
+  @@index([organizationId, timestamp])
+  @@index([organizationId, actorUserId, timestamp])
+  @@map("work_order_timeline")
 }
 
 // ==========================================
@@ -532,7 +684,8 @@ model Tool {
   createdAt      DateTime @default(now()) @db.Timestamptz(3)
   updatedAt      DateTime @updatedAt @db.Timestamptz(3)
 
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  organization    Organization         @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  workOrderUsages WorkOrderToolUsage[]
 
   @@unique([organizationId, code])
   @@map("tools")
@@ -554,10 +707,11 @@ model StockItem {
   createdAt      DateTime @default(now()) @db.Timestamptz(3)
   updatedAt      DateTime @updatedAt @db.Timestamptz(3)
 
-  organization Organization    @relation(fields: [organizationId], references: [id], onDelete: Restrict)
-  unitMeasure  UnitMeasure     @relation(fields: [unitMeasureId], references: [id], onDelete: Restrict)
-  balances     StockBalance[]
-  movements    StockMovement[]
+  organization            Organization             @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  unitMeasure             UnitMeasure              @relation(fields: [unitMeasureId], references: [id], onDelete: Restrict)
+  balances                StockBalance[]
+  movements               StockMovement[]
+  workOrderMaterialUsages WorkOrderMaterialUsage[]
 
   @@unique([organizationId, code])
   @@map("stock_items")

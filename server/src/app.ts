@@ -14,6 +14,7 @@ import { userRoutes } from './modules/users/user.routes';
 import { invitationRoutes } from './modules/users/invitation.routes';
 import { equipmentRoutes } from './modules/equipment/equipment.routes';
 import { workOrderRoutes } from './modules/work-orders/work-order.routes';
+import { workOrderExecutionRoutes } from './modules/work-orders/work-order-execution.routes';
 import { stockRoutes } from './modules/stock/stock.routes';
 import { fileRoutes } from './modules/files/file.routes';
 import { importRoutes } from './modules/imports/import.routes';
@@ -116,6 +117,7 @@ export async function buildApp() {
   await app.register(invitationRoutes);
   await app.register(equipmentRoutes);
   await app.register(workOrderRoutes);
+  await app.register(workOrderExecutionRoutes);
   await app.register(stockRoutes);
   await app.register(fileRoutes);
   await app.register(importRoutes);

@@ -14,7 +14,8 @@ const baseRepo = () => ({
 
 describe('MaintenanceService', () => {
   it('cria plano usando a organização do ator', async () => { const repo = baseRepo(); repo.createPlan.mockResolvedValue({ id: 'p1', name: 'Plano' }); const result = await new MaintenanceService(repo as any, audit).createPlan(actor, { name: 'Plano' }); expect(result.id).toBe('p1'); expect(repo.createPlan).toHaveBeenCalledWith(expect.objectContaining({ organizationId: 'org-a' })); });
-  it('bloqueia vínculo duplicado', async () => { const repo = baseRepo(); repo.findPlan.mockResolvedValue({ id: 'p1' }); repo.findEquipment.mockResolvedValue({ id: 'e1' }); repo.findLink.mockResolvedValue({ id: 'l1' }); await expect(new MaintenanceService(repo as any, audit).linkEquipment(actor, 'p1', { equipmentId: 'e1' })).rejects.toMatchObject({ code: 'DUPLICATE_RECORD' });
+  it('bloqueia vínculo duplicado', async () => {
+    const repo = baseRepo(); repo.findPlan.mockResolvedValue({ id: 'p1' }); repo.findEquipment.mockResolvedValue({ id: 'e1' }); repo.findLink.mockResolvedValue({ id: 'l1' }); await expect(new MaintenanceService(repo as any, audit).linkEquipment(actor, 'p1', { equipmentId: 'e1' })).rejects.toMatchObject({ code: 'DUPLICATE_RECORD' });
   });
   it('valida transição inválida e permite conclusão', async () => { const repo = baseRepo(); repo.findSchedule.mockResolvedValue({ id: 's1', status: MaintenanceScheduleStatus.SCHEDULED }); const service = new MaintenanceService(repo as any, audit); await expect(service.updateStatus(actor, 's1', { status: MaintenanceScheduleStatus.COMPLETED })).rejects.toBeInstanceOf(AppError); repo.findSchedule.mockResolvedValue({ id: 's1', status: MaintenanceScheduleStatus.IN_PROGRESS }); repo.updateSchedule.mockResolvedValue({ id: 's1', status: MaintenanceScheduleStatus.COMPLETED }); await expect(service.updateStatus(actor, 's1', { status: MaintenanceScheduleStatus.COMPLETED })).resolves.toBeTruthy(); });
 });

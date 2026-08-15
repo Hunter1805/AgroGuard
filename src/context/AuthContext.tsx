@@ -10,6 +10,8 @@ export interface UserProfileData {
   email: string;
   role: string;
   organizationId: string;
+  organizationName?: string;
+  workspaceName?: string;
   status: string;
   onboardingCompleted: boolean;
   onboardingStep: number;
@@ -62,38 +64,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => subscription.unsubscribe();
   }, []);
 
-  const fetchUserProfile = async (authUser: SupabaseUser) => {
+  const fetchUserProfile = async (_authUser: SupabaseUser) => {
     try {
       const res = await apiClient<UserProfileData>('/users/me');
       if (res.data) {
         setProfile(res.data);
       } else {
-        // Fallback estruturado
-        setProfile({
-          id: '',
-          authUserId: authUser.id,
-          name: authUser.user_metadata?.name || authUser.email?.split('@')[0] || 'Usuário AgroGuard',
-          email: authUser.email || '',
-          role: '',
-          organizationId: '',
-          status: 'novo',
-          onboardingCompleted: false,
-          onboardingStep: 0,
-        });
+        setProfile(null);
       }
     } catch {
-      // Fallback em caso de erro da API rest
-      setProfile({
-        id: '',
-        authUserId: authUser.id,
-        name: authUser.user_metadata?.name || authUser.email?.split('@')[0] || 'Usuário AgroGuard',
-        email: authUser.email || '',
-        role: '',
-        organizationId: '',
-        status: 'novo',
-        onboardingCompleted: false,
-        onboardingStep: 0,
-      });
+      setProfile(null);
     } finally {
       setLoading(false);
     }
@@ -138,7 +118,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const provisionOrganization = async (payload: any) => {
     try {
-      const idempotencyKey = crypto.randomUUID ? crypto.randomUUID() : 'idemp-' + Date.now() + '-' + Math.random().toString(36).substring(2, 7);
+      const idempotencyKey = `onboarding-${payload?.ownerName || ''}-${payload?.organizationName || ''}-${payload?.workspaceName || ''}`.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
       const res = await apiClient<{ message: string; organizationId: string }>('/onboarding/provision', {
         method: 'POST',
         headers: {

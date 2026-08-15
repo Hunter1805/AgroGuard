@@ -191,6 +191,20 @@ export const equipmentService = {
   },
 
   async getEquipmentStats(): Promise<EquipmentStats> {
+    if (dataSourceConfig.equipment === 'api') {
+      const list = await fetchEquipmentsFromApi();
+      return {
+        total: list.length,
+        operantes: list.filter((e) => e.status === 'operante').length,
+        emOperacao: list.filter((e) => e.status === 'em_operacao').length,
+        emManutencao: list.filter((e) => e.status === 'manutencao').length,
+        parados: list.filter((e) => e.status === 'parado' || e.status === 'inoperante').length,
+        bloqueados: list.filter((e) => e.status === 'bloqueado').length,
+        alertasPendentes: list.filter((e) => e.hasPendingAlert).length,
+        manutencoesVencidas: list.filter((e) => e.maintenanceStatus === 'vencida').length,
+        leiturasAtrasadas: list.filter((e) => e.isReadingOverdue).length,
+      };
+    }
     const list = await mockStorage.get<Equipment>('equipments', defaultEquipments);
     const active = list.filter((e) => !e.isArchived);
     const stats: EquipmentStats = {
@@ -208,7 +222,9 @@ export const equipmentService = {
   },
 
   async getLocations(): Promise<string[]> {
-    const list = await mockStorage.get<Equipment>('equipments', defaultEquipments);
+    const list = dataSourceConfig.equipment === 'api'
+      ? await fetchEquipmentsFromApi()
+      : await mockStorage.get<Equipment>('equipments', defaultEquipments);
     const locs = Array.from(
       new Set(list.filter((e) => !e.isArchived).map((e) => e.location))
     ).sort();
@@ -225,7 +241,9 @@ export const equipmentService = {
     isReadingOverdue?: boolean;
     includeArchived?: boolean;
   }): Promise<Equipment[]> {
-    const list = await mockStorage.get<Equipment>('equipments', defaultEquipments);
+    const list = dataSourceConfig.equipment === 'api'
+      ? await fetchEquipmentsFromApi()
+      : await mockStorage.get<Equipment>('equipments', defaultEquipments);
     let result = [...list];
 
     if (!options.includeArchived) {
@@ -274,6 +292,9 @@ export const equipmentService = {
   },
 
   async archiveEquipment(id: string, reason: string): Promise<boolean> {
+    if (dataSourceConfig.equipment === 'api') {
+      throw new Error('Arquivamento de equipamentos requer o gateway da API.');
+    }
     const list = await mockStorage.get<Equipment>('equipments', defaultEquipments);
     const index = list.findIndex((e) => e.id === id);
     if (index !== -1) {
@@ -287,6 +308,9 @@ export const equipmentService = {
   },
 
   async createEquipment(formData: EquipmentFormData): Promise<Equipment> {
+    if (dataSourceConfig.equipment === 'api') {
+      throw new Error('Cadastro de equipamentos requer o gateway da API.');
+    }
     const list = await mockStorage.get<Equipment>('equipments', defaultEquipments);
     const newId = `EQ-${String(list.length + 1).padStart(3, '0')}`;
     const todayStr = new Date().toLocaleDateString('pt-BR');
@@ -343,6 +367,9 @@ export const equipmentService = {
   },
 
   async updateEquipment(id: string, formData: Partial<EquipmentFormData>): Promise<Equipment> {
+    if (dataSourceConfig.equipment === 'api') {
+      throw new Error('Edição de equipamentos requer o gateway da API.');
+    }
     const list = await mockStorage.get<Equipment>('equipments', defaultEquipments);
     const index = list.findIndex((e) => e.id === id);
     if (index === -1) {
@@ -369,6 +396,9 @@ export const equipmentService = {
 
   // Centralização de dados auxiliares para o formulário
   getAuxiliaryOptions() {
+    if (dataSourceConfig.equipment === 'api') {
+      return { farms: [], sectors: [], locations: [], brands: [], fuelTypes: [], operators: [], maintenancePlans: [] };
+    }
     return {
       farms: ['Fazenda São João', 'Fazenda Santa Maria', 'Fazenda Vista Alegre', 'Logística Geral', 'Sede Central'],
       sectors: ['Café', 'Grãos', 'Citros', 'Colheita', 'Oficina', 'Transporte', 'Fiscalização', 'Preparo', 'Fertilização'],
