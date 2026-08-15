@@ -1,5 +1,6 @@
 import type { ChecklistNonConformity, NonConformityStatus } from '../types/checklist';
 import { equipmentService } from './equipment.service';
+import { isExplicitMockMode } from '../config/data-source.config';
 
 const MOCK_NON_CONFORMITIES: ChecklistNonConformity[] = [
   {
@@ -86,6 +87,7 @@ class ChecklistNonConformityService {
     onlyBlocked?: boolean;
   }): Promise<ChecklistNonConformity[]> {
     await new Promise((r) => setTimeout(r, 100));
+    if (!isExplicitMockMode) return [];
     return this.ncs.filter((nc) => {
       if (filters?.status && filters.status !== 'todos' && nc.status !== filters.status) return false;
       if (filters?.criticality && filters.criticality !== 'todas' && nc.criticality !== filters.criticality) return false;

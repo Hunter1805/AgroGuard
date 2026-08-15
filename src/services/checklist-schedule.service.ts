@@ -1,4 +1,5 @@
 import type { ChecklistSchedule } from '../types/checklist';
+import { isExplicitMockMode } from '../config/data-source.config';
 
 const MOCK_SCHEDULES: ChecklistSchedule[] = [
   {
@@ -58,6 +59,7 @@ class ChecklistScheduleService {
 
   async getChecklistSchedules(filters?: { active?: boolean; frequency?: string; equipmentId?: string }): Promise<ChecklistSchedule[]> {
     await new Promise((r) => setTimeout(r, 100));
+    if (!isExplicitMockMode) return [];
     return this.schedules.filter((s) => {
       if (filters?.active !== undefined && s.active !== filters.active) return false;
       if (filters?.frequency && filters.frequency !== 'todas' && s.frequency !== filters.frequency) return false;
@@ -73,6 +75,7 @@ class ChecklistScheduleService {
 
   async getChecklistScheduleById(id: string): Promise<ChecklistSchedule | undefined> {
     await new Promise((r) => setTimeout(r, 80));
+    if (!isExplicitMockMode) return undefined;
     return this.schedules.find((s) => s.id === id);
   }
 
@@ -94,7 +97,7 @@ class ChecklistScheduleService {
     await new Promise((r) => setTimeout(r, 180));
     const idx = this.schedules.findIndex((s) => s.id === id);
     if (idx === -1) throw new Error('Programação de checklist não encontrada');
-    
+
     const updated: ChecklistSchedule = {
       ...this.schedules[idx],
       ...data,

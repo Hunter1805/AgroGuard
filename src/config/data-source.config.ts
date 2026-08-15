@@ -15,7 +15,10 @@ export interface DataSourceFlags {
   reports: 'mock' | 'api';
 }
 
-const currentMode = (import.meta.env.VITE_DATA_SOURCE as DataSourceMode) || 'hybrid';
+// Mocks só podem ser usados quando o modo demo for explicitamente habilitado.
+const currentMode = (import.meta.env.VITE_DATA_SOURCE as DataSourceMode) || 'api';
+
+export const isExplicitMockMode = currentMode === 'mock';
 
 export const dataSourceConfig: DataSourceFlags = {
   mode: currentMode,

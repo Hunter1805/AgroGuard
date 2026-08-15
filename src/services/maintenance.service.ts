@@ -1,6 +1,7 @@
 import type { MaintenanceItem, RevisionSchedule, MaintenanceOverviewStats, MaintenanceAlertItem } from '../types/maintenance';
 import type { ServiceOrder } from '../types/order';
 import { ROUTES } from '../types/routes';
+import { isExplicitMockMode } from '../config/data-source.config';
 
 const mockMaintenances: MaintenanceItem[] = [
   { id: 'MAN-901', equipment: 'Trator John Deere 8R', type: 'Preventiva', due: 'Há 5 dias', status: 'vencida', description: 'Troca de óleo de transmissão e substituição de filtros.' },
@@ -25,15 +26,15 @@ const mockOrders: ServiceOrder[] = [
 
 export const maintenanceService = {
   async getQueue(): Promise<MaintenanceItem[]> {
-    return Promise.resolve([...mockMaintenances]);
+    return isExplicitMockMode ? Promise.resolve([...mockMaintenances]) : Promise.resolve([]);
   },
 
   async getUpcomingRevisions(): Promise<RevisionSchedule[]> {
-    return Promise.resolve([...mockRevisions]);
+    return isExplicitMockMode ? Promise.resolve([...mockRevisions]) : Promise.resolve([]);
   },
 
   async getOrders(): Promise<ServiceOrder[]> {
-    return Promise.resolve([...mockOrders]);
+    return isExplicitMockMode ? Promise.resolve([...mockOrders]) : Promise.resolve([]);
   },
 
   async createOrder(newOrder: ServiceOrder): Promise<ServiceOrder> {
@@ -43,6 +44,7 @@ export const maintenanceService = {
 
   // ─── Agregação Analítica Mestre da Fase 5 (Visão Geral) ─────────────────────
   async getMaintenanceOverviewStats(): Promise<MaintenanceOverviewStats> {
+    if (!isExplicitMockMode) return { vencidas: 0, urgentes: 0, proximas: 0, programadas: 0, emExecucao: 0, concluidasPeriodo: 0, semPlanoPreventivo: 0, ordensPreventivasAbertas: 0, percentualCumprimento: 0, tempoPrevistoMinutos: 0, tempoRealizadoMinutos: 0 };
     const stats: MaintenanceOverviewStats = {
       vencidas: 2,
       urgentes: 3,
@@ -60,6 +62,7 @@ export const maintenanceService = {
   },
 
   async getMaintenanceAlerts(): Promise<MaintenanceAlertItem[]> {
+    if (!isExplicitMockMode) return [];
     const alerts: MaintenanceAlertItem[] = [
       {
         id: 'ALT-MAN-01',

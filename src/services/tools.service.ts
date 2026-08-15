@@ -6,6 +6,7 @@ import type {
   TirePressureEntry,
 } from '../types/tools';
 import { mockStorage } from './mock-storage';
+import { isExplicitMockMode } from '../config/data-source.config';
 
 const defaultTools: Tool[] = [
   {
@@ -231,6 +232,7 @@ export const toolsService = {
 
     const totalPatrimonyValue = list.reduce((acc, t) => acc + (t.acquisitionValue || 0), 0);
 
+    if (!isExplicitMockMode) return { totalTools: 0, availableTools: 0, loanedTools: 0, overdueLoans: 0, reservedTools: 0, inMaintenanceTools: 0, damagedTools: 0, lostTools: 0, expiredCalibrations: 0, upcomingCalibrations: 0, incompleteKits: 0, totalPatrimonyValue: 0 };
     return {
       totalTools,
       availableTools,
@@ -248,6 +250,7 @@ export const toolsService = {
   },
 
   async getTools(filter?: ToolFilter): Promise<Tool[]> {
+    if (!isExplicitMockMode) return [];
     const list = await mockStorage.get<Tool>('tools', defaultTools);
     let result = [...list];
 
@@ -293,6 +296,7 @@ export const toolsService = {
   },
 
   async getToolById(id: string): Promise<Tool | undefined> {
+    if (!isExplicitMockMode) return undefined;
     const list = await mockStorage.get<Tool>('tools', defaultTools);
     const tool = list.find(t => t.id === id || t.code === id);
     return tool ? { ...tool } : undefined;
@@ -537,6 +541,6 @@ export const toolsService = {
 
 export const tirePressureService = {
   async getAll(): Promise<TirePressureEntry[]> {
-    return Promise.resolve([...mockTirePressures]);
+    return isExplicitMockMode ? Promise.resolve([...mockTirePressures]) : Promise.resolve([]);
   },
 };

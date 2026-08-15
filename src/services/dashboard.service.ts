@@ -1,3 +1,4 @@
+import { isExplicitMockMode } from '../config/data-source.config';
 import type {
   DashboardKPIs,
   MonthlyCostBar,
@@ -357,10 +358,14 @@ const mockFleetStatus: FleetStatusBreakdown = {
 export const dashboardService = {
   // Novos métodos
   async getStats(): Promise<DashboardStats> {
+    if (!isExplicitMockMode) {
+      return { totalEquipment: 0, availableEquipment: 0, operatingEquipment: 0, maintenanceEquipment: 0, stoppedEquipment: 0, blockedEquipment: 0, openOrders: 0, overdueOrders: 0, upcomingMaintenance: 0, overdueMaintenance: 0, pendingChecklists: 0, openNonConformities: 0, borrowedTools: 0, lowStockItems: 0, criticalAlerts: 0 };
+    }
     return Promise.resolve({ ...mockStats });
   },
 
   async getPriorityAlerts(limit = 6): Promise<DashboardAlert[]> {
+    if (!isExplicitMockMode) return [];
     const priorityOrder: Record<string, number> = {
       critica: 0, alta: 1, media: 2, baixa: 3, informativo: 4,
     };
@@ -371,6 +376,7 @@ export const dashboardService = {
   },
 
   async getUpcomingMaintenance(): Promise<UpcomingMaintenance[]> {
+    if (!isExplicitMockMode) return [];
     const statusOrder: Record<string, number> = {
       vencida: 0, urgente: 1, proxima: 2, normal: 3,
     };
@@ -382,27 +388,33 @@ export const dashboardService = {
   },
 
   async getRecentOrders(limit = 5): Promise<DashboardOrder[]> {
+    if (!isExplicitMockMode) return [];
     return Promise.resolve(mockOrders.slice(0, limit));
   },
 
   async getRecentActivities(limit = 8): Promise<DashboardActivity[]> {
+    if (!isExplicitMockMode) return [];
     return Promise.resolve(mockActivities.slice(0, limit));
   },
 
   // Legado (compatibilidade)
   async getKPIs(): Promise<DashboardKPIs> {
+    if (!isExplicitMockMode) return { currentMonthCost: 'R$ 0', projectedMonthCost: 'R$ 0', costTrendPercentage: 0, overdueMaintenancesCount: 0, nextMaintenancesCount: 0 };
     return Promise.resolve({ ...mockKPIs });
   },
 
   async getCostChartData(period: '6M' | 'YTD'): Promise<MonthlyCostBar[]> {
+    if (!isExplicitMockMode) return [];
     return Promise.resolve(mockCostChart[period] ?? []);
   },
 
   async getActiveAlerts(): Promise<ActiveAlert[]> {
+    if (!isExplicitMockMode) return [];
     return Promise.resolve([...mockLegacyAlerts]);
   },
 
   async getFleetStatus(): Promise<FleetStatusBreakdown> {
+    if (!isExplicitMockMode) return { total: 0, operantes: 0, emManutencao: 0, inoperantes: 0 };
     return Promise.resolve({ ...mockFleetStatus });
   },
 };

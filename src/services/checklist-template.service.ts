@@ -1,4 +1,5 @@
 import type { ChecklistTemplate } from '../types/checklist';
+import { isExplicitMockMode } from '../config/data-source.config';
 
 // Mocks iniciais com modelos ricos e detalhados para a frota AgroGuard
 const MOCK_TEMPLATES: ChecklistTemplate[] = [
@@ -209,6 +210,7 @@ class ChecklistTemplateService {
 
   async getChecklistTemplates(filters?: { search?: string; type?: string; active?: boolean }): Promise<ChecklistTemplate[]> {
     await new Promise((r) => setTimeout(r, 100));
+    if (!isExplicitMockMode) return [];
     return this.templates.filter((t) => {
       if (t.archivedAt) return false;
       if (filters?.active !== undefined && t.active !== filters.active) return false;
@@ -224,6 +226,7 @@ class ChecklistTemplateService {
 
   async getChecklistTemplateById(id: string): Promise<ChecklistTemplate | undefined> {
     await new Promise((r) => setTimeout(r, 100));
+    if (!isExplicitMockMode) return undefined;
     return this.templates.find((t) => t.id === id);
   }
 
@@ -232,7 +235,7 @@ class ChecklistTemplateService {
     const nextNum = this.templates.length + 1;
     const code = `MOD-00${nextNum}`;
     const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
-    
+
     const newTemplate: ChecklistTemplate = {
       ...data,
       id: `tpl-${Date.now()}`,

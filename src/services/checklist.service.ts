@@ -2,6 +2,7 @@ import type { LegacyChecklistItem, ChecklistSession, ChecklistDashboardStats } f
 import { checklistExecutionService } from './checklist-execution.service';
 import { checklistNonConformityService } from './checklist-nonconformity.service';
 import { checklistTemplateService } from './checklist-template.service';
+import { isExplicitMockMode } from '../config/data-source.config';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Módulo de Checklists — Serviço Unificado & Dashboard (Fase 4)
@@ -11,26 +12,26 @@ export const checklistService = {
   // Novo Método: Indicadores gerais em tempo real da Fase 4
   async getChecklistDashboard(): Promise<ChecklistDashboardStats> {
     await new Promise((r) => setTimeout(r, 150));
-    
+
     const executions = await checklistExecutionService.getChecklistExecutions();
     const ncs = await checklistNonConformityService.getNonConformities();
     const templates = await checklistTemplateService.getChecklistTemplates({ active: true });
 
     const today = new Date().toISOString().slice(0, 10);
-    
+
     // Contagens
-    const previstosHoje = 6; // Simulação de agendamento diário de toda a frota
+    const previstosHoje = isExplicitMockMode ? 6 : 0;
     const concluidosHoje = executions.filter((ex) => ex.completedAt && ex.completedAt.startsWith(today)).length;
-    const atrasados = 2; // Pendentes de inspeção antes de entrarem na lavoura
+    const atrasados = isExplicitMockMode ? 2 : 0;
     const execucoesComNaoConformidades = executions.filter((ex) => ex.status === 'concluido_com_nao_conformidade').length;
-    
+
     const naoConformidadesCriticas = ncs.filter((nc) => nc.criticality === 'critica' && nc.status !== 'resolvida' && nc.status !== 'cancelada').length;
     const equipamentosBloqueados = ncs.filter((nc) => nc.blockedEquipment && nc.status !== 'resolvida' && nc.status !== 'cancelada').length;
-    
+
     // Taxa de conformidade do mês (%)
     const totalConcluded = executions.filter((ex) => ex.status.startsWith('concluido')).length;
     const cleanConcluded = executions.filter((ex) => ex.status === 'concluido').length;
-    const taxaConformidade = totalConcluded > 0 ? Math.round((cleanConcluded / totalConcluded) * 100) : 85;
+    const taxaConformidade = totalConcluded > 0 ? Math.round((cleanConcluded / totalConcluded) * 100) : 0;
 
     return {
       previstosHoje,
@@ -46,10 +47,12 @@ export const checklistService = {
 
   // ─── Métodos Legados (Preservados para Retrocompatibilidade com testes antigos) ───
   async getItems(): Promise<LegacyChecklistItem[]> {
+    if (!isExplicitMockMode) return [];
     return Promise.resolve([...checklistItems]);
   },
 
   async getSessions(equipmentId?: string): Promise<ChecklistSession[]> {
+    if (!isExplicitMockMode) return [];
     if (equipmentId) {
       return Promise.resolve(mockSessions.filter((s) => s.equipmentId === equipmentId || s.equipmentId.includes(equipmentId)));
     }
