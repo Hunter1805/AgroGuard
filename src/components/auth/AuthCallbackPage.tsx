@@ -9,8 +9,10 @@ export const AuthCallbackPage: React.FC = () => {
 
   const [statusText, setStatusText] = useState('Autenticando...');
   const [error, setError] = useState<string | null>(null);
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
+    let cancelled = false;
     const processAuthCallback = async () => {
       // 0. Checar se o Supabase retornou um erro de link expirado ou já utilizado na URL
       const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
@@ -24,6 +26,8 @@ export const AuthCallbackPage: React.FC = () => {
 
       // Se ainda está carregando o estado do useAuth, aguarda
       if (authLoading) return;
+      if (cancelled) return;
+      setError(null);
 
       // Se o usuário não está autenticado, manda de volta pro login
       if (!user) {
@@ -37,8 +41,10 @@ export const AuthCallbackPage: React.FC = () => {
       if (!profile) {
         try {
           await refreshProfile();
+          if (cancelled) return;
           return;
         } catch (err) {
+          if (cancelled) return;
           setError('Não foi possível obter os dados de acesso do servidor.');
           return;
         }
@@ -46,6 +52,7 @@ export const AuthCallbackPage: React.FC = () => {
 
       // 2. Se o usuário está bloqueado
       if (profile.status === 'bloqueado' || profile.status === 'inativo') {
+        if (cancelled) return;
         navigate('/acesso-bloqueado');
         return;
       }
@@ -57,12 +64,20 @@ export const AuthCallbackPage: React.FC = () => {
           const pendingDataString = localStorage.getItem('agroguard_onboarding_pending');
           const pendingData = pendingDataString ? JSON.parse(pendingDataString) : {};
 
-          const { error: provisionError } = await provisionOrganization(pendingData);
+          let provisionError: any = null;
+          for (let retry = 0; retry < 3; retry += 1) {
+            const result = await provisionOrganization(pendingData);
+            provisionError = result.error;
+            if (!provisionError) break;
+            if (provisionError.code === 'ONBOARDING_DATA_MISSING') break;
+            await new Promise((resolve) => setTimeout(resolve, 1200 * (retry + 1)));
+          }
 
+          if (cancelled) return;
           if (provisionError) {
             // Se faltarem dados do onboarding (metadados indisponíveis na nuvem)
             if (
-              provisionError.code === 'ONBOARDING_DATA_MISSING' || 
+              provisionError.code === 'ONBOARDING_DATA_MISSING' ||
               (provisionError.message && provisionError.message.includes('não localizados'))
             ) {
               navigate('/onboarding/preparando-ambiente?erro=dados_ausentes');
@@ -76,26 +91,34 @@ export const AuthCallbackPage: React.FC = () => {
           localStorage.removeItem('agroguard_onboarding_pending');
 
           setStatusText('Ambiente pronto! Preparando seu primeiro acesso...');
-          setTimeout(() => navigate('/boas-vindas'), 1500);
+          setTimeout(() => {
+            if (!cancelled) navigate('/boas-vindas');
+          }, 700);
           return;
         } catch (err: any) {
-          setError('Falha ao processar provisionamento do ambiente.');
+          if (cancelled) return;
+          setError('Falha temporária ao sincronizar seu perfil. Tente novamente.');
           return;
         }
       }
 
       // 4. Se já possui organização mas não completou o onboarding
       if (!profile.onboardingCompleted) {
+        if (cancelled) return;
         navigate('/boas-vindas');
         return;
       }
 
       // 5. Fluxo normal: Dashboard
+      if (cancelled) return;
       navigate('/app/dashboard');
     };
 
     processAuthCallback();
-  }, [user, profile, authLoading]);
+    return () => {
+      cancelled = true;
+    };
+  }, [user, profile, authLoading, attempt, navigate, provisionOrganization, refreshProfile]);
 
   return (
     <div className="min-h-screen w-full flex bg-slate-50 justify-center items-center p-6 text-slate-800 font-sans">
@@ -119,12 +142,13 @@ export const AuthCallbackPage: React.FC = () => {
             </div>
             <button
               onClick={() => {
-                localStorage.removeItem('agroguard_onboarding_pending');
-                navigate('/entrar');
+                setError(null);
+                setStatusText('Sincronizando seu perfil...');
+                setAttempt((current) => current + 1);
               }}
               className="w-full bg-slate-900 hover:bg-slate-800 text-white font-medium text-xs rounded-md py-2.5 transition-colors"
             >
-              Voltar para o Login
+              Tentar novamente
             </button>
           </div>
         ) : (
