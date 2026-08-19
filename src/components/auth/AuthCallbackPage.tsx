@@ -89,7 +89,7 @@ export const AuthCallbackPage: React.FC = () => {
 
           // Limpa o localStorage de forma segura
           localStorage.removeItem('agroguard_onboarding_pending');
-          navigate('/boas-vindas', { replace: true });
+          navigate('/app/dashboard', { replace: true });
           return;
         } catch (err: any) {
           if (cancelled) return;
@@ -101,7 +101,7 @@ export const AuthCallbackPage: React.FC = () => {
       // 4. Se já possui organização mas não completou o onboarding
       if (!profile.onboardingCompleted) {
         if (cancelled) return;
-        navigate('/boas-vindas');
+        navigate('/app/dashboard');
         return;
       }
 

@@ -5,7 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import { ManualEnvironmentForm } from './ManualEnvironmentForm';
 
 export const PreparingEnvironmentPage: React.FC = () => {
-  const { user, provisionOrganization, refreshProfile } = useAuth();
+  const { user, provisionOrganization } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -62,8 +62,8 @@ export const PreparingEnvironmentPage: React.FC = () => {
           return;
         }
 
-        // Sucesso no provisionamento silencioso - navega imediatamente sem atrasos
-        navigate('/boas-vindas', { replace: true });
+        // Sucesso no provisionamento silencioso - vai direto para o dashboard
+        navigate('/app/dashboard', { replace: true });
       } catch (err) {
         clearTimeout(safetyTimeout);
         setShowManualForm(true);
@@ -110,9 +110,8 @@ export const PreparingEnvironmentPage: React.FC = () => {
         return;
       }
 
-      await refreshProfile();
-      // Navega imediatamente para a tela de boas vindas
-      navigate('/boas-vindas');
+      // Navega imediatamente para o dashboard
+      navigate('/app/dashboard', { replace: true });
     } catch (err) {
       setError('Erro ao processar solicitação no servidor.');
       setLoading(false);

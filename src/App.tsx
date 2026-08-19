@@ -124,7 +124,7 @@ export function App() {
           !user ? (
             <Navigate to="/entrar" replace />
           ) : profile?.organizationId ? (
-            <Navigate to="/boas-vindas" replace />
+            <Navigate to="/app/dashboard" replace />
           ) : (
             <PreparingEnvironmentPage />
           )
@@ -139,10 +139,6 @@ export function App() {
         element={
           !user ? (
             <Navigate to="/entrar" replace />
-          ) : !profile?.organizationId ? (
-            <Navigate to="/onboarding/preparando-ambiente" replace />
-          ) : profile?.onboardingCompleted ? (
-            <Navigate to="/app/dashboard" replace />
           ) : (
             <WelcomeOnboardingPage />
           )
@@ -157,8 +153,6 @@ export function App() {
             <Navigate to="/entrar" replace />
           ) : !profile?.organizationId ? (
             <Navigate to="/onboarding/preparando-ambiente" replace />
-          ) : !profile?.onboardingCompleted ? (
-            <Navigate to="/boas-vindas" replace />
           ) : (
             <Navigate to="/app/dashboard" replace />
           )
@@ -174,6 +168,7 @@ export function App() {
           ) : !profile?.organizationId ? (
             <Navigate to="/onboarding/preparando-ambiente" replace />
           ) : (
+            // usuário autenticado e com organização: sempre renderiza o layout
             <div className={`h-screen flex overflow-hidden ${isCorpUI ? 'bg-app text-primary' : 'bg-background text-on-background bg-pattern'}`}>
               {/* Toast */}
               {toastMessage && (
