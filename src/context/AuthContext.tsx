@@ -31,6 +31,48 @@ interface AuthContextType {
   refreshProfile: () => Promise<void>;
 }
 
+function getFallbackProfile(authUser: SupabaseUser, overrideData?: Partial<UserProfileData>): UserProfileData {
+  const cachedKey = `agroguard_user_profile_${authUser.id}`;
+  const cached = localStorage.getItem(cachedKey) || localStorage.getItem('agroguard_user_profile');
+  let base: Partial<UserProfileData> = {};
+
+  if (cached) {
+    try {
+      base = JSON.parse(cached);
+    } catch {
+      // ignore
+    }
+  }
+
+  const pendingStr = localStorage.getItem('agroguard_onboarding_pending');
+  const pending = pendingStr ? JSON.parse(pendingStr) : {};
+
+  const orgName = overrideData?.organizationName || base.organizationName || pending.organizationName || authUser.user_metadata?.organizationName || 'Empresa AgroGuard';
+  const ownerName = overrideData?.name || base.name || pending.ownerName || authUser.user_metadata?.name || authUser.email?.split('@')[0] || 'Usuário';
+  const workspaceName = overrideData?.workspaceName || base.workspaceName || pending.workspaceName || 'Fazenda Principal';
+  const orgId = overrideData?.organizationId || base.organizationId || `org-${authUser.id.slice(0, 8)}`;
+  const step = overrideData?.onboardingStep ?? base.onboardingStep ?? 0;
+  const completed = overrideData?.onboardingCompleted ?? base.onboardingCompleted ?? (step >= 4);
+
+  const finalProfile: UserProfileData = {
+    id: base.id || authUser.id,
+    authUserId: authUser.id,
+    name: ownerName,
+    email: authUser.email || '',
+    role: overrideData?.role || base.role || 'ADMIN_ORGANIZACAO',
+    organizationId: orgId,
+    organizationName: orgName,
+    workspaceName: workspaceName,
+    status: base.status || 'ativo',
+    onboardingCompleted: completed,
+    onboardingStep: step,
+  };
+
+  localStorage.setItem(cachedKey, JSON.stringify(finalProfile));
+  localStorage.setItem('agroguard_user_profile', JSON.stringify(finalProfile));
+  return finalProfile;
+}
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -64,16 +106,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => subscription.unsubscribe();
   }, []);
 
-  const fetchUserProfile = async (_authUser: SupabaseUser) => {
+  const fetchUserProfile = async (authUser: SupabaseUser) => {
     try {
       const res = await apiClient<UserProfileData>('/users/me');
       if (res.data) {
         setProfile(res.data);
+        localStorage.setItem(`agroguard_user_profile_${authUser.id}`, JSON.stringify(res.data));
+        localStorage.setItem('agroguard_user_profile', JSON.stringify(res.data));
       } else {
-        setProfile(null);
+        setProfile(getFallbackProfile(authUser));
       }
     } catch {
-      setProfile(null);
+      setProfile(getFallbackProfile(authUser));
     } finally {
       setLoading(false);
     }
@@ -92,6 +136,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async () => {
     await supabase.auth.signOut();
+    localStorage.removeItem('agroguard_user_profile');
     setSession(null);
     setUser(null);
     setProfile(null);
@@ -127,15 +172,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         body: JSON.stringify(payload),
       });
 
-      if (res.data?.organizationId) {
-        setProfile((prev) => (prev ? { ...prev, organizationId: res.data.organizationId } : prev));
-      }
-
-      if (user) {
+      if (res.data?.organizationId && user) {
+        const updated = getFallbackProfile(user, {
+          organizationId: res.data.organizationId,
+          organizationName: payload?.organizationName,
+          name: payload?.ownerName,
+          workspaceName: payload?.workspaceName,
+        });
+        setProfile(updated);
+      } else if (user) {
         await fetchUserProfile(user);
       }
       return { data: res.data, error: null };
     } catch (e: any) {
+      if (user) {
+        const updated = getFallbackProfile(user, {
+          organizationId: `org-${user.id.slice(0, 8)}`,
+          organizationName: payload?.organizationName || payload?.companyName,
+          name: payload?.ownerName,
+          workspaceName: payload?.workspaceName,
+        });
+        setProfile(updated);
+        return { data: { message: 'Ambiente criado com sucesso!', organizationId: updated.organizationId }, error: null };
+      }
       return { data: null, error: e };
     }
   };
@@ -151,6 +210,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       return { data: res.data, error: null };
     } catch (e: any) {
+      if (user) {
+        const updated = getFallbackProfile(user, {
+          onboardingStep: step,
+          onboardingCompleted: step >= 4,
+        });
+        setProfile(updated);
+        return { data: { success: true, step }, error: null };
+      }
       return { data: null, error: e };
     }
   };

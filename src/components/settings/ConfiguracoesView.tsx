@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Settings } from 'lucide-react';
 import { SettingsNavigation } from './SettingsNavigation';
 import { SettingsOverview } from './SettingsOverview';
@@ -17,7 +18,15 @@ interface ViewProps {
 }
 
 export const ConfiguracoesView: React.FC<ViewProps> = ({ initialTab = 'visao_geral' }) => {
-  const [activeSection, setActiveSection] = useState(initialTab);
+  const [searchParams] = useSearchParams();
+  const queryTab = searchParams.get('tab');
+  const [activeSection, setActiveSection] = useState(queryTab || initialTab);
+
+  useEffect(() => {
+    if (queryTab) {
+      setActiveSection(queryTab);
+    }
+  }, [queryTab]);
 
   return (
     <div className="space-y-5 pb-12">
