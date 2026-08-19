@@ -37,77 +37,38 @@ export const AuthCallbackPage: React.FC = () => {
 
       setStatusText('Sincronizando seu perfil...');
 
-      // 1. Tentar carregar o perfil do usuário caso ainda não esteja disponível
+      // Tenta carregar o perfil (não bloqueia em caso de erro — dashboard lida com isso)
       if (!profile) {
         try {
           await refreshProfile();
-          if (cancelled) return;
-          return;
-        } catch (err) {
-          if (cancelled) return;
-          setError('Não foi possível obter os dados de acesso do servidor.');
-          return;
+        } catch {
+          // Ignora erros de rede — vai para o dashboard mesmo assim
         }
+        if (cancelled) return;
       }
 
-      // 2. Se o usuário está bloqueado
-      if (profile.status === 'bloqueado' || profile.status === 'inativo') {
+      // Se o usuário está bloqueado, redireciona para acesso bloqueado
+      if (profile?.status === 'bloqueado' || profile?.status === 'inativo') {
         if (cancelled) return;
         navigate('/acesso-bloqueado');
         return;
       }
 
-      // 3. Se o usuário não tem organização vinculada, executa o provisionamento automático
-      if (!profile.organizationId) {
-        setStatusText('Criando seu ambiente operacional...');
+      // Tenta provisionar em background (sem bloquear navegação)
+      if (profile && !profile.organizationId) {
         try {
           const pendingDataString = localStorage.getItem('agroguard_onboarding_pending');
           const pendingData = pendingDataString ? JSON.parse(pendingDataString) : {};
-
-          // Tenta o provisionamento direto sem retries desnecessários se os dados estiverem visivelmente ausentes
-          const result = await provisionOrganization(pendingData);
-          const provisionError = result.error;
-
-          if (cancelled) return;
-
-          if (provisionError) {
-            const msg = provisionError.message || '';
-            const code = provisionError.code || '';
-            // Se faltarem dados do onboarding, redireciona IMEDIATAMENTE para a tela com formulário manual
-            if (
-              code === 'ONBOARDING_DATA_MISSING' ||
-              msg.includes('não localizados') ||
-              msg.includes('indisponíveis') ||
-              !pendingData.organizationName
-            ) {
-              navigate('/onboarding/preparando-ambiente?erro=dados_ausentes', { replace: true });
-            } else {
-              setError(provisionError.message || 'Erro ao criar seu ambiente. Tente novamente.');
-            }
-            return;
-          }
-
-          // Limpa o localStorage de forma segura
+          await provisionOrganization(pendingData);
           localStorage.removeItem('agroguard_onboarding_pending');
-          navigate('/app/dashboard', { replace: true });
-          return;
-        } catch (err: any) {
-          if (cancelled) return;
-          setError('Falha temporária ao sincronizar seu perfil. Tente novamente.');
-          return;
+        } catch {
+          // Silencioso — não bloqueia o acesso ao dashboard
         }
       }
 
-      // 4. Se já possui organização mas não completou o onboarding
-      if (!profile.onboardingCompleted) {
-        if (cancelled) return;
-        navigate('/app/dashboard');
-        return;
-      }
-
-      // 5. Fluxo normal: Dashboard
+      // Sempre vai para o dashboard
       if (cancelled) return;
-      navigate('/app/dashboard');
+      navigate('/app/dashboard', { replace: true });
     };
 
     processAuthCallback();
