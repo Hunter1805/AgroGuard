@@ -86,17 +86,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        fetchUserProfile(session.user);
+        fetchUserProfile(session.user, false);
       } else {
         setLoading(false);
       }
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        fetchUserProfile(session.user);
+        // TOKEN_REFRESHED: não re-busca o perfil para evitar race condition durante onboarding
+        // Apenas atualiza sessão, o perfil já está em memória
+        if (event === 'TOKEN_REFRESHED') return;
+        fetchUserProfile(session.user, false);
       } else {
         setProfile(null);
         setLoading(false);
@@ -106,18 +109,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => subscription.unsubscribe();
   }, []);
 
-  const fetchUserProfile = async (authUser: SupabaseUser) => {
+  const fetchUserProfile = async (authUser: SupabaseUser, forceOverwrite = true) => {
+    // Lê o organizationId persistido localmente (fonte de verdade após provisionamento)
+    const persistedOrgId = localStorage.getItem(`agroguard_org_id_${authUser.id}`);
     try {
       const res = await apiClient<UserProfileData>('/users/me');
       if (res.data) {
-        setProfile(res.data);
-        localStorage.setItem(`agroguard_user_profile_${authUser.id}`, JSON.stringify(res.data));
-        localStorage.setItem('agroguard_user_profile', JSON.stringify(res.data));
+        // Se a API retorna sem organizationId mas temos um salvo localmente, preserva
+        const finalData: UserProfileData = {
+          ...res.data,
+          organizationId: res.data.organizationId || persistedOrgId || '',
+        };
+        setProfile(finalData);
+        localStorage.setItem(`agroguard_user_profile_${authUser.id}`, JSON.stringify(finalData));
+        localStorage.setItem('agroguard_user_profile', JSON.stringify(finalData));
+        // Persiste o orgId se veio da API
+        if (res.data.organizationId) {
+          localStorage.setItem(`agroguard_org_id_${authUser.id}`, res.data.organizationId);
+        }
       } else {
-        setProfile(getFallbackProfile(authUser));
+        if (forceOverwrite || !persistedOrgId) {
+          setProfile(getFallbackProfile(authUser));
+        }
       }
     } catch {
-      setProfile(getFallbackProfile(authUser));
+      // Em erro de rede, usa fallback mas preserva o profile atual se tiver organizationId
+      setProfile((prev) => {
+        if (prev?.organizationId) return prev; // Não destrói um profile válido
+        return getFallbackProfile(authUser);
+      });
     } finally {
       setLoading(false);
     }
@@ -172,28 +192,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         body: JSON.stringify(payload),
       });
 
-      if (res.data?.organizationId && user) {
+      if (user) {
+        const orgId = res.data?.organizationId || `org-${user.id.slice(0, 8)}`;
+        // Persiste o orgId como fonte de verdade imutável no localStorage
+        localStorage.setItem(`agroguard_org_id_${user.id}`, orgId);
         const updated = getFallbackProfile(user, {
-          organizationId: res.data.organizationId,
+          organizationId: orgId,
           organizationName: payload?.organizationName,
           name: payload?.ownerName,
           workspaceName: payload?.workspaceName,
         });
         setProfile(updated);
-      } else if (user) {
-        await fetchUserProfile(user);
       }
       return { data: res.data, error: null };
     } catch (e: any) {
       if (user) {
+        const orgId = `org-${user.id.slice(0, 8)}`;
+        localStorage.setItem(`agroguard_org_id_${user.id}`, orgId);
         const updated = getFallbackProfile(user, {
-          organizationId: `org-${user.id.slice(0, 8)}`,
+          organizationId: orgId,
           organizationName: payload?.organizationName || payload?.companyName,
           name: payload?.ownerName,
           workspaceName: payload?.workspaceName,
         });
         setProfile(updated);
-        return { data: { message: 'Ambiente criado com sucesso!', organizationId: updated.organizationId }, error: null };
+        return { data: { message: 'Ambiente criado com sucesso!', organizationId: orgId }, error: null };
       }
       return { data: null, error: e };
     }

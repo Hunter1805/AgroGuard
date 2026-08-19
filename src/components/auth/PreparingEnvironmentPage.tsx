@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Shield, AlertTriangle, RefreshCw } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -10,6 +10,9 @@ export const PreparingEnvironmentPage: React.FC = () => {
   const [searchParams] = useSearchParams();
 
   const isMissingDataError = searchParams.get('erro') === 'dados_ausentes';
+
+  // Ref para garantir que autoProvision rode apenas UMA vez (evita re-execução no token refresh)
+  const provisioningAttempted = useRef(false);
 
   // Estados de Controle inicializados sem flashes ou atrasos
   const [loading, setLoading] = useState(() => !isMissingDataError);
@@ -28,6 +31,10 @@ export const PreparingEnvironmentPage: React.FC = () => {
   useEffect(() => {
     // Se a URL indica falta de dados, o formulário manual já está ativo no estado inicial
     if (isMissingDataError) return;
+
+    // Garante execução única — evita re-trigger por token refresh do Supabase
+    if (provisioningAttempted.current) return;
+    provisioningAttempted.current = true;
 
     // Verificar se possuímos algum dado no localStorage ou metadata antes de chamar o servidor
     const pendingDataString = localStorage.getItem('agroguard_onboarding_pending');
@@ -76,7 +83,8 @@ export const PreparingEnvironmentPage: React.FC = () => {
     return () => {
       clearTimeout(safetyTimeout);
     };
-  }, [searchParams, isMissingDataError, user]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isMissingDataError]);
 
   const handleSubmitManual = async (e: React.FormEvent) => {
     e.preventDefault();
