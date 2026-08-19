@@ -50,7 +50,8 @@ function getFallbackProfile(authUser: SupabaseUser, overrideData?: Partial<UserP
   const orgName = overrideData?.organizationName || base.organizationName || pending.organizationName || authUser.user_metadata?.organizationName || 'Empresa AgroGuard';
   const ownerName = overrideData?.name || base.name || pending.ownerName || authUser.user_metadata?.name || authUser.email?.split('@')[0] || 'Usuário';
   const workspaceName = overrideData?.workspaceName || base.workspaceName || pending.workspaceName || 'Fazenda Principal';
-  const orgId = overrideData?.organizationId || base.organizationId || `org-${authUser.id.slice(0, 8)}`;
+  // A ausência de organização é um estado válido: só o provisionamento pode criar o vínculo.
+  const orgId = overrideData?.organizationId || base.organizationId || '';
   const step = overrideData?.onboardingStep ?? base.onboardingStep ?? 0;
   const completed = overrideData?.onboardingCompleted ?? base.onboardingCompleted ?? (step >= 4);
 

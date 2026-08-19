@@ -77,10 +77,8 @@ export const WelcomeOnboardingPage: React.FC = () => {
 
   const handleFinishOnboarding = async () => {
     try {
-      // Marca como concluído (passo 4)
       await updateOnboardingStep(4);
-      navigate('/app/dashboard');
-    } catch (err) {
+    } finally {
       navigate('/app/dashboard');
     }
   };
@@ -213,7 +211,7 @@ export const WelcomeOnboardingPage: React.FC = () => {
             onClick={handleSkipOnboarding}
             className="text-slate-500 hover:text-slate-800 font-semibold flex items-center gap-1 transition-colors"
           >
-            Explorar o sistema
+            Fazer depois
             <ArrowRight size={14} className="mt-0.5" />
           </button>
 
@@ -225,7 +223,12 @@ export const WelcomeOnboardingPage: React.FC = () => {
               Concluir Configuração
             </button>
           ) : (
-            <span className="text-slate-400 font-medium">Continue para liberar o Dashboard</span>
+            <button
+              onClick={() => navigate('/app/dashboard')}
+              className="bg-slate-900 hover:bg-slate-800 text-white font-bold px-4 py-2 rounded shadow-sm"
+            >
+              Acessar meu ambiente
+            </button>
           )}
         </div>
       </div>

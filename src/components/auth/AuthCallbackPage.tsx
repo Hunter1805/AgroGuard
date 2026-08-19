@@ -4,7 +4,7 @@ import { Shield, AlertTriangle, RefreshCw } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 export const AuthCallbackPage: React.FC = () => {
-  const { user, profile, loading: authLoading, provisionOrganization, refreshProfile } = useAuth();
+  const { user, profile, loading: authLoading, refreshProfile } = useAuth();
   const navigate = useNavigate();
 
   const [statusText, setStatusText] = useState('Autenticando...');
@@ -54,28 +54,17 @@ export const AuthCallbackPage: React.FC = () => {
         return;
       }
 
-      // Tenta provisionar em background (sem bloquear navegação)
-      if (profile && !profile.organizationId) {
-        try {
-          const pendingDataString = localStorage.getItem('agroguard_onboarding_pending');
-          const pendingData = pendingDataString ? JSON.parse(pendingDataString) : {};
-          await provisionOrganization(pendingData);
-          localStorage.removeItem('agroguard_onboarding_pending');
-        } catch {
-          // Silencioso — não bloqueia o acesso ao dashboard
-        }
-      }
-
-      // Sempre vai para o dashboard
+      // A callback não reprovisiona: a página de preparação é o único fluxo
+      // responsável por criar o ambiente quando a organização ainda não existe.
       if (cancelled) return;
-      navigate('/app/dashboard', { replace: true });
+      navigate(profile?.organizationId ? '/app/dashboard' : '/onboarding/preparando-ambiente', { replace: true });
     };
 
     processAuthCallback();
     return () => {
       cancelled = true;
     };
-  }, [user, profile, authLoading, attempt, navigate, provisionOrganization, refreshProfile]);
+  }, [user, profile, authLoading, attempt, navigate, refreshProfile]);
 
   return (
     <div className="min-h-screen w-full flex bg-slate-50 justify-center items-center p-6 text-slate-800 font-sans">

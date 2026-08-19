@@ -63,11 +63,14 @@ import { AuthCallbackPage } from './components/auth/AuthCallbackPage';
 import { ForgotPasswordPage } from './components/auth/ForgotPasswordPage';
 import { ResetPasswordPage } from './components/auth/ResetPasswordPage';
 import { AccessBlockedPage } from './components/auth/AccessBlockedPage';
+import { PreparingEnvironmentPage } from './components/auth/PreparingEnvironmentPage';
 import { AcceptInvitationPage } from './components/auth/AcceptInvitationPage';
+import { WelcomeOnboardingPage } from './components/onboarding/WelcomeOnboardingPage';
 import { UsersListView } from './components/users/UsersListView';
 
 export function App() {
-  const { user, loading } = useAuth();
+  const { user, profile, loading } = useAuth();
+  const hasOrganization = Boolean(profile?.organizationId && profile.status !== 'sem_organizacao');
 
   const [isNewOSOpen, setIsNewOSOpen] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
@@ -115,25 +118,25 @@ export function App() {
       <Route path="/aceitar-convite" element={<AcceptInvitationPage />} />
       <Route path="/acesso-bloqueado" element={<AccessBlockedPage />} />
 
-      {/* Rota de Provisionamento - redireciona direto ao dashboard */}
+      {/* Provisionamento só é exibido enquanto não existe organização/membership válida. */}
       <Route
         path="/onboarding/preparando-ambiente"
-        element={!user ? <Navigate to="/entrar" replace /> : <Navigate to="/app/dashboard" replace />}
+        element={!user ? <Navigate to="/entrar" replace /> : hasOrganization ? <Navigate to="/app/dashboard" replace /> : <PreparingEnvironmentPage />}
       />
 
       {/* Redirecionamento de rota legada */}
-      <Route path="/criar-ambiente" element={<Navigate to="/app/dashboard" replace />} />
+      <Route path="/criar-ambiente" element={!user ? <Navigate to="/entrar" replace /> : hasOrganization ? <Navigate to="/app/dashboard" replace /> : <Navigate to="/onboarding/preparando-ambiente" replace />} />
 
-      {/* Boas-vindas - redireciona direto ao dashboard */}
+      {/* Boas-vindas é opcional e nunca bloqueia as rotas operacionais. */}
       <Route
         path="/boas-vindas"
-        element={!user ? <Navigate to="/entrar" replace /> : <Navigate to="/app/dashboard" replace />}
+        element={!user ? <Navigate to="/entrar" replace /> : hasOrganization ? <WelcomeOnboardingPage /> : <Navigate to="/onboarding/preparando-ambiente" replace />}
       />
 
       {/* Redirecionamento da raiz */}
       <Route
         path="/"
-        element={!user ? <Navigate to="/entrar" replace /> : <Navigate to="/app/dashboard" replace />}
+        element={!user ? <Navigate to="/entrar" replace /> : hasOrganization ? <Navigate to="/app/dashboard" replace /> : <Navigate to="/onboarding/preparando-ambiente" replace />}
       />
 
       {/* Rotas Privadas (Protegidas) dentro do Layout */}
@@ -142,8 +145,10 @@ export function App() {
         element={
           !user ? (
             <Navigate to="/entrar" replace />
+          ) : !hasOrganization ? (
+            <Navigate to="/onboarding/preparando-ambiente" replace />
           ) : (
-            // usuário autenticado e com organização: sempre renderiza o layout
+            // Usuário autenticado com organização: onboardingCompleted não bloqueia o layout.
             <div className={`h-screen flex overflow-hidden ${isCorpUI ? 'bg-app text-primary' : 'bg-background text-on-background bg-pattern'}`}>
               {/* Toast */}
               {toastMessage && (
