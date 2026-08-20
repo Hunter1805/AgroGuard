@@ -97,19 +97,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        // TOKEN_REFRESHED e USER_UPDATED: não re-busca o perfil para evitar race condition durante onboarding
+        // Ignora eventos que não requerem re-fetch do perfil
         if (event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') return;
-        // Se já temos um profile válido com organizationId em memória, não re-busca
-        // para evitar destruir o estado logo após o provisionamento
-        setProfile((currentProfile) => {
-          if (currentProfile?.organizationId) {
-            setLoading(false);
-            return currentProfile; // mantém o profile válido
-          }
-          // Não temos profile válido ainda, busca da API
-          fetchUserProfile(session.user!, false);
-          return currentProfile;
-        });
+
+        // Se já existe um orgId persistido no localStorage, o usuário está provisionado.
+        // NÃO re-buscamos o perfil para evitar a race condition onde a API retorna
+        // sem organizationId logo após o provisionamento, destruindo o estado válido.
+        const persistedOrgId = localStorage.getItem(`agroguard_org_id_${session.user.id}`);
+        if (persistedOrgId) {
+          setLoading(false);
+          return;
+        }
+
+        // Sem orgId persistido: busca o perfil normalmente
+        fetchUserProfile(session.user, false);
       } else {
         setProfile(null);
         setLoading(false);
@@ -118,6 +119,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     return () => subscription.unsubscribe();
   }, []);
+
 
   const fetchUserProfile = async (authUser: SupabaseUser, forceOverwrite = true) => {
     // Lê o organizationId persistido localmente (fonte de verdade após provisionamento)

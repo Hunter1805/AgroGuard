@@ -39,7 +39,8 @@ export const PreparingEnvironmentPage: React.FC = () => {
     // Verificar se possuímos algum dado no localStorage ou metadata antes de chamar o servidor
     const pendingDataString = localStorage.getItem('agroguard_onboarding_pending');
     const pendingData = pendingDataString ? JSON.parse(pendingDataString) : {};
-    const hasCompanyData = !!(pendingData.organizationName || user?.user_metadata?.organizationName);
+    const organizationName = pendingData.organizationName || user?.user_metadata?.organizationName;
+    const hasCompanyData = !!organizationName;
 
     // Se não temos dados da empresa, ativa o formulário manual INSTANTANEAMENTE sem esperar chamada de rede
     if (!hasCompanyData) {
@@ -59,8 +60,22 @@ export const PreparingEnvironmentPage: React.FC = () => {
       setError(null);
       setStatusText('Estamos preparando o AgroGuard para a sua empresa...');
 
+      // Monta o payload completo com os dados salvos no registro — NUNCA enviar {} vazio
+      // pois o servidor exige organizationName e retorna 400 se ausente
+      const meta = user?.user_metadata || {};
+      const payload = {
+        ownerName: pendingData.ownerName || meta.name || user?.email?.split('@')[0] || 'Proprietário',
+        organizationName: pendingData.organizationName || meta.organizationName,
+        workspaceName: pendingData.workspaceName || meta.workspaceName,
+        segment: pendingData.segment || meta.segment || 'AGRICULTURE',
+        estimatedEquipmentCount: pendingData.estimatedEquipmentCount || meta.estimatedEquipmentCount || '11_50',
+        phone: pendingData.phone || meta.phone || null,
+        acceptedTermsVersion: pendingData.acceptedTermsVersion || meta.acceptedTermsVersion || '2026-08',
+        acceptedPrivacyVersion: pendingData.acceptedPrivacyVersion || meta.acceptedPrivacyVersion || '2026-08',
+      };
+
       try {
-        const { error: provisionError } = await provisionOrganization({});
+        const { error: provisionError } = await provisionOrganization(payload);
         clearTimeout(safetyTimeout);
 
         if (provisionError) {
@@ -69,8 +84,11 @@ export const PreparingEnvironmentPage: React.FC = () => {
           return;
         }
 
-        // Sucesso no provisionamento silencioso - vai direto para o dashboard
-        navigate('/app/dashboard', { replace: true });
+        // Limpa os dados pendentes do localStorage após provisionamento bem-sucedido
+        localStorage.removeItem('agroguard_onboarding_pending');
+
+        // Vai para a tela de boas-vindas para o usuário ver o ambiente criado
+        navigate('/boas-vindas', { replace: true });
       } catch (err) {
         clearTimeout(safetyTimeout);
         setShowManualForm(true);
@@ -85,6 +103,7 @@ export const PreparingEnvironmentPage: React.FC = () => {
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMissingDataError]);
+
 
   const handleSubmitManual = async (e: React.FormEvent) => {
     e.preventDefault();
