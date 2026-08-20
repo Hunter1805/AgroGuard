@@ -97,10 +97,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        // TOKEN_REFRESHED: não re-busca o perfil para evitar race condition durante onboarding
-        // Apenas atualiza sessão, o perfil já está em memória
-        if (event === 'TOKEN_REFRESHED') return;
-        fetchUserProfile(session.user, false);
+        // TOKEN_REFRESHED e USER_UPDATED: não re-busca o perfil para evitar race condition durante onboarding
+        if (event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') return;
+        // Se já temos um profile válido com organizationId em memória, não re-busca
+        // para evitar destruir o estado logo após o provisionamento
+        setProfile((currentProfile) => {
+          if (currentProfile?.organizationId) {
+            setLoading(false);
+            return currentProfile; // mantém o profile válido
+          }
+          // Não temos profile válido ainda, busca da API
+          fetchUserProfile(session.user!, false);
+          return currentProfile;
+        });
       } else {
         setProfile(null);
         setLoading(false);
@@ -116,12 +125,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const res = await apiClient<UserProfileData>('/users/me');
       if (res.data) {
-        // Se a API retorna sem organizationId mas temos um salvo localmente, preserva
+        // NUNCA sobrescreve o organizationId se já temos um localmente.
+        // O backend pode demorar a propagar após o provisionamento.
+        const finalOrgId = res.data.organizationId || persistedOrgId || '';
         const finalData: UserProfileData = {
           ...res.data,
-          organizationId: res.data.organizationId || persistedOrgId || '',
+          organizationId: finalOrgId,
         };
-        setProfile(finalData);
+        // Se já temos um profile em memória com organizationId e a API retornou sem ele,
+        // mantém o profile atual para não destruir o estado pós-provisionamento
+        setProfile((prev) => {
+          if (prev?.organizationId && !res.data.organizationId) {
+            return prev; // preserva o profile com organização
+          }
+          return finalData;
+        });
         localStorage.setItem(`agroguard_user_profile_${authUser.id}`, JSON.stringify(finalData));
         localStorage.setItem('agroguard_user_profile', JSON.stringify(finalData));
         // Persiste o orgId se veio da API
@@ -130,7 +148,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       } else {
         if (forceOverwrite || !persistedOrgId) {
-          setProfile(getFallbackProfile(authUser));
+          setProfile((prev) => {
+            if (prev?.organizationId) return prev; // nunca destrói profile com organização
+            return getFallbackProfile(authUser);
+          });
         }
       }
     } catch {

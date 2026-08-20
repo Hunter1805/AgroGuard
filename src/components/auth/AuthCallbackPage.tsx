@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Shield, AlertTriangle, RefreshCw } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -10,9 +10,13 @@ export const AuthCallbackPage: React.FC = () => {
   const [statusText, setStatusText] = useState('Autenticando...');
   const [error, setError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
+  // Garante que a navegação final acontece apenas UMA vez por tentativa
+  const navigatedRef = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
+    navigatedRef.current = false; // reset a cada nova tentativa (attempt)
+
     const processAuthCallback = async () => {
       // 0. Checar se o Supabase retornou um erro de link expirado ou já utilizado na URL
       const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
@@ -54,9 +58,14 @@ export const AuthCallbackPage: React.FC = () => {
         return;
       }
 
+      // Evita navegar múltiplas vezes se o profile mudar após a navegação já ter ocorrido
+      // (isso previne o loop causado pelo re-fetch do AuthContext pós-provisionamento)
+      if (navigatedRef.current) return;
+      if (cancelled) return;
+
+      navigatedRef.current = true;
       // A callback não reprovisiona: a página de preparação é o único fluxo
       // responsável por criar o ambiente quando a organização ainda não existe.
-      if (cancelled) return;
       navigate(profile?.organizationId ? '/app/dashboard' : '/onboarding/preparando-ambiente', { replace: true });
     };
 
@@ -64,7 +73,8 @@ export const AuthCallbackPage: React.FC = () => {
     return () => {
       cancelled = true;
     };
-  }, [user, profile, authLoading, attempt, navigate, refreshProfile]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, authLoading, attempt]);
 
   return (
     <div className="min-h-screen w-full flex bg-slate-50 justify-center items-center p-6 text-slate-800 font-sans">

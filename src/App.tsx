@@ -70,7 +70,13 @@ import { UsersListView } from './components/users/UsersListView';
 
 export function App() {
   const { user, profile, loading } = useAuth();
-  const hasOrganization = Boolean(profile?.organizationId && profile.status !== 'sem_organizacao');
+  // Usa o localStorage como fallback para evitar loop de redirecionamento logo após o provisionamento,
+  // quando o profile em memória pode ainda não ter o organizationId atualizado.
+  const persistedOrgId = user ? localStorage.getItem(`agroguard_org_id_${user.id}`) : null;
+  const hasOrganization = Boolean(
+    (profile?.organizationId || persistedOrgId) &&
+    profile?.status !== 'sem_organizacao'
+  );
 
   const [isNewOSOpen, setIsNewOSOpen] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
