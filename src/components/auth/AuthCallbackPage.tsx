@@ -4,12 +4,13 @@ import { Shield, AlertTriangle, RefreshCw } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 export const AuthCallbackPage: React.FC = () => {
-  const { user, profile, loading: authLoading, refreshProfile } = useAuth();
+  const { user, authLoading, profileLoading, refreshProfile } = useAuth();
   const navigate = useNavigate();
 
   const [statusText, setStatusText] = useState('Autenticando...');
   const [error, setError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
+
   // Garante que a navegação final acontece apenas UMA vez por tentativa
   const navigatedRef = useRef(false);
 
@@ -28,45 +29,66 @@ export const AuthCallbackPage: React.FC = () => {
         return;
       }
 
-      // Se ainda está carregando o estado do useAuth, aguarda
+      // Aguarda o estado de auth inicial ser resolvido
       if (authLoading) return;
       if (cancelled) return;
       setError(null);
 
       // Se o usuário não está autenticado, manda de volta pro login
       if (!user) {
+        if (import.meta.env.DEV) {
+          console.debug('[AUTH_DEBUG] AuthCallbackPage: sem usuário → /entrar');
+        }
         navigate('/entrar');
         return;
       }
 
       setStatusText('Sincronizando seu perfil...');
 
-      // Tenta carregar o perfil (não bloqueia em caso de erro — dashboard lida com isso)
-      if (!profile) {
-        try {
-          await refreshProfile();
-        } catch {
-          // Ignora erros de rede — vai para o dashboard mesmo assim
-        }
-        if (cancelled) return;
+      // CRÍTICO: refreshProfile retorna o perfil atualizado diretamente.
+      // NÃO usar o `profile` do closure (stale state) — usar SOMENTE o retorno desta chamada.
+      let updatedProfile = null;
+      try {
+        updatedProfile = await refreshProfile();
+      } catch {
+        // Ignora erros de rede — decide baseado no que tiver disponível
+      }
+
+      if (cancelled) return;
+
+      if (import.meta.env.DEV) {
+        console.debug('[AUTH_DEBUG] AuthCallbackPage: refreshProfile concluído', {
+          profileId: updatedProfile?.id,
+          organizationId: updatedProfile?.organizationId,
+          status: updatedProfile?.status,
+        });
       }
 
       // Se o usuário está bloqueado, redireciona para acesso bloqueado
-      if (profile?.status === 'bloqueado' || profile?.status === 'inativo') {
+      if (updatedProfile?.status === 'bloqueado' || updatedProfile?.status === 'inativo') {
         if (cancelled) return;
         navigate('/acesso-bloqueado');
         return;
       }
 
-      // Evita navegar múltiplas vezes se o profile mudar após a navegação já ter ocorrido
-      // (isso previne o loop causado pelo re-fetch do AuthContext pós-provisionamento)
+      // Evita navegar múltiplas vezes
       if (navigatedRef.current) return;
       if (cancelled) return;
 
       navigatedRef.current = true;
-      // A callback não reprovisiona: a página de preparação é o único fluxo
+
+      // Decisão baseada no perfil RETORNADO pelo refreshProfile, nunca no closure stale.
+      // O callback não reprovisiona: a página de preparação é o único fluxo
       // responsável por criar o ambiente quando a organização ainda não existe.
-      navigate(profile?.organizationId ? '/app/dashboard' : '/onboarding/preparando-ambiente', { replace: true });
+      const destination = updatedProfile?.organizationId
+        ? '/app/dashboard'
+        : '/onboarding/preparando-ambiente';
+
+      if (import.meta.env.DEV) {
+        console.debug('[AUTH_DEBUG] AuthCallbackPage: navegando para', destination);
+      }
+
+      navigate(destination, { replace: true });
     };
 
     processAuthCallback();
@@ -74,7 +96,7 @@ export const AuthCallbackPage: React.FC = () => {
       cancelled = true;
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, authLoading, attempt]);
+  }, [user, authLoading, profileLoading, attempt]);
 
   return (
     <div className="min-h-screen w-full flex bg-slate-50 justify-center items-center p-6 text-slate-800 font-sans">

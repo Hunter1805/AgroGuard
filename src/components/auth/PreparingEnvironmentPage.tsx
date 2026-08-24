@@ -5,7 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import { ManualEnvironmentForm } from './ManualEnvironmentForm';
 
 export const PreparingEnvironmentPage: React.FC = () => {
-  const { user, provisionOrganization } = useAuth();
+  const { user, profile, profileLoading, provisionOrganization, refreshProfile } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -29,6 +29,20 @@ export const PreparingEnvironmentPage: React.FC = () => {
   const [phone, setPhone] = useState('');
 
   useEffect(() => {
+    // Se o perfil ainda está sendo carregado, aguardar
+    if (profileLoading) return;
+
+    // VERIFICAÇÃO IMEDIATA: se o usuário já possui organização, ir para o dashboard SEM reprovisionar
+    if (profile?.organizationId) {
+      if (import.meta.env.DEV) {
+        console.debug('[AUTH_DEBUG] PreparingEnvironmentPage: organizationId já existe → /app/dashboard', {
+          organizationId: profile.organizationId,
+        });
+      }
+      navigate('/app/dashboard', { replace: true });
+      return;
+    }
+
     // Se a URL indica falta de dados, o formulário manual já está ativo no estado inicial
     if (isMissingDataError) return;
 
@@ -87,8 +101,36 @@ export const PreparingEnvironmentPage: React.FC = () => {
         // Limpa os dados pendentes do localStorage após provisionamento bem-sucedido
         localStorage.removeItem('agroguard_onboarding_pending');
 
-        // Vai para a tela de boas-vindas para o usuário ver o ambiente criado
-        navigate('/boas-vindas', { replace: true });
+        // CRÍTICO: usar o retorno de refreshProfile para confirmar organizationId
+        // antes de navegar — nunca navegar baseado no estado React que pode ser stale
+        setStatusText('Confirmando seu ambiente...');
+        const updatedProfile = await refreshProfile();
+
+        if (import.meta.env.DEV) {
+          console.debug('[AUTH_DEBUG] PreparingEnvironmentPage: pós-provisionamento', {
+            organizationId: updatedProfile?.organizationId,
+          });
+        }
+
+        // Confirmar que organizationId existe no perfil atualizado
+        if (updatedProfile?.organizationId) {
+          // IMPORTANTE: navegar para /app/dashboard, NUNCA para /boas-vindas
+          // /boas-vindas foi removida do fluxo automático para eliminar o loop
+          navigate('/app/dashboard', { replace: true });
+        } else {
+          // Fallback: o orgId foi salvo no localStorage por provisionOrganization,
+          // então podemos navegar com segurança mesmo se a API ainda não propagou
+          if (user) {
+            const persistedOrgId = localStorage.getItem(`agroguard_org_id_${user.id}`);
+            if (persistedOrgId) {
+              navigate('/app/dashboard', { replace: true });
+              return;
+            }
+          }
+          // Se não temos nem o orgId persistido, mostrar formulário manual
+          setShowManualForm(true);
+          setLoading(false);
+        }
       } catch (err) {
         clearTimeout(safetyTimeout);
         setShowManualForm(true);
@@ -102,7 +144,7 @@ export const PreparingEnvironmentPage: React.FC = () => {
       clearTimeout(safetyTimeout);
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isMissingDataError]);
+  }, [isMissingDataError, profileLoading, profile?.organizationId]);
 
 
   const handleSubmitManual = async (e: React.FormEvent) => {
@@ -137,7 +179,7 @@ export const PreparingEnvironmentPage: React.FC = () => {
         return;
       }
 
-      // Navega imediatamente para o dashboard
+      // Navega imediatamente para o dashboard após provisionamento manual
       navigate('/app/dashboard', { replace: true });
     } catch (err) {
       setError('Erro ao processar solicitação no servidor.');

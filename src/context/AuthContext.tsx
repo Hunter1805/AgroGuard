@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import type { Session, User as SupabaseUser } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase/supabase-client';
 import { apiClient } from '../lib/api/api-client';
@@ -21,6 +21,13 @@ interface AuthContextType {
   session: Session | null;
   user: SupabaseUser | null;
   profile: UserProfileData | null;
+  /** true apenas durante a verificação inicial de sessão */
+  authLoading: boolean;
+  /** true durante qualquer fetch/refresh de perfil */
+  profileLoading: boolean;
+  /** erro do último fetch de perfil — null se ok */
+  profileError: Error | null;
+  /** compat com código legado: authLoading || profileLoading */
   loading: boolean;
   login: (email: string, password: string) => Promise<{ error: any }>;
   logout: () => Promise<void>;
@@ -28,7 +35,12 @@ interface AuthContextType {
   registerUser: (email: string, password: string, name: string, metadata?: Record<string, any>) => Promise<{ user: SupabaseUser | null; session: Session | null; error: any }>;
   provisionOrganization: (payload: any) => Promise<{ data: any; error: any }>;
   updateOnboardingStep: (step: number) => Promise<{ data: any; error: any }>;
-  refreshProfile: () => Promise<void>;
+  /**
+   * Recarrega o perfil do usuário.
+   * IMPORTANTE: retorna o perfil carregado diretamente para evitar stale state.
+   * Use o valor retornado para decisões de rota — nunca leia `profile` do closure.
+   */
+  refreshProfile: () => Promise<UserProfileData | null>;
 }
 
 function getFallbackProfile(authUser: SupabaseUser, overrideData?: Partial<UserProfileData>): UserProfileData {
@@ -80,52 +92,98 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [profile, setProfile] = useState<UserProfileData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [profileLoading, setProfileLoading] = useState(false);
+  const [profileError, setProfileError] = useState<Error | null>(null);
+
+  // Flag para serializar fetches concorrentes e evitar race condition entre
+  // onAuthStateChange e refreshProfile chamados em paralelo.
+  const isFetchingProfile = useRef(false);
+
+  // Derivado para compatibilidade com código existente
+  const loading = authLoading || profileLoading;
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchUserProfile(session.user, false);
+    supabase.auth.getSession().then(({ data: { session: initialSession } }) => {
+      setSession(initialSession);
+      setUser(initialSession?.user ?? null);
+      if (initialSession?.user) {
+        fetchUserProfile(initialSession.user).finally(() => {
+          setAuthLoading(false);
+        });
       } else {
-        setLoading(false);
+        setAuthLoading(false);
       }
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        // Ignora eventos que não requerem re-fetch do perfil
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, newSession) => {
+      if (import.meta.env.DEV) {
+        console.debug('[AUTH_DEBUG] onAuthStateChange', { event, hasSession: !!newSession });
+      }
+
+      setSession(newSession);
+      setUser(newSession?.user ?? null);
+
+      if (newSession?.user) {
+        // TOKEN_REFRESHED e USER_UPDATED não requerem re-fetch do perfil
         if (event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') return;
 
         // Se já existe um orgId persistido no localStorage, o usuário está provisionado.
         // NÃO re-buscamos o perfil para evitar a race condition onde a API retorna
         // sem organizationId logo após o provisionamento, destruindo o estado válido.
-        const persistedOrgId = localStorage.getItem(`agroguard_org_id_${session.user.id}`);
+        const persistedOrgId = localStorage.getItem(`agroguard_org_id_${newSession.user.id}`);
         if (persistedOrgId) {
-          setLoading(false);
+          if (import.meta.env.DEV) {
+            console.debug('[AUTH_DEBUG] onAuthStateChange: orgId persistido encontrado — skip fetch de perfil', { persistedOrgId });
+          }
           return;
         }
 
-        // Sem orgId persistido: busca o perfil normalmente
-        fetchUserProfile(session.user, false);
+        // Se o callback já está buscando o perfil, não duplicar
+        if (isFetchingProfile.current) {
+          if (import.meta.env.DEV) {
+            console.debug('[AUTH_DEBUG] onAuthStateChange: fetch de perfil já em andamento — skip duplicata');
+          }
+          return;
+        }
+
+        // Sem orgId persistido e sem fetch em andamento: busca o perfil normalmente
+        fetchUserProfile(newSession.user);
       } else {
         setProfile(null);
-        setLoading(false);
+        setProfileError(null);
       }
     });
 
     return () => subscription.unsubscribe();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
 
-  const fetchUserProfile = async (authUser: SupabaseUser, forceOverwrite = true) => {
-    // Lê o organizationId persistido localmente (fonte de verdade após provisionamento)
+  /**
+   * Busca o perfil do usuário na API.
+   * CRÍTICO: NÃO zera o profile para null durante o fetch — mantém o valor anterior
+   * para evitar que guards interpretem a ausência temporária como "sem organização".
+   * Retorna o perfil resultante ou null em caso de erro.
+   */
+  const fetchUserProfile = async (authUser: SupabaseUser): Promise<UserProfileData | null> => {
+    // Serializa fetches concorrentes
+    if (isFetchingProfile.current) {
+      if (import.meta.env.DEV) {
+        console.debug('[AUTH_DEBUG] fetchUserProfile: já em andamento — aguardando');
+      }
+      return null;
+    }
+
+    isFetchingProfile.current = true;
+    setProfileLoading(true);
+    // NÃO zeramos profile aqui — mantemos o valor anterior durante o refresh
+
     const persistedOrgId = localStorage.getItem(`agroguard_org_id_${authUser.id}`);
+
     try {
       const res = await apiClient<UserProfileData>('/users/me');
+
       if (res.data) {
         // NUNCA sobrescreve o organizationId se já temos um localmente.
         // O backend pode demorar a propagar após o provisionamento.
@@ -134,43 +192,86 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           ...res.data,
           organizationId: finalOrgId,
         };
+
         // Se já temos um profile em memória com organizationId e a API retornou sem ele,
         // mantém o profile atual para não destruir o estado pós-provisionamento
+        let resultProfile: UserProfileData = finalData;
         setProfile((prev) => {
           if (prev?.organizationId && !res.data.organizationId) {
-            return prev; // preserva o profile com organização
+            resultProfile = prev; // preserva o profile com organização
+            return prev;
           }
           return finalData;
         });
+
         localStorage.setItem(`agroguard_user_profile_${authUser.id}`, JSON.stringify(finalData));
         localStorage.setItem('agroguard_user_profile', JSON.stringify(finalData));
+
         // Persiste o orgId se veio da API
         if (res.data.organizationId) {
           localStorage.setItem(`agroguard_org_id_${authUser.id}`, res.data.organizationId);
         }
-      } else {
-        if (forceOverwrite || !persistedOrgId) {
-          setProfile((prev) => {
-            if (prev?.organizationId) return prev; // nunca destrói profile com organização
-            return getFallbackProfile(authUser);
+
+        setProfileError(null);
+
+        if (import.meta.env.DEV) {
+          console.debug('[AUTH_DEBUG] fetchUserProfile: sucesso', {
+            profileId: finalData.id,
+            organizationId: finalOrgId,
+            onboardingCompleted: finalData.onboardingCompleted,
+            onboardingStep: finalData.onboardingStep,
           });
         }
+
+        return resultProfile;
+      } else {
+        // API retornou sem dados — usa fallback mas preserva org existente
+        let fallbackResult: UserProfileData | null = null;
+        setProfile((prev) => {
+          if (prev?.organizationId) {
+            fallbackResult = prev; // nunca destrói profile com organização
+            return prev;
+          }
+          const fb = getFallbackProfile(authUser);
+          fallbackResult = fb;
+          return fb;
+        });
+        setProfileError(null);
+        return fallbackResult;
       }
-    } catch {
+    } catch (err: any) {
       // Em erro de rede, usa fallback mas preserva o profile atual se tiver organizationId
+      let errorResult: UserProfileData | null = null;
       setProfile((prev) => {
-        if (prev?.organizationId) return prev; // Não destrói um profile válido
-        return getFallbackProfile(authUser);
+        if (prev?.organizationId) {
+          errorResult = prev; // Não destrói um profile válido
+          return prev;
+        }
+        const fb = getFallbackProfile(authUser);
+        errorResult = fb;
+        return fb;
       });
+      setProfileError(err instanceof Error ? err : new Error(String(err)));
+
+      if (import.meta.env.DEV) {
+        console.debug('[AUTH_DEBUG] fetchUserProfile: erro de rede — usando fallback', { error: err?.message });
+      }
+
+      return errorResult;
     } finally {
-      setLoading(false);
+      setProfileLoading(false);
+      isFetchingProfile.current = false;
     }
   };
 
-  const refreshProfile = async () => {
-    if (user) {
-      await fetchUserProfile(user);
-    }
+  /**
+   * Recarrega o perfil do usuário.
+   * RETORNA o perfil atualizado — use o valor retornado para decisões de rota,
+   * nunca o `profile` do closure (que pode ser stale).
+   */
+  const refreshProfile = async (): Promise<UserProfileData | null> => {
+    if (!user) return null;
+    return fetchUserProfile(user);
   };
 
   const login = async (email: string, password: string) => {
@@ -180,10 +281,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async () => {
     await supabase.auth.signOut();
+    // Limpa apenas os dados de perfil/cache — mantém outros dados do usuário
     localStorage.removeItem('agroguard_user_profile');
+    if (user) {
+      localStorage.removeItem(`agroguard_user_profile_${user.id}`);
+      localStorage.removeItem(`agroguard_org_id_${user.id}`);
+    }
     setSession(null);
     setUser(null);
     setProfile(null);
+    setProfileError(null);
   };
 
   const resetPassword = async (email: string) => {
@@ -275,6 +382,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         session,
         user,
         profile,
+        authLoading,
+        profileLoading,
+        profileError,
         loading,
         login,
         logout,

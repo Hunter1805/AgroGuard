@@ -69,10 +69,12 @@ import { WelcomeOnboardingPage } from './components/onboarding/WelcomeOnboarding
 import { UsersListView } from './components/users/UsersListView';
 
 export function App() {
-  const { user, profile, loading } = useAuth();
+  const { user, profile, authLoading, profileLoading } = useAuth();
   // Usa o localStorage como fallback para evitar loop de redirecionamento logo após o provisionamento,
   // quando o profile em memória pode ainda não ter o organizationId atualizado.
   const persistedOrgId = user ? localStorage.getItem(`agroguard_org_id_${user.id}`) : null;
+  // REGRA ÚNICA: acesso autorizado apenas se há session E (profile.organizationId OU persistedOrgId)
+  // onboardingCompleted e onboardingStep NUNCA bloqueiam o dashboard.
   const hasOrganization = Boolean(
     (profile?.organizationId || persistedOrgId) &&
     profile?.status !== 'sem_organizacao'
@@ -93,8 +95,26 @@ export function App() {
     setTimeout(() => setToastMessage(null), 4000);
   };
 
-  // 1. Loader de Inicialização Geral
-  if (loading) {
+  if (import.meta.env.DEV) {
+    const location = window.location;
+    console.debug('[ROUTER_DEBUG]', {
+      source: 'App',
+      path: location.pathname,
+      hasSession: !!user,
+      authLoading,
+      profileLoading,
+      profileId: profile?.id,
+      organizationId: profile?.organizationId,
+      onboardingCompleted: profile?.onboardingCompleted,
+      onboardingStep: profile?.onboardingStep,
+      hasOrganization,
+    });
+  }
+
+  // 1. Loader de Inicialização — aguarda tanto auth quanto perfil
+  // SE authLoading === true → mostrar loading, nenhum redirect
+  // SE session existe E profileLoading === true → mostrar loading, nenhum redirect
+  if (authLoading || (user && profileLoading && !profile)) {
     return (
       <div className="min-h-screen w-full flex bg-slate-50 justify-center items-center font-sans text-slate-800">
         <div className="flex flex-col items-center space-y-3">
