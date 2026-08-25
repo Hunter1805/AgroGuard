@@ -75,14 +75,6 @@ export const WelcomeOnboardingPage: React.FC = () => {
     }
   };
 
-  const handleFinishOnboarding = async () => {
-    try {
-      await updateOnboardingStep(4);
-    } finally {
-      navigate('/app/dashboard');
-    }
-  };
-
   const completedCount = currentStep;
 
   return (
@@ -96,6 +88,13 @@ export const WelcomeOnboardingPage: React.FC = () => {
             <p className="text-xs text-slate-500">Prepare seu ambiente para começar a gerenciar sua frota.</p>
           </div>
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => navigate('/app/dashboard')}
+              className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-2 rounded-lg transition-colors shadow-sm"
+            >
+              <Play size={12} className="fill-current" />
+              Entrar no AgroGuard
+            </button>
             <div className="bg-emerald-600 p-2 rounded-lg text-white">
               <Shield size={20} />
             </div>
@@ -215,21 +214,13 @@ export const WelcomeOnboardingPage: React.FC = () => {
             <ArrowRight size={14} className="mt-0.5" />
           </button>
 
-          {completedCount >= 3 ? (
-            <button
-              onClick={handleFinishOnboarding}
-              className="bg-slate-900 hover:bg-slate-800 text-white font-bold px-4 py-2 rounded shadow-sm"
-            >
-              Concluir Configuração
-            </button>
-          ) : (
-            <button
-              onClick={() => navigate('/app/dashboard')}
-              className="bg-slate-900 hover:bg-slate-800 text-white font-bold px-4 py-2 rounded shadow-sm"
-            >
-              Acessar meu ambiente
-            </button>
-          )}
+          <button
+            onClick={() => navigate('/app/dashboard')}
+            className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded shadow-sm flex items-center gap-1.5 transition-colors"
+          >
+            <Play size={12} className="fill-current" />
+            Entrar no AgroGuard
+          </button>
         </div>
       </div>
     </div>

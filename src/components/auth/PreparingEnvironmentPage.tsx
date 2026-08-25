@@ -19,6 +19,8 @@ export const PreparingEnvironmentPage: React.FC = () => {
   const [statusText, setStatusText] = useState('Estamos preparando o AgroGuard para a sua empresa...');
   const [error, setError] = useState<string | null>(null);
   const [showManualForm, setShowManualForm] = useState(() => isMissingDataError);
+  // Controla reexecução do provisionamento sem reload completo da página
+  const [attempt, setAttempt] = useState(0);
 
   // Campos do formulário manual de contingência
   const [ownerName, setOwnerName] = useState(user?.user_metadata?.name || '');
@@ -114,21 +116,11 @@ export const PreparingEnvironmentPage: React.FC = () => {
 
         // Confirmar que organizationId existe no perfil atualizado
         if (updatedProfile?.organizationId) {
-          // IMPORTANTE: navegar para /app/dashboard, NUNCA para /boas-vindas
-          // /boas-vindas foi removida do fluxo automático para eliminar o loop
+          // DESTINO FINAL: sempre /app/dashboard após provisionamento bem-sucedido
           navigate('/app/dashboard', { replace: true });
         } else {
-          // Fallback: o orgId foi salvo no localStorage por provisionOrganization,
-          // então podemos navegar com segurança mesmo se a API ainda não propagou
-          if (user) {
-            const persistedOrgId = localStorage.getItem(`agroguard_org_id_${user.id}`);
-            if (persistedOrgId) {
-              navigate('/app/dashboard', { replace: true });
-              return;
-            }
-          }
-          // Se não temos nem o orgId persistido, mostrar formulário manual
-          setShowManualForm(true);
+          // NÃO usar persistedOrgId como fallback — mostrar erro persistente
+          setError('Não foi possível confirmar o ambiente após o provisionamento. Tente novamente.');
           setLoading(false);
         }
       } catch (err) {
@@ -144,7 +136,7 @@ export const PreparingEnvironmentPage: React.FC = () => {
       clearTimeout(safetyTimeout);
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isMissingDataError, profileLoading, profile?.organizationId]);
+  }, [isMissingDataError, profileLoading, profile?.organizationId, attempt]);
 
 
   const handleSubmitManual = async (e: React.FormEvent) => {
@@ -179,8 +171,15 @@ export const PreparingEnvironmentPage: React.FC = () => {
         return;
       }
 
-      // Navega imediatamente para o dashboard após provisionamento manual
-      navigate('/app/dashboard', { replace: true });
+      // Confirmar via refreshProfile antes de navegar
+      setStatusText('Confirmando seu ambiente...');
+      const updatedProfile = await refreshProfile();
+      if (updatedProfile?.organizationId) {
+        navigate('/app/dashboard', { replace: true });
+      } else {
+        setError('Não foi possível confirmar o ambiente. Tente novamente.');
+        setLoading(false);
+      }
     } catch (err) {
       setError('Erro ao processar solicitação no servidor.');
       setLoading(false);
@@ -241,9 +240,11 @@ export const PreparingEnvironmentPage: React.FC = () => {
             <div className="flex gap-2">
               <button
                 onClick={() => {
+                  // Retry via reset de estado local — sem reload nem navegação
+                  provisioningAttempted.current = false;
                   setError(null);
                   setLoading(true);
-                  navigate('/onboarding/preparando-ambiente', { replace: true });
+                  setAttempt(prev => prev + 1);
                 }}
                 className="w-full bg-slate-900 hover:bg-slate-800 text-white font-medium text-xs rounded-md py-2.5 transition-colors"
               >
