@@ -30,6 +30,9 @@ export const PreparingEnvironmentPage: React.FC = () => {
   const [equipmentCount, setEquipmentCount] = useState('11_50');
   const [phone, setPhone] = useState('');
 
+  // Ref para garantir que provisionamento não rode em paralelo
+  const processingRef = useRef(false);
+
   useEffect(() => {
     // Se o perfil ainda está sendo carregado, aguardar
     if (profileLoading) return;
@@ -67,11 +70,20 @@ export const PreparingEnvironmentPage: React.FC = () => {
 
     // Timer de segurança de no máximo 6 segundos para NUNCA travar a tela
     const safetyTimeout = setTimeout(() => {
+      console.warn('[PREPARING_ENV] Timeout de segurança de 6s atingido, alternando para formulário manual.');
       setShowManualForm(true);
       setLoading(false);
     }, 6000);
 
     const autoProvision = async () => {
+      if (processingRef.current) {
+        console.warn('[PREPARING_ENV] Processamento concorrente autoProvision bloqueado.');
+        return;
+      }
+      processingRef.current = true;
+
+      const startTime = Date.now();
+      console.log('[PREPARING_ENV] Iniciando autoProvision...', { authUserId: user?.id });
       setLoading(true);
       setError(null);
       setStatusText('Estamos preparando o AgroGuard para a sua empresa...');
@@ -91,12 +103,18 @@ export const PreparingEnvironmentPage: React.FC = () => {
       };
 
       try {
+        console.log('[PREPARING_ENV] Chamando provisionOrganization...');
+        const provStart = Date.now();
         const { error: provisionError } = await provisionOrganization(payload);
+        console.log(`[PREPARING_ENV] Resposta de provisionOrganization recebida em ${Date.now() - provStart}ms`);
         clearTimeout(safetyTimeout);
 
         if (provisionError) {
+          console.error('[PREPARING_ENV] Erro retornado de provisionOrganization:', provisionError);
+          setError(provisionError.message || 'Erro ao criar ambiente. Tente novamente.');
           setShowManualForm(true);
           setLoading(false);
+          processingRef.current = false;
           return;
         }
 
@@ -106,27 +124,29 @@ export const PreparingEnvironmentPage: React.FC = () => {
         // CRÍTICO: usar o retorno de refreshProfile para confirmar organizationId
         // antes de navegar — nunca navegar baseado no estado React que pode ser stale
         setStatusText('Confirmando seu ambiente...');
+        console.log('[PREPARING_ENV] Chamando refreshProfile após provisionamento...');
+        const refreshStart = Date.now();
         const updatedProfile = await refreshProfile();
+        console.log(`[PREPARING_ENV] Resposta de refreshProfile recebida em ${Date.now() - refreshStart}ms`, {
+          organizationId: updatedProfile?.organizationId,
+        });
 
-        if (import.meta.env.DEV) {
-          console.debug('[AUTH_DEBUG] PreparingEnvironmentPage: pós-provisionamento', {
-            organizationId: updatedProfile?.organizationId,
-          });
-        }
-
-        // Confirmar que organizationId existe no perfil atualizado
         if (updatedProfile?.organizationId) {
-          // DESTINO FINAL: sempre /app/dashboard após provisionamento bem-sucedido
+          console.log(`[PREPARING_ENV] Ambiente confirmado com sucesso! Navegando para Dashboard em ${Date.now() - startTime}ms`);
           navigate('/app/dashboard', { replace: true });
         } else {
-          // NÃO usar persistedOrgId como fallback — mostrar erro persistente
+          console.error('[PREPARING_ENV] Erro: organizationId ausente no perfil atualizado.');
           setError('Não foi possível confirmar o ambiente após o provisionamento. Tente novamente.');
           setLoading(false);
         }
-      } catch (err) {
+      } catch (err: any) {
+        console.error('[PREPARING_ENV] Exceção em autoProvision:', err);
         clearTimeout(safetyTimeout);
+        setError(err?.message || 'Erro ao preparar ambiente.');
         setShowManualForm(true);
         setLoading(false);
+      } finally {
+        processingRef.current = false;
       }
     };
 
@@ -148,6 +168,14 @@ export const PreparingEnvironmentPage: React.FC = () => {
       return;
     }
 
+    if (processingRef.current) {
+      console.warn('[PREPARING_ENV] Processamento concorrente handleSubmitManual bloqueado.');
+      return;
+    }
+    processingRef.current = true;
+
+    const startTime = Date.now();
+    console.log('[PREPARING_ENV] Iniciando provisionamento manual...', { companyName });
     setLoading(true);
     setStatusText('Criando sua organização e ambiente operacional...');
 
@@ -163,26 +191,42 @@ export const PreparingEnvironmentPage: React.FC = () => {
     };
 
     try {
+      console.log('[PREPARING_ENV] Chamando provisionOrganization (manual)...');
+      const provStart = Date.now();
       const { error: provisionError } = await provisionOrganization(payload);
+      console.log(`[PREPARING_ENV] Resposta de provisionOrganization (manual) recebida em ${Date.now() - provStart}ms`);
 
       if (provisionError) {
+        console.error('[PREPARING_ENV] Erro no provisionamento manual:', provisionError);
         setError(provisionError.message || 'Erro ao criar ambiente. Tente novamente.');
         setLoading(false);
+        processingRef.current = false;
         return;
       }
 
       // Confirmar via refreshProfile antes de navegar
       setStatusText('Confirmando seu ambiente...');
+      console.log('[PREPARING_ENV] Chamando refreshProfile após provisionamento manual...');
+      const refreshStart = Date.now();
       const updatedProfile = await refreshProfile();
+      console.log(`[PREPARING_ENV] Resposta de refreshProfile (manual) recebida em ${Date.now() - refreshStart}ms`, {
+        organizationId: updatedProfile?.organizationId,
+      });
+
       if (updatedProfile?.organizationId) {
+        console.log(`[PREPARING_ENV] Ambiente manual confirmado. Navegando para Dashboard em ${Date.now() - startTime}ms`);
         navigate('/app/dashboard', { replace: true });
       } else {
+        console.error('[PREPARING_ENV] Erro: organizationId ausente no perfil manual atualizado.');
         setError('Não foi possível confirmar o ambiente. Tente novamente.');
         setLoading(false);
       }
-    } catch (err) {
-      setError('Erro ao processar solicitação no servidor.');
+    } catch (err: any) {
+      console.error('[PREPARING_ENV] Exceção em handleSubmitManual:', err);
+      setError(err?.message || 'Erro ao processar solicitação no servidor.');
       setLoading(false);
+    } finally {
+      processingRef.current = false;
     }
   };
 

@@ -4,6 +4,7 @@ import { UserRepository } from './user.repository';
 import { UserService } from './user.service';
 import { createUserSchema } from './user.schemas';
 import { requireAuthentication } from '../../shared/middleware/authGuard';
+import { AppError } from '../../shared/errors/AppError';
 import type { ApiResponse } from '../../shared/http/ApiResponse';
 
 const prisma = new PrismaClient();
@@ -38,19 +39,7 @@ export async function userRoutes(app: FastifyInstance) {
     });
 
     if (!user) {
-      return reply.send({
-        data: {
-          id: '',
-          authUserId,
-          name: '',
-          email: '',
-          role: '',
-          organizationId: '',
-          status: 'novo',
-          onboardingCompleted: false,
-          onboardingStep: 0,
-        },
-      });
+      throw new AppError('Perfil não provisionado no banco local.', 404, 'PROFILE_NOT_PROVISIONED');
     }
 
     const membership = user.memberships[0];

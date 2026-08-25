@@ -47,6 +47,9 @@ export async function onboardingRoutes(app: FastifyInstance) {
     const { authUserId } = request.actor;
     const body = (request.body as ProvisionPayload) || {};
 
+    const startTime = Date.now();
+    request.log.info({ authUserId }, '[ONBOARDING_PROVISION] 1. Início do fluxo de provisionamento');
+
     // 1. Garantir idempotência: verificar se o usuário já possui uma membership
     let user = await prisma.user.findUnique({
       where: { authUserId },
@@ -60,6 +63,7 @@ export async function onboardingRoutes(app: FastifyInstance) {
 
     if (user && user.memberships.length > 0) {
       const activeMembership = user.memberships[0];
+      request.log.info({ authUserId, organizationId: activeMembership.organizationId, durationMs: Date.now() - startTime }, '[ONBOARDING_PROVISION] 2. Idempotência: Membership ativa já existe fora da transação');
       const response: ApiResponse<{ message: string; organizationId: string }> = {
         data: {
           message: 'Ambiente já criado. Continuando seu acesso...',
@@ -77,11 +81,15 @@ export async function onboardingRoutes(app: FastifyInstance) {
       auth: { persistSession: false },
     });
 
+    request.log.info({ authUserId }, '[ONBOARDING_PROVISION] 3. Buscando dados do usuário no Supabase Auth');
     const { data: { user: authUser }, error: authError } = await supabase.auth.admin.getUserById(authUserId);
 
     if (authError || !authUser) {
+      request.log.error({ authUserId, error: authError }, '[ONBOARDING_PROVISION] Erro ao buscar usuário no Supabase Auth');
       throw new AppError('Usuário de autenticação não encontrado no provedor.', 400, 'AUTH_USER_NOT_FOUND');
     }
+
+    request.log.info({ authUserId, email: authUser.email }, '[ONBOARDING_PROVISION] Usuário localizado no Supabase Auth');
 
     const email = authUser.email!;
 
@@ -120,6 +128,7 @@ export async function onboardingRoutes(app: FastifyInstance) {
           });
         }
         const activeMembership = user.memberships[0];
+        request.log.info({ authUserId, organizationId: activeMembership.organizationId, durationMs: Date.now() - startTime }, '[ONBOARDING_PROVISION] 2b. Idempotência por e-mail: Membership ativa já existe fora da transação');
         const response: ApiResponse<{ message: string; organizationId: string }> = {
           data: {
             message: 'Ambiente já criado. Continuando seu acesso...',
@@ -130,16 +139,22 @@ export async function onboardingRoutes(app: FastifyInstance) {
       }
     }
 
+    request.log.info({ authUserId }, '[ONBOARDING_PROVISION] 4. Iniciando transação Prisma');
+
     // 3. Executar a transação Prisma para provisionamento completo e idempotente
     const result = await prisma.$transaction(async (tx) => {
       // Serializa o provisionamento por usuário dentro da transação. O lookup
       // fora dela não é suficiente quando duas requisições chegam juntas.
+      request.log.info({ authUserId }, '[ONBOARDING_PROVISION] 4.1. Adquirindo pg_advisory_xact_lock');
       await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${authUserId}))`;
+      request.log.info({ authUserId }, '[ONBOARDING_PROVISION] 4.2. Lock pg_advisory_xact_lock adquirido');
+
       let internalUser: any = await tx.user.findUnique({ where: { authUserId } });
       if (!internalUser) {
         internalUser = user || await tx.user.findUnique({ where: { email } });
       }
       if (!internalUser) {
+        request.log.info({ authUserId, email }, '[ONBOARDING_PROVISION] 4.3. Criando usuário interno');
         internalUser = await tx.user.create({
           data: {
             authUserId,
@@ -162,8 +177,11 @@ export async function onboardingRoutes(app: FastifyInstance) {
       });
 
       if (existingMembership) {
+        request.log.info({ authUserId, organizationId: existingMembership.organizationId }, '[ONBOARDING_PROVISION] 4.4. Idempotência: Membership ativa localizada dentro da transação');
         return { organizationId: existingMembership.organizationId };
       }
+
+      request.log.info({ authUserId }, '[ONBOARDING_PROVISION] 4.5. Criando nova Organização, Empresa, Unidade e Membership');
 
       const baseSlug = organizationName
         .toLowerCase()
@@ -344,6 +362,7 @@ export async function onboardingRoutes(app: FastifyInstance) {
         },
       });
 
+      request.log.info({ authUserId, organizationId: organization.id }, '[ONBOARDING_PROVISION] 4.6. Transação concluída com sucesso. Realizando commit');
       return {
         organizationId: organization.id,
       };
@@ -351,6 +370,8 @@ export async function onboardingRoutes(app: FastifyInstance) {
       maxWait: 15000,
       timeout: 30000,
     });
+
+    request.log.info({ authUserId, organizationId: result.organizationId, durationMs: Date.now() - startTime }, '[ONBOARDING_PROVISION] 5. Fluxo de provisionamento finalizado');
 
     const response: ApiResponse<{ message: string; organizationId: string }> = {
       data: {

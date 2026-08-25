@@ -240,21 +240,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return fallbackResult;
       }
     } catch (err: any) {
-      // Em erro de rede, usa fallback mas preserva o profile atual se tiver organizationId
+      const isNotProvisioned = err?.code === 'PROFILE_NOT_PROVISIONED';
+      // Em erro de rede ou não provisionado, usa fallback mas preserva o profile atual se tiver organizationId
       let errorResult: UserProfileData | null = null;
       setProfile((prev) => {
         if (prev?.organizationId) {
           errorResult = prev; // Não destrói um profile válido
           return prev;
         }
-        const fb = getFallbackProfile(authUser);
+        const fb = getFallbackProfile(authUser, isNotProvisioned ? { organizationId: '' } : undefined);
         errorResult = fb;
         return fb;
       });
-      setProfileError(err instanceof Error ? err : new Error(String(err)));
+
+      if (isNotProvisioned) {
+        setProfileError(null); // Limpa o erro, é um estado normal/esperado de usuário novo
+      } else {
+        setProfileError(err instanceof Error ? err : new Error(String(err)));
+      }
 
       if (import.meta.env.DEV) {
-        console.debug('[AUTH_DEBUG] fetchUserProfile: erro de rede — usando fallback', { error: err?.message });
+        console.debug('[AUTH_DEBUG] fetchUserProfile: erro tratado', { error: err?.message, isNotProvisioned });
       }
 
       return errorResult;
