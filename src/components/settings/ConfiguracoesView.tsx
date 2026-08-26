@@ -12,10 +12,16 @@ import { StockRulesForm } from './rules/StockRulesForm';
 import { AlertSettingsView } from './alerts/AlertSettingsView';
 import { NumberingSettingsView } from './numbering/NumberingSettingsView';
 import { AdminAuditView } from './audit/AdminAuditView';
+import { ProfileSettings } from './ProfileSettings';
+import { SecuritySettings } from './SecuritySettings';
 
 interface ViewProps {
   initialTab?: string;
 }
+
+const UnavailableSettings: React.FC<{ label: string }> = ({ label }) => (
+  <div role="status" className="rounded-xl border-white/10 bg-surface-container p-6 text-sm text-on-surface-variant">Configuração ainda não disponível: {label}.</div>
+);
 
 export const ConfiguracoesView: React.FC<ViewProps> = ({ initialTab = 'visao_geral' }) => {
   const [searchParams] = useSearchParams();
@@ -51,6 +57,11 @@ export const ConfiguracoesView: React.FC<ViewProps> = ({ initialTab = 'visao_ger
       {/* Conteúdo Dinâmico por Seção */}
       <div className="pt-2">
         {activeSection === 'visao_geral' && <SettingsOverview onNavigate={setActiveSection} />}
+        {activeSection === 'perfil' && <ProfileSettings />}
+        {activeSection === 'conta' && <ProfileSettings />}
+        {activeSection === 'seguranca' && <SecuritySettings />}
+        {activeSection === 'preferencias' && <UnavailableSettings label="Preferências" />}
+        {activeSection === 'ajuda' && <UnavailableSettings label="Central de Ajuda" />}
         {activeSection === 'usuarios' && <UserList />}
         {activeSection === 'perfis' && <RoleList />}
         {activeSection === 'gerais' && <GeneralSettingsForm />}

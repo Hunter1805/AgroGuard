@@ -8,6 +8,8 @@ export interface UserProfileData {
   authUserId: string;
   name: string;
   email: string;
+  phone?: string;
+  avatarUrl?: string;
   role: string;
   organizationId: string;
   organizationName?: string;
@@ -41,6 +43,7 @@ interface AuthContextType {
    * Use o valor retornado para decisões de rota — nunca leia `profile` do closure.
    */
   refreshProfile: () => Promise<UserProfileData | null>;
+  updateProfile: (data: { name: string; phone?: string }) => Promise<{ data: UserProfileData | null; error: any }>;
 }
 
 function getFallbackProfile(authUser: SupabaseUser, overrideData?: Partial<UserProfileData>): UserProfileData {
@@ -59,9 +62,9 @@ function getFallbackProfile(authUser: SupabaseUser, overrideData?: Partial<UserP
   const pendingStr = localStorage.getItem('agroguard_onboarding_pending');
   const pending = pendingStr ? JSON.parse(pendingStr) : {};
 
-  const orgName = overrideData?.organizationName || base.organizationName || pending.organizationName || authUser.user_metadata?.organizationName || 'Empresa AgroGuard';
-  const ownerName = overrideData?.name || base.name || pending.ownerName || authUser.user_metadata?.name || authUser.email?.split('@')[0] || 'Usuário';
-  const workspaceName = overrideData?.workspaceName || base.workspaceName || pending.workspaceName || 'Fazenda Principal';
+  const orgName = overrideData?.organizationName || base.organizationName || pending.organizationName || authUser.user_metadata?.organizationName || '';
+  const ownerName = overrideData?.name || base.name || pending.ownerName || authUser.user_metadata?.name || '';
+  const workspaceName = overrideData?.workspaceName || base.workspaceName || pending.workspaceName || '';
   // A ausência de organização é um estado válido: só o provisionamento pode criar o vínculo.
   const orgId = overrideData?.organizationId || base.organizationId || '';
   const step = overrideData?.onboardingStep ?? base.onboardingStep ?? 0;
@@ -72,11 +75,11 @@ function getFallbackProfile(authUser: SupabaseUser, overrideData?: Partial<UserP
     authUserId: authUser.id,
     name: ownerName,
     email: authUser.email || '',
-    role: overrideData?.role || base.role || 'ADMIN_ORGANIZACAO',
+    role: overrideData?.role || base.role || '',
     organizationId: orgId,
-    organizationName: orgName,
-    workspaceName: workspaceName,
-    status: base.status || 'ativo',
+    organizationName: orgName || undefined,
+    workspaceName: workspaceName || undefined,
+    status: base.status || '',
     onboardingCompleted: completed,
     onboardingStep: step,
   };
@@ -290,6 +293,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return fetchUserProfile(user);
   };
 
+  const updateProfile = async (data: { name: string; phone?: string }) => {
+    try {
+      const response = await apiClient<UserProfileData>('/users/me', {
+        method: 'PATCH',
+        body: JSON.stringify(data),
+      });
+      const updated = await fetchUserProfile(user!);
+      return { data: updated || response.data, error: null };
+    } catch (error) {
+      return { data: null, error };
+    }
+  };
+
   const login = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     return { error };
@@ -409,6 +425,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         provisionOrganization,
         updateOnboardingStep,
         refreshProfile,
+        updateProfile,
       }}
     >
       {children}

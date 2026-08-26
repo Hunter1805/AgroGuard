@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Bell, HelpCircle, Sun, Moon, Menu, Search, ChevronDown, X } from 'lucide-react';
 import { ROUTES } from '../../types/routes';
 import { isExplicitMockMode } from '../../config/data-source.config';
 import { useAuth } from '../../context/AuthContext';
+import { AccountMenu } from './AccountMenu';
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 export interface HeaderCorpProps {
@@ -163,14 +164,17 @@ export const HeaderCorp: React.FC<HeaderCorpProps> = ({
   onMobileMenuOpen,
   pendingAlerts = 0,
 }) => {
-  const { profile, loading: authLoading } = useAuth();
+  const { profile, loading: authLoading, logout } = useAuth();
+  const navigate = useNavigate();
   const [notifications, setNotifications] = useState<Notification[]>(isExplicitMockMode ? MOCK_NOTIFICATIONS : []);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showAccountMenu, setShowAccountMenu] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
   const [darkMode, setDarkMode] = useState(() =>
     document.documentElement.classList.contains('dark')
   );
   const bellRef = useRef<HTMLDivElement>(null);
+  const accountRef = useRef<HTMLDivElement>(null);
 
   // Atalho de teclado Ctrl/Cmd+K
   useEffect(() => {
@@ -184,17 +188,18 @@ export const HeaderCorp: React.FC<HeaderCorpProps> = ({
     return () => window.removeEventListener('keydown', handler);
   }, [onOpenCommandPalette]);
 
-  // Fechar panel ao clicar fora
+  // Fecha menus ao clicar fora ou pressionar Escape.
   useEffect(() => {
-    if (!showNotifications) return;
+    if (!showNotifications && !showAccountMenu) return;
     const handler = (e: MouseEvent) => {
-      if (bellRef.current && !bellRef.current.contains(e.target as Node)) {
-        setShowNotifications(false);
-      }
+      if (showNotifications && bellRef.current && !bellRef.current.contains(e.target as Node)) setShowNotifications(false);
+      if (showAccountMenu && accountRef.current && !accountRef.current.contains(e.target as Node)) setShowAccountMenu(false);
     };
+    const keyHandler = (e: KeyboardEvent) => { if (e.key === 'Escape') { setShowNotifications(false); setShowAccountMenu(false); } };
     document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, [showNotifications]);
+    document.addEventListener('keydown', keyHandler);
+    return () => { document.removeEventListener('mousedown', handler); document.removeEventListener('keydown', keyHandler); };
+  }, [showNotifications, showAccountMenu]);
 
   const toggleDarkMode = () => {
     const html = document.documentElement;
@@ -343,11 +348,15 @@ export const HeaderCorp: React.FC<HeaderCorpProps> = ({
         <div className="w-px h-6 mx-1" style={{ backgroundColor: 'var(--color-border)' }} />
 
         {/* Perfil do usuário */}
+        <div className="relative" ref={accountRef}>
         <button
           type="button"
+          aria-haspopup="menu"
+          aria-expanded={showAccountMenu}
           aria-label="Menu do usuário"
           className="flex items-center gap-2 rounded-md px-2 py-1.5 transition-colors cursor-pointer"
           style={{ color: 'var(--color-text-primary)' }}
+          onClick={() => setShowAccountMenu((value) => !value)}
           onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-surface-secondary)')}
           onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
         >
@@ -363,11 +372,13 @@ export const HeaderCorp: React.FC<HeaderCorpProps> = ({
               {userName}
             </span>
             <span className="text-[11px]" style={{ color: 'var(--color-text-muted)' }}>
-              Administrador
+              {profile?.role ? ({ ADMIN: 'Administrador', ADMIN_ORGANIZACAO: 'Administrador', GESTOR: 'Gestor', OPERADOR: 'Operador' }[profile.role] || profile.role) : 'Função não disponível'}
             </span>
           </div>
           <ChevronDown size={13} className="hidden sm:block" style={{ color: 'var(--color-text-muted)' }} />
         </button>
+        {showAccountMenu && <AccountMenu profile={profile} loading={authLoading} onClose={() => setShowAccountMenu(false)} onSignOut={async () => { await logout(); navigate('/entrar', { replace: true }); }} />}
+        </div>
       </div>
     </header>
   );
