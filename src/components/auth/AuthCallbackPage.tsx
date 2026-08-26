@@ -1,7 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Shield, AlertTriangle, RefreshCw } from 'lucide-react';
+import { Shield, AlertTriangle, RefreshCw, LogIn } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+
+/** Timeout máximo total para o fluxo de callback (ms). */
+const CALLBACK_TOTAL_TIMEOUT_MS = 45_000;
+
+/** Se a primeira chamada demorar mais que X ms, exibir mensagem de "acordando servidor". */
+const SLOW_FIRST_CALL_THRESHOLD_MS = 6_000;
 
 export const AuthCallbackPage: React.FC = () => {
   const { user, authLoading, refreshProfile } = useAuth();
@@ -14,10 +20,12 @@ export const AuthCallbackPage: React.FC = () => {
   // Garante que a navegação final acontece apenas UMA vez por tentativa
   const navigatedRef = useRef(false);
   const processingRef = useRef(false);
+  // Ref para o timeout global de segurança
+  const safetyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-    navigatedRef.current = false; // reset a cada nova tentativa (attempt)
+    navigatedRef.current = false;
 
     const processAuthCallback = async () => {
       // 0. Checar se o Supabase retornou um erro de link expirado ou já utilizado na URL
@@ -25,8 +33,13 @@ export const AuthCallbackPage: React.FC = () => {
       const errorDescription = hashParams.get('error_description');
       const errorCode = hashParams.get('error_code');
 
-      if (errorCode === 'otp_expired' || (errorDescription && (errorDescription.includes('expired') || errorDescription.includes('invalid')))) {
-        setError('Este link de confirmação expirou ou já foi utilizado. Por favor, faça login com seu e-mail e senha para acessar.');
+      if (
+        errorCode === 'otp_expired' ||
+        (errorDescription && (errorDescription.includes('expired') || errorDescription.includes('invalid')))
+      ) {
+        setError(
+          'Este link de confirmação expirou ou já foi utilizado. Por favor, faça login com seu e-mail e senha para acessar.'
+        );
         return;
       }
 
@@ -52,37 +65,52 @@ export const AuthCallbackPage: React.FC = () => {
       }
       processingRef.current = true;
 
-      const startTime = Date.now();
-      console.log('[AUTH_CALLBACK] 1. session available. Iniciando sincronização do perfil...', { authUserId: user.id });
+      const callbackStart = performance.now();
+      console.log('[AUTH_PERF] session ready:', Math.round(performance.now() - callbackStart), 'ms');
 
       setStatusText('Sincronizando seu perfil...');
 
-      // CRÍTICO: refreshProfile retorna o perfil atualizado diretamente.
-      // NÃO usar o `profile` do closure (stale state) — usar SOMENTE o retorno desta chamada.
+      // Arma timeout global de segurança: garante que o spinner nunca fica >45s
+      if (safetyTimerRef.current) clearTimeout(safetyTimerRef.current);
+      safetyTimerRef.current = setTimeout(() => {
+        if (!navigatedRef.current && processingRef.current) {
+          processingRef.current = false;
+          setError(
+            'Estamos demorando mais que o esperado para preparar seu ambiente. Isso pode ocorrer quando o servidor está sendo iniciado.'
+          );
+        }
+      }, CALLBACK_TOTAL_TIMEOUT_MS);
+
+      // --- Etapa 1: /users/me (refreshProfile) ---
       let updatedProfile = null;
       try {
-        console.log('[AUTH_CALLBACK] 2. refreshProfile started');
-        const fetchStart = Date.now();
+        const meStart = performance.now();
         updatedProfile = await refreshProfile();
-        console.log(`[AUTH_CALLBACK] 3. /users/me response recebida em ${Date.now() - fetchStart}ms`, {
-          profileId: updatedProfile?.id,
-          organizationId: updatedProfile?.organizationId,
-          status: updatedProfile?.status,
-        });
+        const meMs = Math.round(performance.now() - meStart);
+        console.log(`[AUTH_PERF] users/me attempt 1: ${meMs}ms`);
+
+        // Se a primeira chamada foi muito lenta, provavelmente o servidor estava acordando
+        if (meMs > SLOW_FIRST_CALL_THRESHOLD_MS) {
+          console.warn(`[AUTH_PERF] COLD START DETECTADO: primeira chamada levou ${meMs}ms`);
+        }
       } catch (err: any) {
-        console.error('[AUTH_CALLBACK] Erro em refreshProfile:', err);
-        setError(err.message || 'Falha ao conectar com o servidor para sincronizar perfil.');
+        if (!cancelled && !navigatedRef.current) {
+          clearTimeout(safetyTimerRef.current!);
+          processingRef.current = false;
+          console.error('[AUTH_CALLBACK] Erro em refreshProfile:', err);
+          setError(err.message || 'Falha ao conectar com o servidor para sincronizar perfil.');
+        }
+        return;
+      }
+
+      if (cancelled || navigatedRef.current) {
         processingRef.current = false;
         return;
       }
 
-      if (cancelled) {
-        processingRef.current = false;
-        return;
-      }
-
-      // Se o usuário está bloqueado, redireciona para acesso bloqueado
+      // Se o usuário está bloqueado, redireciona
       if (updatedProfile?.status === 'bloqueado' || updatedProfile?.status === 'inativo') {
+        clearTimeout(safetyTimerRef.current!);
         processingRef.current = false;
         navigate('/acesso-bloqueado');
         return;
@@ -95,26 +123,32 @@ export const AuthCallbackPage: React.FC = () => {
       }
 
       navigatedRef.current = true;
+      clearTimeout(safetyTimerRef.current!);
+
+      const totalMs = Math.round(performance.now() - callbackStart);
 
       // Decisão baseada no perfil RETORNADO pelo refreshProfile, nunca no closure stale.
-      // O callback não reprovisiona: a página de preparação é o único fluxo
-      // responsável por criar o ambiente quando a organização ainda não existe.
       const destination = updatedProfile?.organizationId
         ? '/app/dashboard'
         : '/onboarding/preparando-ambiente';
 
-      console.log(`[AUTH_CALLBACK] 8. Decision: navegando para ${destination} em ${Date.now() - startTime}ms`);
+      console.log(`[AUTH_PERF] total callback: ${totalMs}ms → ${destination}`);
 
       processingRef.current = false;
       navigate(destination, { replace: true });
     };
 
     processAuthCallback();
+
     return () => {
       cancelled = true;
+      if (safetyTimerRef.current) clearTimeout(safetyTimerRef.current);
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, authLoading, attempt]);
+
+  // Mensagem de status dinâmica baseada no tempo decorrido
+  const isMaybeSlowServer = statusText === 'Conectando ao ambiente AgroGuard...';
 
   return (
     <div className="min-h-screen w-full flex bg-slate-50 justify-center items-center p-6 text-slate-800 font-sans">
@@ -136,23 +170,40 @@ export const AuthCallbackPage: React.FC = () => {
               <h3 className="text-base font-bold text-slate-950">Falha na sincronização</h3>
               <p className="text-xs text-slate-500 leading-relaxed">{error}</p>
             </div>
-            <button
-              onClick={() => {
-                setError(null);
-                setStatusText('Sincronizando seu perfil...');
-                setAttempt((current) => current + 1);
-              }}
-              className="w-full bg-slate-900 hover:bg-slate-800 text-white font-medium text-xs rounded-md py-2.5 transition-colors"
-            >
-              Tentar novamente
-            </button>
+            <div className="flex flex-col gap-2 w-full">
+              <button
+                onClick={() => {
+                  setError(null);
+                  setStatusText('Sincronizando seu perfil...');
+                  setAttempt((current) => current + 1);
+                }}
+                className="w-full bg-slate-900 hover:bg-slate-800 text-white font-medium text-xs rounded-md py-2.5 transition-colors flex items-center justify-center gap-2"
+              >
+                <RefreshCw size={14} />
+                Tentar novamente
+              </button>
+              <button
+                onClick={() => navigate('/entrar', { replace: true })}
+                className="w-full bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-medium text-xs rounded-md py-2.5 transition-colors flex items-center justify-center gap-2"
+              >
+                <LogIn size={14} />
+                Voltar para entrar
+              </button>
+            </div>
           </div>
         ) : (
           <div className="space-y-4">
             <RefreshCw size={28} className="text-emerald-600 animate-spin mx-auto" />
             <div className="space-y-1">
-              <span className="text-xs text-slate-500 font-semibold uppercase tracking-wider block">Por favor, aguarde</span>
+              <span className="text-xs text-slate-500 font-semibold uppercase tracking-wider block">
+                Por favor, aguarde
+              </span>
               <p className="text-sm font-semibold text-slate-800">{statusText}</p>
+              {isMaybeSlowServer && (
+                <p className="text-xs text-slate-400 mt-1">
+                  O servidor pode estar sendo iniciado. Isso pode levar alguns segundos.
+                </p>
+              )}
             </div>
           </div>
         )}
@@ -160,4 +211,5 @@ export const AuthCallbackPage: React.FC = () => {
     </div>
   );
 };
+
 export default AuthCallbackPage;

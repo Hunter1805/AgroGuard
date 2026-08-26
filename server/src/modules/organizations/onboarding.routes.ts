@@ -140,14 +140,16 @@ export async function onboardingRoutes(app: FastifyInstance) {
     }
 
     request.log.info({ authUserId }, '[ONBOARDING_PROVISION] 4. Iniciando transação Prisma');
+    const txStart = Date.now();
 
     // 3. Executar a transação Prisma para provisionamento completo e idempotente
     const result = await prisma.$transaction(async (tx) => {
       // Serializa o provisionamento por usuário dentro da transação. O lookup
       // fora dela não é suficiente quando duas requisições chegam juntas.
+      const lockStart = Date.now();
       request.log.info({ authUserId }, '[ONBOARDING_PROVISION] 4.1. Adquirindo pg_advisory_xact_lock');
       await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${authUserId}))`;
-      request.log.info({ authUserId }, '[ONBOARDING_PROVISION] 4.2. Lock pg_advisory_xact_lock adquirido');
+      request.log.info({ authUserId, lockMs: Date.now() - lockStart }, '[ONBOARDING_PROVISION] 4.2. Lock adquirido');
 
       let internalUser: any = await tx.user.findUnique({ where: { authUserId } });
       if (!internalUser) {
@@ -177,10 +179,11 @@ export async function onboardingRoutes(app: FastifyInstance) {
       });
 
       if (existingMembership) {
-        request.log.info({ authUserId, organizationId: existingMembership.organizationId }, '[ONBOARDING_PROVISION] 4.4. Idempotência: Membership ativa localizada dentro da transação');
+        request.log.info({ authUserId, organizationId: existingMembership.organizationId, txMs: Date.now() - txStart }, '[ONBOARDING_PROVISION] 4.4. Idempotência: Membership ativa localizada dentro da transação');
         return { organizationId: existingMembership.organizationId };
       }
 
+      const createStart = Date.now();
       request.log.info({ authUserId }, '[ONBOARDING_PROVISION] 4.5. Criando nova Organização, Empresa, Unidade e Membership');
 
       const baseSlug = organizationName
@@ -362,13 +365,13 @@ export async function onboardingRoutes(app: FastifyInstance) {
         },
       });
 
-      request.log.info({ authUserId, organizationId: organization.id }, '[ONBOARDING_PROVISION] 4.6. Transação concluída com sucesso. Realizando commit');
+      request.log.info({ authUserId, organizationId: organization.id, createMs: Date.now() - createStart }, '[ONBOARDING_PROVISION] 4.6. Transação concluída com sucesso. Realizando commit');
       return {
         organizationId: organization.id,
       };
     }, {
-      maxWait: 15000,
-      timeout: 30000,
+      maxWait: 10_000,
+      timeout: 20_000,
     });
 
     request.log.info({ authUserId, organizationId: result.organizationId, durationMs: Date.now() - startTime }, '[ONBOARDING_PROVISION] 5. Fluxo de provisionamento finalizado');

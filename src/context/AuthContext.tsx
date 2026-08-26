@@ -180,9 +180,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // NÃO zeramos profile aqui — mantemos o valor anterior durante o refresh
 
     const persistedOrgId = localStorage.getItem(`agroguard_org_id_${authUser.id}`);
+    const perfStart = performance.now();
 
     try {
-      const res = await apiClient<UserProfileData>('/users/me');
+      const res = await apiClient<UserProfileData>('/users/me', { timeoutMs: 10_000 });
+      const perfMsMe = Math.round(performance.now() - perfStart);
+
+      if (import.meta.env.DEV) {
+        console.debug(`[AUTH_PERF] /users/me respondeu em ${perfMsMe}ms`);
+      }
 
       if (res.data) {
         // NUNCA sobrescreve o organizationId se já temos um localmente.
@@ -265,6 +271,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       return errorResult;
     } finally {
+      const perfTotalMs = Math.round(performance.now() - perfStart);
+      if (import.meta.env.DEV) {
+        console.debug(`[AUTH_PERF] fetchUserProfile total: ${perfTotalMs}ms`);
+      }
       setProfileLoading(false);
       isFetchingProfile.current = false;
     }

@@ -22,12 +22,19 @@ export async function requestActorMiddleware(request: FastifyRequest, _reply: Fa
   const token = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : null;
 
   if (token && env.SUPABASE_URL && env.SUPABASE_SERVICE_ROLE_KEY) {
+    const actorStart = Date.now();
     try {
       const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, {
         auth: { persistSession: false },
       });
 
+      const supabaseStart = Date.now();
       const { data: { user: authUser }, error } = await supabase.auth.getUser(token);
+      const supabaseMs = Date.now() - supabaseStart;
+
+      if (supabaseMs > 3000) {
+        request.log.warn({ supabaseMs, url: request.url }, '[PERF] requestActor: supabase.auth.getUser lento');
+      }
 
       if (error) {
         request.log.error(error, `[Auth] Erro retornado pelo Supabase.auth.getUser para o token fornecido.`);
@@ -35,6 +42,7 @@ export async function requestActorMiddleware(request: FastifyRequest, _reply: Fa
 
       if (!error && authUser) {
         // Buscar usuário interno correspondente pelo UUID authUserId ou por e-mail no primeiro login
+        const dbStart = Date.now();
         let user = await prisma.user.findFirst({
           where: {
             OR: [
@@ -139,6 +147,19 @@ export async function requestActorMiddleware(request: FastifyRequest, _reply: Fa
             }
           }
 
+          const actorMs = Date.now() - actorStart;
+          if (actorMs > 2000) {
+            request.log.warn(
+              { actorMs, dbMs: Date.now() - dbStart, supabaseMs, url: request.url },
+              '[PERF] requestActor: middleware lento'
+            );
+          } else {
+            request.log.debug(
+              { actorMs, url: request.url },
+              '[PERF] requestActor'
+            );
+          }
+
           request.actor = {
             authUserId: authUser.id,
             userId: user.id,
@@ -155,6 +176,7 @@ export async function requestActorMiddleware(request: FastifyRequest, _reply: Fa
           return;
         } else {
           // Usuário existe no Supabase Auth mas ainda não foi provisionado no banco interno do AgroGuard
+          request.log.info({ authUserId: authUser.id, url: request.url }, '[Auth] Usuário não provisionado localmente');
           request.actor = {
             authUserId: authUser.id,
             userId: '',

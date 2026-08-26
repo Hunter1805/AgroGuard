@@ -20,6 +20,7 @@ export async function userRoutes(app: FastifyInstance) {
     preHandler: [requireAuthentication()],
   }, async (request, reply) => {
     const { authUserId } = request.actor!;
+    const routeStart = Date.now();
 
     const user = await prisma.user.findUnique({
       where: { authUserId },
@@ -37,6 +38,9 @@ export async function userRoutes(app: FastifyInstance) {
         },
       },
     });
+
+    const queryMs = Date.now() - routeStart;
+    request.log.info({ authUserId, queryMs }, '[PERF] users/me db query');
 
     if (!user) {
       throw new AppError('Perfil não provisionado no banco local.', 404, 'PROFILE_NOT_PROVISIONED');
@@ -57,6 +61,9 @@ export async function userRoutes(app: FastifyInstance) {
       onboardingCompleted: membership && membership.organization.onboardingState ? membership.organization.onboardingState.completed : false,
       onboardingStep: membership && membership.organization.onboardingState ? membership.organization.onboardingState.currentStep : 0,
     };
+
+    const totalMs = Date.now() - routeStart;
+    request.log.info({ authUserId, totalMs, hasOrganization: !!membership }, '[PERF] users/me total');
 
     const response: ApiResponse<typeof data> = { data };
     return reply.send(response);
