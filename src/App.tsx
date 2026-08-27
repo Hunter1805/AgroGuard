@@ -168,20 +168,16 @@ export function App() {
         element={!user ? <Navigate to="/entrar" replace /> : hasOrganization ? <Navigate to="/app/dashboard" replace /> : <PreparingEnvironmentPage />}
       />
 
-      {/* Redirecionamento de rota legada */}
-      <Route path="/criar-ambiente" element={!user ? <Navigate to="/entrar" replace /> : hasOrganization ? <Navigate to="/app/dashboard" replace /> : <Navigate to="/onboarding/preparando-ambiente" replace />} />
+      {/* Rota legada: nunca envia o usuário para uma tela de onboarding. */}
+      <Route path="/criar-ambiente" element={!user ? <Navigate to="/entrar" replace /> : hasOrganization ? <Navigate to="/app/dashboard" replace /> : <Navigate to="/auth/callback" replace />} />
 
-      {/* Boas-vindas: acessível apenas com organização.
-          Sem org → /entrar. NÃO participa de nenhum fluxo automático. */}
-      <Route
-        path="/boas-vindas"
-        element={!user ? <Navigate to="/entrar" replace /> : hasOrganization ? <WelcomeOnboardingPage /> : <Navigate to="/entrar" replace />}
-      />
+      {/* Página opcional/manual; não é destino de nenhum fluxo automático. */}
+      <Route path="/boas-vindas" element={!user ? <Navigate to="/entrar" replace /> : <WelcomeOnboardingPage />} />
 
       {/* Redirecionamento da raiz */}
       <Route
         path="/"
-        element={!user ? <Navigate to="/entrar" replace /> : hasOrganization ? <Navigate to="/app/dashboard" replace /> : <Navigate to="/onboarding/preparando-ambiente" replace />}
+        element={!user ? <Navigate to="/entrar" replace /> : hasOrganization ? <Navigate to="/app/dashboard" replace /> : <Navigate to="/auth/callback" replace />}
       />
 
       {/* Rotas Privadas (Protegidas) dentro do Layout */}
@@ -191,7 +187,7 @@ export function App() {
           !user ? (
             <Navigate to="/entrar" replace />
           ) : !hasOrganization ? (
-            <Navigate to="/onboarding/preparando-ambiente" replace />
+            <Navigate to="/auth/callback" replace />
           ) : (
             // Usuário autenticado com organização: onboardingCompleted não bloqueia o layout.
             <div className={`h-screen flex overflow-hidden ${isCorpUI ? 'bg-app text-primary' : 'bg-background text-on-background bg-pattern'}`}>

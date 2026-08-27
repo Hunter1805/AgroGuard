@@ -1,6 +1,24 @@
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import type { Session, User as SupabaseUser } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase/supabase-client';
+import {
+  AUTH_PROFILE_TIMEOUT_MS,
+  AUTH_PROVISION_TIMEOUT_MS,
+  AUTH_REFRESH_TIMEOUT_MS,
+  AUTH_SESSION_TIMEOUT_MS,
+  clearAuthFlow,
+  getAuthFlowRemainingMs,
+  startAuthFlow,
+  withTimeout,
+} from '../services/auth-flow.service';
+
+const authTimeoutError = (stage: string) => new Error(`O fluxo de autenticação excedeu o limite ao ${stage}. Tente novamente.`);
+
+function getStageTimeout(maximumMs: number, stage: string): number {
+  const remainingMs = getAuthFlowRemainingMs();
+  if (remainingMs <= 0) throw authTimeoutError(stage);
+  return Math.min(maximumMs, remainingMs);
+}
 import { apiClient } from '../lib/api/api-client';
 
 export interface UserProfileData {
@@ -107,16 +125,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const loading = authLoading || profileLoading;
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session: initialSession } }) => {
+    startAuthFlow();
+    withTimeout(
+      supabase.auth.getSession(),
+      AUTH_SESSION_TIMEOUT_MS,
+      authTimeoutError('validar a sessão').message,
+    ).then(({ data: { session: initialSession } }) => {
       setSession(initialSession);
       setUser(initialSession?.user ?? null);
       if (initialSession?.user) {
-        fetchUserProfile(initialSession.user).finally(() => {
-          setAuthLoading(false);
-        });
+        fetchUserProfile(initialSession.user)
+          .catch((error) => {
+            setProfileError(error instanceof Error ? error : new Error(String(error)));
+          })
+          .finally(() => {
+            setAuthLoading(false);
+          });
       } else {
+        clearAuthFlow();
         setAuthLoading(false);
       }
+    }).catch((error) => {
+      setProfileError(error instanceof Error ? error : new Error(String(error)));
+      setAuthLoading(false);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, newSession) => {
@@ -186,7 +217,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const perfStart = performance.now();
 
     try {
-      const res = await apiClient<UserProfileData>('/users/me', { timeoutMs: 10_000 });
+      const profileTimeoutMs = getStageTimeout(AUTH_PROFILE_TIMEOUT_MS, 'carregar o perfil');
+      const res = await apiClient<UserProfileData>('/users/me', { timeoutMs: profileTimeoutMs });
       const perfMsMe = Math.round(performance.now() - perfStart);
 
       if (import.meta.env.DEV) {
@@ -265,7 +297,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (isNotProvisioned) {
         setProfileError(null); // Limpa o erro, é um estado normal/esperado de usuário novo
       } else {
-        setProfileError(err instanceof Error ? err : new Error(String(err)));
+        const profileFetchError = err instanceof Error ? err : new Error(String(err));
+        setProfileError(profileFetchError);
+        throw profileFetchError;
       }
 
       if (import.meta.env.DEV) {
@@ -290,7 +324,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
    */
   const refreshProfile = async (): Promise<UserProfileData | null> => {
     if (!user) return null;
-    return fetchUserProfile(user);
+    const refreshTimeoutMs = getStageTimeout(AUTH_REFRESH_TIMEOUT_MS, 'atualizar o perfil');
+    return withTimeout(fetchUserProfile(user), refreshTimeoutMs, authTimeoutError('atualizar o perfil').message);
   };
 
   const updateProfile = async (data: { name: string; phone?: string }) => {
@@ -347,8 +382,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const provisionOrganization = async (payload: any) => {
     try {
       const idempotencyKey = `onboarding-${payload?.ownerName || ''}-${payload?.organizationName || ''}-${payload?.workspaceName || ''}`.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+      const provisionTimeoutMs = getStageTimeout(AUTH_PROVISION_TIMEOUT_MS, 'provisionar a organização');
       const res = await apiClient<{ message: string; organizationId: string }>('/onboarding/provision', {
         method: 'POST',
+        timeoutMs: provisionTimeoutMs,
         headers: {
           'Idempotency-Key': idempotencyKey,
         },
@@ -356,7 +393,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       if (user) {
-        const orgId = res.data?.organizationId || `org-${user.id.slice(0, 8)}`;
+        const orgId = res.data?.organizationId;
+        if (!orgId) throw new Error('O provisionamento não retornou uma organização válida.');
         // Persiste o orgId como fonte de verdade imutável no localStorage
         localStorage.setItem(`agroguard_org_id_${user.id}`, orgId);
         const updated = getFallbackProfile(user, {
@@ -369,18 +407,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       return { data: res.data, error: null };
     } catch (e: any) {
-      if (user) {
-        const orgId = `org-${user.id.slice(0, 8)}`;
-        localStorage.setItem(`agroguard_org_id_${user.id}`, orgId);
-        const updated = getFallbackProfile(user, {
-          organizationId: orgId,
-          organizationName: payload?.organizationName || payload?.companyName,
-          name: payload?.ownerName,
-          workspaceName: payload?.workspaceName,
-        });
-        setProfile(updated);
-        return { data: { message: 'Ambiente criado com sucesso!', organizationId: orgId }, error: null };
-      }
       return { data: null, error: e };
     }
   };

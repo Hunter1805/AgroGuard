@@ -35,7 +35,7 @@ type RouteDecision =
   | 'PROFILE_ERROR'
   | '/entrar'
   | '/app/dashboard'
-  | '/onboarding/preparando-ambiente';
+  | '/auth/callback';
 
 /**
  * Implementação da regra única de routing — P0.
@@ -63,8 +63,8 @@ function decideRoute(state: RouterState): RouteDecision {
 
   if (hasOrg) return '/app/dashboard';
 
-  // Session existe + profile carregado + sem org → provisionamento
-  if (profile !== null) return '/onboarding/preparando-ambiente';
+  // Session existe + profile carregado + sem org → callback conclui o provisionamento
+  if (profile !== null) return '/auth/callback';
 
   // Profile ainda null (edge case) → spinner
   return 'LOADING';
@@ -119,7 +119,7 @@ describe('AgroGuard — Regra Única de Routing P0', () => {
       profile: { organizationId: null },
       profileError: null,
     });
-    expect(result).toBe('/onboarding/preparando-ambiente');
+    expect(result).toBe('/auth/callback');
   });
 
   /**
@@ -163,7 +163,7 @@ describe('AgroGuard — Regra Única de Routing P0', () => {
       profile: { organizationId: '' },
       profileError: null,
     });
-    expect(result).toBe('/onboarding/preparando-ambiente');
+    expect(result).toBe('/auth/callback');
   });
 
   /**
@@ -275,7 +275,7 @@ describe('AgroGuard — Regra Única de Routing P0', () => {
       profile: { organizationId: '' },
       profileError: null,
     });
-    expect(result).toBe('/onboarding/preparando-ambiente');
+    expect(result).toBe('/auth/callback');
   });
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -312,7 +312,7 @@ describe('AgroGuard — Regra Única de Routing P0', () => {
       profile: { organizationId: null },
       profileError: null,
     });
-    expect(result).toBe('/onboarding/preparando-ambiente');
+    expect(result).toBe('/auth/callback');
   });
 
   /**

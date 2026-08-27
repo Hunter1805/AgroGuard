@@ -2,15 +2,31 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Shield, AlertTriangle, RefreshCw, LogIn } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { AUTH_FLOW_TOTAL_TIMEOUT_MS, clearAuthFlow, startAuthFlow } from '../../services/auth-flow.service';
 
-/** Timeout máximo total para o fluxo de callback (ms). */
-const CALLBACK_TOTAL_TIMEOUT_MS = 45_000;
+function getProvisionPayload(user: NonNullable<ReturnType<typeof useAuth>['user']>) {
+  const metadata = user.user_metadata || {};
+  const pending = JSON.parse(localStorage.getItem('agroguard_onboarding_pending') || '{}');
+  return {
+    ownerName: pending.ownerName || metadata.name || user.email?.split('@')[0] || 'Proprietário',
+    organizationName: pending.organizationName || metadata.organizationName,
+    workspaceName: pending.workspaceName || metadata.workspaceName,
+    segment: pending.segment || metadata.segment || 'AGRICULTURE',
+    estimatedEquipmentCount: pending.estimatedEquipmentCount || metadata.estimatedEquipmentCount || '11_50',
+    phone: pending.phone || metadata.phone || null,
+    acceptedTermsVersion: pending.acceptedTermsVersion || metadata.acceptedTermsVersion || '2026-08',
+    acceptedPrivacyVersion: pending.acceptedPrivacyVersion || metadata.acceptedPrivacyVersion || '2026-08',
+  };
+}
+
+/** Limite absoluto do fluxo de autenticação (sessão + perfil + provisionamento + refresh). */
+const CALLBACK_TOTAL_TIMEOUT_MS = AUTH_FLOW_TOTAL_TIMEOUT_MS;
 
 /** Se a primeira chamada demorar mais que X ms, exibir mensagem de "acordando servidor". */
 const SLOW_FIRST_CALL_THRESHOLD_MS = 6_000;
 
 export const AuthCallbackPage: React.FC = () => {
-  const { user, authLoading, refreshProfile } = useAuth();
+  const { user, authLoading, profileLoading, refreshProfile, provisionOrganization } = useAuth();
   const navigate = useNavigate();
 
   const [statusText, setStatusText] = useState('Autenticando...');
@@ -22,10 +38,12 @@ export const AuthCallbackPage: React.FC = () => {
   const processingRef = useRef(false);
   // Ref para o timeout global de segurança
   const safetyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const expiredRef = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
     navigatedRef.current = false;
+    expiredRef.current = false;
 
     const processAuthCallback = async () => {
       // 0. Checar se o Supabase retornou um erro de link expirado ou já utilizado na URL
@@ -44,7 +62,7 @@ export const AuthCallbackPage: React.FC = () => {
       }
 
       // Aguarda o estado de auth inicial ser resolvido
-      if (authLoading) return;
+      if (authLoading || profileLoading) return;
       if (cancelled) return;
       setError(null);
 
@@ -64,16 +82,18 @@ export const AuthCallbackPage: React.FC = () => {
         return;
       }
       processingRef.current = true;
+      startAuthFlow();
 
       const callbackStart = performance.now();
       console.log('[AUTH_PERF] session ready:', Math.round(performance.now() - callbackStart), 'ms');
 
       setStatusText('Sincronizando seu perfil...');
 
-      // Arma timeout global de segurança: garante que o spinner nunca fica >45s
+      // Hard timeout absoluto: nenhuma tentativa pode manter o fluxo ativo além de 40s.
       if (safetyTimerRef.current) clearTimeout(safetyTimerRef.current);
       safetyTimerRef.current = setTimeout(() => {
         if (!navigatedRef.current && processingRef.current) {
+          expiredRef.current = true;
           processingRef.current = false;
           setError(
             'Estamos demorando mais que o esperado para preparar seu ambiente. Isso pode ocorrer quando o servidor está sendo iniciado.'
@@ -103,9 +123,30 @@ export const AuthCallbackPage: React.FC = () => {
         return;
       }
 
-      if (cancelled || navigatedRef.current) {
+      if (cancelled || expiredRef.current || navigatedRef.current) {
         processingRef.current = false;
         return;
+      }
+
+      // Usuário sem organização é provisionado no próprio callback; não há tela intermediária.
+      if (!updatedProfile?.organizationId) {
+        if (expiredRef.current) return;
+        try {
+          setStatusText('Provisionando seu ambiente...');
+          const { error: provisionError } = await provisionOrganization(getProvisionPayload(user));
+          if (provisionError) throw provisionError;
+          localStorage.removeItem('agroguard_onboarding_pending');
+          setStatusText('Confirmando seu ambiente...');
+          updatedProfile = await refreshProfile();
+        } catch (err: any) {
+          if (!cancelled && !expiredRef.current) {
+            clearTimeout(safetyTimerRef.current!);
+            processingRef.current = false;
+            setError(err?.message || 'Falha ao provisionar e confirmar seu ambiente.');
+          }
+          return;
+        }
+        if (expiredRef.current) return;
       }
 
       // Se o usuário está bloqueado, redireciona
@@ -117,23 +158,25 @@ export const AuthCallbackPage: React.FC = () => {
       }
 
       // Evita navegar múltiplas vezes
-      if (navigatedRef.current) {
+      if (expiredRef.current || navigatedRef.current) {
         processingRef.current = false;
         return;
       }
 
+      // O callback só termina com organização confirmada no perfil atualizado.
+      if (!updatedProfile?.organizationId) {
+        clearTimeout(safetyTimerRef.current!);
+        processingRef.current = false;
+        setError('Não foi possível confirmar a organização após o provisionamento.');
+        return;
+      }
       navigatedRef.current = true;
       clearTimeout(safetyTimerRef.current!);
 
       const totalMs = Math.round(performance.now() - callbackStart);
-
-      // Decisão baseada no perfil RETORNADO pelo refreshProfile, nunca no closure stale.
-      const destination = updatedProfile?.organizationId
-        ? '/app/dashboard'
-        : '/onboarding/preparando-ambiente';
-
+      const destination = '/app/dashboard';
       console.log(`[AUTH_PERF] total callback: ${totalMs}ms → ${destination}`);
-
+      clearAuthFlow();
       processingRef.current = false;
       navigate(destination, { replace: true });
     };
@@ -145,7 +188,7 @@ export const AuthCallbackPage: React.FC = () => {
       if (safetyTimerRef.current) clearTimeout(safetyTimerRef.current);
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, authLoading, attempt]);
+  }, [user, authLoading, profileLoading, attempt]);
 
   // Mensagem de status dinâmica baseada no tempo decorrido
   const isMaybeSlowServer = statusText === 'Conectando ao ambiente AgroGuard...';
