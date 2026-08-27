@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutDashboard, Users, Shield, Building2, Bell, Hash, History, Wrench, ClipboardList, Package } from 'lucide-react';
+import { LayoutDashboard, Users, Shield, Building2, Bell, Hash, History, Wrench, ClipboardList, Package, UserRound, LockKeyhole, SlidersHorizontal } from 'lucide-react';
 
 interface NavProps {
   activeSection: string;
@@ -8,6 +8,10 @@ interface NavProps {
 
 const SECTIONS = [
   { id: 'visao_geral', label: 'Visão Geral', icon: LayoutDashboard },
+  { id: 'perfil', label: 'Meu Perfil', icon: UserRound },
+  { id: 'conta', label: 'Minha Conta', icon: UserRound },
+  { id: 'seguranca', label: 'Segurança', icon: LockKeyhole },
+  { id: 'preferencias', label: 'Preferências', icon: SlidersHorizontal },
   { id: 'usuarios', label: 'Usuários', icon: Users },
   { id: 'perfis', label: 'Perfis & Matriz', icon: Shield },
   { id: 'gerais', label: 'Identidade & Geral', icon: Building2 },

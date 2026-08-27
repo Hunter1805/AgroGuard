@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { CheckCircle2 } from 'lucide-react';
+import { CheckCircle2, AlertTriangle } from 'lucide-react';
 import { ROUTES } from './types/routes';
 import type { ServiceOrder } from './types';
 import { isCorpUI } from './lib/ui-version';
@@ -62,14 +62,17 @@ import { EmailConfirmationPage } from './components/auth/EmailConfirmationPage';
 import { AuthCallbackPage } from './components/auth/AuthCallbackPage';
 import { ForgotPasswordPage } from './components/auth/ForgotPasswordPage';
 import { ResetPasswordPage } from './components/auth/ResetPasswordPage';
-import { PreparingEnvironmentPage } from './components/auth/PreparingEnvironmentPage';
 import { AccessBlockedPage } from './components/auth/AccessBlockedPage';
+import { PreparingEnvironmentPage } from './components/auth/PreparingEnvironmentPage';
 import { AcceptInvitationPage } from './components/auth/AcceptInvitationPage';
 import { WelcomeOnboardingPage } from './components/onboarding/WelcomeOnboardingPage';
 import { UsersListView } from './components/users/UsersListView';
 
 export function App() {
-  const { user, profile, loading } = useAuth();
+  const { user, profile, authLoading, profileLoading, profileError, refreshProfile } = useAuth();
+  // REGRA ÚNICA P0: acesso autorizado APENAS se profile?.organizationId existe.
+  // persistedOrgId, onboardingCompleted e onboardingStep são IGNORADOS para roteamento.
+  const hasOrganization = Boolean(profile?.organizationId);
 
   const [isNewOSOpen, setIsNewOSOpen] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
@@ -86,13 +89,55 @@ export function App() {
     setTimeout(() => setToastMessage(null), 4000);
   };
 
-  // 1. Loader de Inicialização Geral
-  if (loading) {
+  if (import.meta.env.DEV) {
+    const location = window.location;
+    console.debug('[ROUTER_DEBUG]', {
+      source: 'App',
+      path: location.pathname,
+      hasSession: !!user,
+      authLoading,
+      profileLoading,
+      profileId: profile?.id,
+      organizationId: profile?.organizationId,
+      hasOrganization,
+      profileError: profileError?.message ?? null,
+    });
+  }
+
+  // 1. Loader de Inicialização — regra P0:
+  // authLoading → spinner
+  // session + profileLoading → spinner (sempre, independente de profile anterior)
+  if (authLoading || (user && profileLoading)) {
     return (
       <div className="min-h-screen w-full flex bg-slate-50 justify-center items-center font-sans text-slate-800">
         <div className="flex flex-col items-center space-y-3">
           <div className="w-8 h-8 border-4 border-emerald-600/30 border-t-emerald-600 rounded-full animate-spin"></div>
           <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Iniciando AgroGuard...</span>
+        </div>
+      </div>
+    );
+  }
+
+  // 2. Erro ao carregar perfil sem cache — tela de retry (não assume sem-org)
+  if (user && profileError && !profile) {
+    return (
+      <div className="min-h-screen w-full flex bg-slate-50 justify-center items-center font-sans text-slate-800">
+        <div className="flex flex-col items-center space-y-4 max-w-sm text-center p-6">
+          <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-600">
+            <AlertTriangle size={20} />
+          </div>
+          <div className="space-y-1">
+            <p className="font-bold text-slate-900">Falha ao carregar perfil</p>
+            <p className="text-xs text-slate-500 leading-relaxed">
+              Não foi possível carregar seu perfil. Verifique sua conexão e tente novamente.
+            </p>
+          </div>
+          <button
+            onClick={refreshProfile}
+            className="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-4 py-2 rounded transition-colors"
+          >
+            Tentar novamente
+          </button>
         </div>
       </div>
     );
@@ -117,52 +162,22 @@ export function App() {
       <Route path="/aceitar-convite" element={<AcceptInvitationPage />} />
       <Route path="/acesso-bloqueado" element={<AccessBlockedPage />} />
 
-      {/* Rota de Provisionamento e Onboarding */}
+      {/* Provisionamento só é exibido enquanto não existe organização/membership válida. */}
       <Route
         path="/onboarding/preparando-ambiente"
-        element={
-          !user ? (
-            <Navigate to="/entrar" replace />
-          ) : profile?.organizationId ? (
-            <Navigate to="/boas-vindas" replace />
-          ) : (
-            <PreparingEnvironmentPage />
-          )
-        }
+        element={!user ? <Navigate to="/entrar" replace /> : hasOrganization ? <Navigate to="/app/dashboard" replace /> : <PreparingEnvironmentPage />}
       />
 
-      {/* Redirecionamento de rota legada */}
-      <Route path="/criar-ambiente" element={<Navigate to="/onboarding/preparando-ambiente" replace />} />
+      {/* Rota legada: nunca envia o usuário para uma tela de onboarding. */}
+      <Route path="/criar-ambiente" element={!user ? <Navigate to="/entrar" replace /> : hasOrganization ? <Navigate to="/app/dashboard" replace /> : <Navigate to="/auth/callback" replace />} />
 
-      <Route
-        path="/boas-vindas"
-        element={
-          !user ? (
-            <Navigate to="/entrar" replace />
-          ) : !profile?.organizationId ? (
-            <Navigate to="/onboarding/preparando-ambiente" replace />
-          ) : profile?.onboardingCompleted ? (
-            <Navigate to="/app/dashboard" replace />
-          ) : (
-            <WelcomeOnboardingPage />
-          )
-        }
-      />
+      {/* Página opcional/manual; não é destino de nenhum fluxo automático. */}
+      <Route path="/boas-vindas" element={!user ? <Navigate to="/entrar" replace /> : <WelcomeOnboardingPage />} />
 
       {/* Redirecionamento da raiz */}
       <Route
         path="/"
-        element={
-          !user ? (
-            <Navigate to="/entrar" replace />
-          ) : !profile?.organizationId ? (
-            <Navigate to="/onboarding/preparando-ambiente" replace />
-          ) : !profile?.onboardingCompleted ? (
-            <Navigate to="/boas-vindas" replace />
-          ) : (
-            <Navigate to="/app/dashboard" replace />
-          )
-        }
+        element={!user ? <Navigate to="/entrar" replace /> : hasOrganization ? <Navigate to="/app/dashboard" replace /> : <Navigate to="/auth/callback" replace />}
       />
 
       {/* Rotas Privadas (Protegidas) dentro do Layout */}
@@ -171,9 +186,10 @@ export function App() {
         element={
           !user ? (
             <Navigate to="/entrar" replace />
-          ) : !profile?.organizationId ? (
-            <Navigate to="/onboarding/preparando-ambiente" replace />
+          ) : !hasOrganization ? (
+            <Navigate to="/auth/callback" replace />
           ) : (
+            // Usuário autenticado com organização: onboardingCompleted não bloqueia o layout.
             <div className={`h-screen flex overflow-hidden ${isCorpUI ? 'bg-app text-primary' : 'bg-background text-on-background bg-pattern'}`}>
               {/* Toast */}
               {toastMessage && (

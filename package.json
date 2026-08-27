@@ -8,6 +8,7 @@
     "build": "tsc -b && vite build",
     "typecheck": "npm --prefix server run typecheck",
     "test": "npm --prefix server run test",
+    "test:routing": "vitest run --config vitest.config.ts",
     "lint": "oxlint",
     "preview": "vite preview"
   },

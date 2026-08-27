@@ -32,7 +32,8 @@ export type AppErrorCode =
   | 'SELF_BLOCK_FORBIDDEN'
   | 'OWNER_BLOCK_FORBIDDEN'
   | 'MEMBER_AUTH_NOT_FOUND'
-  | 'ONBOARDING_DATA_MISSING';
+  | 'ONBOARDING_DATA_MISSING'
+  | 'PROFILE_NOT_PROVISIONED';
 
 export class AppError extends Error {
   public readonly statusCode: number;

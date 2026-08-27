@@ -4,6 +4,7 @@ import { UserRepository } from './user.repository';
 import { UserService } from './user.service';
 import { createUserSchema } from './user.schemas';
 import { requireAuthentication } from '../../shared/middleware/authGuard';
+import { AppError } from '../../shared/errors/AppError';
 import type { ApiResponse } from '../../shared/http/ApiResponse';
 
 const prisma = new PrismaClient();
@@ -19,6 +20,7 @@ export async function userRoutes(app: FastifyInstance) {
     preHandler: [requireAuthentication()],
   }, async (request, reply) => {
     const { authUserId } = request.actor!;
+    const routeStart = Date.now();
 
     const user = await prisma.user.findUnique({
       where: { authUserId },
@@ -37,30 +39,22 @@ export async function userRoutes(app: FastifyInstance) {
       },
     });
 
+    const queryMs = Date.now() - routeStart;
+    request.log.info({ authUserId, queryMs }, '[PERF] users/me db query');
+
     if (!user) {
-      return reply.send({
-        data: {
-          id: '',
-          authUserId,
-          name: '',
-          email: '',
-          role: '',
-          organizationId: '',
-          status: 'novo',
-          onboardingCompleted: false,
-          onboardingStep: 0,
-        },
-      });
+      throw new AppError('Perfil não provisionado no banco local.', 404, 'PROFILE_NOT_PROVISIONED');
     }
 
     const membership = user.memberships[0];
 
     const data = {
-      id: user.id,
-      authUserId: user.authUserId,
-      name: user.name,
-      email: user.email,
-      role: membership ? membership.role : '',
+     id: user.id,
+     authUserId: user.authUserId,
+     name: user.name,
+     email: user.email,
+     phone: user.phone || undefined,
+     role: membership ? membership.role : '',
       organizationId: membership ? membership.organizationId : '',
       organizationName: membership?.organization.name || '',
       workspaceName: membership?.organization.companies?.[0]?.name || membership?.organization.name || '',
@@ -69,7 +63,30 @@ export async function userRoutes(app: FastifyInstance) {
       onboardingStep: membership && membership.organization.onboardingState ? membership.organization.onboardingState.currentStep : 0,
     };
 
+    const totalMs = Date.now() - routeStart;
+    request.log.info({ authUserId, totalMs, hasOrganization: !!membership }, '[PERF] users/me total');
+
     const response: ApiResponse<typeof data> = { data };
+    return reply.send(response);
+  });
+
+  app.patch('/api/v1/users/me', {
+    schema: {
+      description: 'Atualizar dados editáveis do usuário autenticado',
+      tags: ['Usuários'],
+    },
+    preHandler: [requireAuthentication()],
+  }, async (request, reply) => {
+    const { authUserId } = request.actor!;
+    const body = request.body as { name?: string; phone?: string };
+    if (!body.name?.trim()) {
+      throw new AppError('O nome completo é obrigatório.', 422, 'VALIDATION_ERROR');
+    }
+    const user = await prisma.user.update({
+      where: { authUserId },
+      data: { name: body.name.trim(), phone: body.phone?.trim() || null },
+    });
+    const response: ApiResponse<typeof user> = { data: user };
     return reply.send(response);
   });
 

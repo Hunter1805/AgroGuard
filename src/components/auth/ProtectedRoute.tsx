@@ -4,10 +4,24 @@ import { useAuth } from '../../hooks/useAuth';
 import { Loader2 } from 'lucide-react';
 
 export const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { session, loading } = useAuth();
+  const { session, authLoading, profileLoading, profile } = useAuth();
   const location = useLocation();
 
-  if (loading) {
+  if (import.meta.env.DEV) {
+    console.debug('[ROUTER_DEBUG]', {
+      source: 'ProtectedRoute',
+      path: location.pathname,
+      hasSession: !!session,
+      authLoading,
+      profileLoading,
+      profileId: profile?.id,
+      organizationId: profile?.organizationId,
+      redirectTo: !session ? '/entrar' : null,
+    });
+  }
+
+  // Aguarda resolução de auth E de perfil antes de tomar qualquer decisão
+  if (authLoading || (session && profileLoading && !profile)) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="animate-spin text-primary" size={32} />
@@ -15,8 +29,9 @@ export const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ childr
     );
   }
 
-  if (!session && import.meta.env.PROD) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+  // Sem sessão → redireciona para /entrar (corrigido de /login)
+  if (!session) {
+    return <Navigate to="/entrar" state={{ from: location }} replace />;
   }
 
   return <>{children}</>;
