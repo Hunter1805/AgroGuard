@@ -183,7 +183,7 @@ export function App() {
             </p>
           </div>
           <button
-            onClick={refreshProfile}
+            onClick={() => refreshProfile()}
             className="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-4 py-2 rounded transition-colors"
           >
             Tentar novamente

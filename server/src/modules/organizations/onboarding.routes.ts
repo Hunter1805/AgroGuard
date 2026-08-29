@@ -51,6 +51,7 @@ export async function onboardingRoutes(app: FastifyInstance) {
     request.log.info({ authUserId }, '[ONBOARDING_PROVISION] 1. Início do fluxo de provisionamento');
 
     // 1. Garantir idempotência: verificar se o usuário já possui uma membership
+    const userLookupStart = Date.now();
     let user = await prisma.user.findUnique({
       where: { authUserId },
       include: {
@@ -60,6 +61,8 @@ export async function onboardingRoutes(app: FastifyInstance) {
         },
       },
     });
+    const userLookupMs = Date.now() - userLookupStart;
+    request.log.info({ authUserId, userLookupMs }, '[ONBOARDING_PROVISION] Busca inicial do usuário por UUID resolvida');
 
     if (user && user.memberships.length > 0) {
       const activeMembership = user.memberships[0];
@@ -82,7 +85,10 @@ export async function onboardingRoutes(app: FastifyInstance) {
     });
 
     request.log.info({ authUserId }, '[ONBOARDING_PROVISION] 3. Buscando dados do usuário no Supabase Auth');
+    const supabaseStart = Date.now();
     const { data: { user: authUser }, error: authError } = await supabase.auth.admin.getUserById(authUserId);
+    const supabaseMs = Date.now() - supabaseStart;
+    request.log.info({ authUserId, supabaseMs }, '[ONBOARDING_PROVISION] Busca no Supabase Auth concluída');
 
     if (authError || !authUser) {
       request.log.error({ authUserId, error: authError }, '[ONBOARDING_PROVISION] Erro ao buscar usuário no Supabase Auth');
@@ -110,6 +116,7 @@ export async function onboardingRoutes(app: FastifyInstance) {
 
     // Se o usuário interno ainda não foi vinculado ao authUserId, podemos procurar pelo e-mail
     if (!user) {
+      const emailLookupStart = Date.now();
       user = await prisma.user.findUnique({
         where: { email },
         include: {
@@ -119,9 +126,13 @@ export async function onboardingRoutes(app: FastifyInstance) {
           },
         },
       });
+      const emailLookupMs = Date.now() - emailLookupStart;
+      request.log.info({ authUserId, email, emailLookupMs }, '[ONBOARDING_PROVISION] Busca de usuário por e-mail resolvida');
 
       if (user && user.memberships.length > 0) {
-        if (!user.authUserId) {
+        // CORREÇÃO: Atualiza o authUserId se for nulo OU se for diferente do UUID atual (ex: conta recriada)
+        if (user.authUserId !== authUserId) {
+          request.log.info({ authUserId, oldAuthUserId: user.authUserId }, '[ONBOARDING_PROVISION] Vinculando novo UUID de autenticação ao usuário local por e-mail');
           await prisma.user.update({
             where: { id: user.id },
             data: { authUserId },
@@ -149,12 +160,14 @@ export async function onboardingRoutes(app: FastifyInstance) {
       const lockStart = Date.now();
       request.log.info({ authUserId }, '[ONBOARDING_PROVISION] 4.1. Adquirindo pg_advisory_xact_lock');
       await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${authUserId}))`;
-      request.log.info({ authUserId, lockMs: Date.now() - lockStart }, '[ONBOARDING_PROVISION] 4.2. Lock adquirido');
+      const lockMs = Date.now() - lockStart;
+      request.log.info({ authUserId, lockMs }, '[ONBOARDING_PROVISION] 4.2. Lock adquirido');
 
       let internalUser: any = await tx.user.findUnique({ where: { authUserId } });
       if (!internalUser) {
         internalUser = user || await tx.user.findUnique({ where: { email } });
       }
+      
       if (!internalUser) {
         request.log.info({ authUserId, email }, '[ONBOARDING_PROVISION] 4.3. Criando usuário interno');
         internalUser = await tx.user.create({
@@ -166,17 +179,22 @@ export async function onboardingRoutes(app: FastifyInstance) {
             type: 'interno',
           },
         });
-      } else if (!internalUser.authUserId) {
+      } else if (internalUser.authUserId !== authUserId) {
+        // CORREÇÃO: Atualiza o authUserId se for diferente do UUID atual (ex: conta recriada)
+        request.log.info({ authUserId, oldAuthUserId: internalUser.authUserId }, '[ONBOARDING_PROVISION] Vinculando novo UUID de autenticação ao usuário local dentro da transação');
         internalUser = await tx.user.update({
           where: { id: internalUser.id },
           data: { authUserId },
         });
       }
 
+      const membershipLookupStart = Date.now();
       const existingMembership = await tx.organizationMembership.findFirst({
         where: { userId: internalUser.id, status: 'ativo' },
         select: { organizationId: true },
       });
+      const membershipLookupMs = Date.now() - membershipLookupStart;
+      request.log.info({ authUserId, membershipLookupMs }, '[ONBOARDING_PROVISION] Busca de membership ativa dentro da transação resolvida');
 
       if (existingMembership) {
         request.log.info({ authUserId, organizationId: existingMembership.organizationId, txMs: Date.now() - txStart }, '[ONBOARDING_PROVISION] 4.4. Idempotência: Membership ativa localizada dentro da transação');
@@ -196,6 +214,7 @@ export async function onboardingRoutes(app: FastifyInstance) {
         .substring(0, 15);
 
       const orgCode = `${baseSlug}-${authUserId.slice(0, 8)}`;
+      
       const organization = await tx.organization.create({
         data: {
           name: organizationName,
@@ -365,7 +384,8 @@ export async function onboardingRoutes(app: FastifyInstance) {
         },
       });
 
-      request.log.info({ authUserId, organizationId: organization.id, createMs: Date.now() - createStart }, '[ONBOARDING_PROVISION] 4.6. Transação concluída com sucesso. Realizando commit');
+      const createMs = Date.now() - createStart;
+      request.log.info({ authUserId, organizationId: organization.id, createMs }, '[ONBOARDING_PROVISION] 4.6. Transação concluída com sucesso. Realizando commit');
       return {
         organizationId: organization.id,
       };
@@ -374,7 +394,8 @@ export async function onboardingRoutes(app: FastifyInstance) {
       timeout: 20_000,
     });
 
-    request.log.info({ authUserId, organizationId: result.organizationId, durationMs: Date.now() - startTime }, '[ONBOARDING_PROVISION] 5. Fluxo de provisionamento finalizado');
+    const durationMs = Date.now() - startTime;
+    request.log.info({ authUserId, organizationId: result.organizationId, durationMs }, '[ONBOARDING_PROVISION] 5. Fluxo de provisionamento finalizado com commit no banco');
 
     const response: ApiResponse<{ message: string; organizationId: string }> = {
       data: {

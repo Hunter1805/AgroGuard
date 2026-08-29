@@ -23,6 +23,18 @@ export class StockService {
     unitCost: number,
     workOrderId?: string
   ) {
+    const item = await this.repo.findItemById(stockItemId, actor.organizationId);
+    if (!item) {
+      throw new AppError('Item de estoque não encontrado ou pertence a outra organização.', 404, 'NOT_FOUND');
+    }
+
+    if (workOrderId) {
+      const wo = await this.repo.findWorkOrderById(workOrderId, actor.organizationId);
+      if (!wo) {
+        throw new AppError('Ordem de serviço não encontrada ou pertence a outra organização.', 404, 'NOT_FOUND');
+      }
+    }
+
     try {
       return await this.repo.processMovementTransaction(warehouseId, stockItemId, type, quantity, unitCost, workOrderId);
     } catch (err: any) {

@@ -61,10 +61,9 @@ export async function requestActorMiddleware(request: FastifyRequest, _reply: Fa
             },
           },
         });
-
         if (user) {
-          // Atualizar o authUserId se foi associado pelo e-mail
-          if (!user.authUserId) {
+          // Atualizar o authUserId se foi associado pelo e-mail ou se o UUID de autenticação mudou (ex: recriação de conta)
+          if (user.authUserId !== authUser.id) {
             await prisma.user.update({
               where: { id: user.id },
               data: { authUserId: authUser.id },
@@ -154,7 +153,7 @@ export async function requestActorMiddleware(request: FastifyRequest, _reply: Fa
               '[PERF] requestActor: middleware lento'
             );
           } else {
-            request.log.debug(
+            request.log.info(
               { actorMs, url: request.url },
               '[PERF] requestActor'
             );

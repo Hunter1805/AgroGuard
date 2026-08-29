@@ -1,6 +1,38 @@
 import type {
   Company, Unit, Farm, Sector, LocationItem, CostCenter, Workshop, Warehouse, Team
 } from '../types/organization-master-data';
+import { apiClient } from '../lib/api/api-client';
+
+function getTenantId(): string {
+  const profileStr = localStorage.getItem('agroguard_user_profile');
+  if (profileStr) {
+    try {
+      const profile = JSON.parse(profileStr);
+      return profile.organizationId || 'global';
+    } catch {
+      // ignore
+    }
+  }
+  return 'global';
+}
+
+function getLocalData<T>(key: string, defaultVal: T[]): T[] {
+  const tenantId = getTenantId();
+  const demoOrgId = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11';
+  const isDemo = tenantId === demoOrgId || tenantId === 'global' || tenantId === 'ORG-AGRO';
+
+  const storageKey = `agroguard_${key}_${tenantId}`;
+  const saved = localStorage.getItem(storageKey);
+  if (saved) {
+    try {
+      return JSON.parse(saved);
+    } catch {
+      // ignore
+    }
+  }
+
+  return isDemo ? defaultVal : [];
+}
 
 let mockCompanies: Company[] = [
   {
@@ -183,13 +215,112 @@ let mockTeams: Team[] = [
 ];
 
 export const organizationService = {
-  async getCompanies(): Promise<Company[]> { return mockCompanies; },
-  async getUnits(): Promise<Unit[]> { return mockUnits; },
-  async getFarms(): Promise<Farm[]> { return mockFarms; },
-  async getSectors(): Promise<Sector[]> { return mockSectors; },
-  async getLocations(): Promise<LocationItem[]> { return mockLocations; },
-  async getCostCenters(): Promise<CostCenter[]> { return mockCostCenters; },
-  async getWorkshops(): Promise<Workshop[]> { return mockWorkshops; },
-  async getWarehouses(): Promise<Warehouse[]> { return mockWarehouses; },
-  async getTeams(): Promise<Team[]> { return mockTeams; },
+  async getCompanies(): Promise<Company[]> {
+    try {
+      const tenantId = getTenantId();
+      if (tenantId && tenantId !== 'global') {
+        const res = await apiClient<any>('/organizations/' + tenantId);
+        if (res.data?.companies) {
+          return res.data.companies.map((c: any) => ({
+            id: c.id,
+            code: c.code,
+            name: c.name,
+            corporateName: c.corporateName || c.name,
+            tradeName: c.tradeName || c.name,
+            cnpj: c.cnpj || '',
+            status: c.status || 'ativo',
+            createdAt: c.createdAt,
+            updatedAt: c.updatedAt,
+            createdBy: c.createdBy || 'Sistema',
+          }));
+        }
+      }
+    } catch (err) {
+      console.error('Erro ao buscar empresas da API, usando fallback local:', err);
+    }
+    return getLocalData('companies', mockCompanies);
+  },
+
+  async getUnits(): Promise<Unit[]> {
+    try {
+      const tenantId = getTenantId();
+      if (tenantId && tenantId !== 'global') {
+        const res = await apiClient<any>('/organizations/' + tenantId);
+        if (res.data?.companies) {
+          const allUnits: Unit[] = [];
+          res.data.companies.forEach((c: any) => {
+            if (c.units) {
+              c.units.forEach((u: any) => {
+                allUnits.push({
+                  id: u.id,
+                  code: u.code,
+                  name: u.name,
+                  companyId: c.id,
+                  companyName: c.name,
+                  type: u.type || 'filial',
+                  city: u.city || '',
+                  state: u.state || '',
+                  status: u.status || 'ativo',
+                  createdAt: u.createdAt,
+                  updatedAt: u.updatedAt,
+                  createdBy: u.createdBy || 'Sistema',
+                });
+              });
+            }
+          });
+          return allUnits;
+        }
+      }
+    } catch (err) {
+      console.error('Erro ao buscar unidades da API, usando fallback local:', err);
+    }
+    return getLocalData('units', mockUnits);
+  },
+
+  async getFarms(): Promise<Farm[]> {
+    try {
+      const tenantId = getTenantId();
+      if (tenantId && tenantId !== 'global') {
+        const res = await apiClient<any>('/organizations/' + tenantId);
+        if (res.data?.companies) {
+          const allFarms: Farm[] = [];
+          res.data.companies.forEach((c: any) => {
+            if (c.units) {
+              c.units.forEach((u: any) => {
+                if (u.farms) {
+                  u.farms.forEach((f: any) => {
+                    allFarms.push({
+                      id: f.id,
+                      code: f.code,
+                      name: f.name,
+                      companyId: c.id,
+                      unitId: u.id,
+                      totalAreaHectares: Number(f.totalAreaHectares || 0),
+                      city: f.city || '',
+                      state: f.state || '',
+                      status: f.status || 'ativo',
+                      createdAt: f.createdAt,
+                      updatedAt: f.updatedAt,
+                      createdBy: f.createdBy || 'Sistema',
+                    });
+                  });
+                }
+              });
+            }
+          });
+          return allFarms;
+        }
+      }
+    } catch (err) {
+      console.error('Erro ao buscar fazendas da API, usando fallback local:', err);
+    }
+    return getLocalData('farms', mockFarms);
+  },
+
+  async getSectors(): Promise<Sector[]> { return getLocalData('sectors', mockSectors); },
+  async getLocations(): Promise<LocationItem[]> { return getLocalData('locations', mockLocations); },
+  async getCostCenters(): Promise<CostCenter[]> { return getLocalData('cost_centers', mockCostCenters); },
+  async getWorkshops(): Promise<Workshop[]> { return getLocalData('workshops', mockWorkshops); },
+  async getWarehouses(): Promise<Warehouse[]> { return getLocalData('warehouses', mockWarehouses); },
+  async getTeams(): Promise<Team[]> { return getLocalData('teams', mockTeams); },
 };

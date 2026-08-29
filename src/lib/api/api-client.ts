@@ -1,5 +1,6 @@
 import type { ApiResponse, ApiErrorResponse } from './api-types';
 import { supabase } from '../supabase/supabase-client';
+import { withTimeout } from '../../services/auth-flow.service';
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3333/api/v1';
 
@@ -41,6 +42,39 @@ export function isRetryableError(err: unknown): boolean {
   return true; // erros desconhecidos são tentados
 }
 
+/**
+ * Auxiliar para combinar múltiplos AbortSignals.
+ * O sinal resultante será cancelado se qualquer um dos sinais fornecidos for cancelado.
+ */
+function combineSignals(...signals: Array<AbortSignal | undefined | null>): AbortSignal | undefined {
+  const activeSignals = signals.filter((s): s is AbortSignal => !!s);
+  if (activeSignals.length === 0) return undefined;
+  if (activeSignals.length === 1) return activeSignals[0];
+
+  const controller = new AbortController();
+  const onAbort = () => {
+    controller.abort();
+    cleanup();
+  };
+
+  const cleanup = () => {
+    for (const signal of activeSignals) {
+      signal.removeEventListener('abort', onAbort);
+    }
+  };
+
+  for (const signal of activeSignals) {
+    if (signal.aborted) {
+      controller.abort();
+      cleanup();
+      return controller.signal;
+    }
+    signal.addEventListener('abort', onAbort);
+  }
+
+  return controller.signal;
+}
+
 export async function apiClient<T>(
   endpoint: string,
   options: ApiClientOptions = {}
@@ -48,17 +82,37 @@ export async function apiClient<T>(
   const { timeoutMs = 10_000, ...fetchOptions } = options;
   const url = endpoint.startsWith('http') ? endpoint : `${BASE_URL}${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
 
+  const isMe = endpoint.includes('/users/me');
+  const isProvision = endpoint.includes('/onboarding/provision');
+
+  if (isMe) {
+    console.log(`[AUTH_TRACE] GET /users/me START (timeout: ${timeoutMs}ms)`);
+  } else if (isProvision) {
+    console.log(`[AUTH_TRACE] POST /onboarding/provision START (timeout: ${timeoutMs}ms)`);
+  }
+
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     ...(fetchOptions.headers as Record<string, string>),
   };
 
   const sessionStart = performance.now();
-  const { data: { session } } = await supabase.auth.getSession();
-  const sessionMs = Math.round(performance.now() - sessionStart);
-
-  if (import.meta.env.DEV) {
-    console.debug(`[AUTH_PERF] getSession: ${sessionMs}ms | endpoint: ${endpoint}`);
+  console.log('[AUTH_TRACE] getSession START');
+  let session = null;
+  
+  try {
+    // Timeout para obter a sessão para evitar deadlock antes do fetch de fato
+    const sessionPromise = supabase.auth.getSession();
+    const sessionRes = await withTimeout(
+      sessionPromise,
+      Math.min(5000, timeoutMs),
+      'Erro ao obter sessão (Timeout)'
+    );
+    session = sessionRes.data.session;
+    console.log(`[AUTH_TRACE] getSession END (${Math.round(performance.now() - sessionStart)}ms)`);
+  } catch (err: any) {
+    console.log(`[AUTH_TRACE] ERROR getSession (${Math.round(performance.now() - sessionStart)}ms):`, err.message || err);
+    throw err;
   }
 
   if (session?.access_token) {
@@ -68,16 +122,25 @@ export async function apiClient<T>(
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
+  // Combina o signal recebido no options com o sinal de timeout local do apiClient
+  const combinedSignal = combineSignals(options.signal, controller.signal);
+
   const reqStart = performance.now();
   try {
     const response = await fetch(url, {
       ...fetchOptions,
       headers,
-      signal: fetchOptions.signal || controller.signal,
+      signal: combinedSignal,
     });
 
     clearTimeout(timeoutId);
     const reqMs = Math.round(performance.now() - reqStart);
+
+    if (isMe) {
+      console.log(`[AUTH_TRACE] GET /users/me END (${reqMs}ms)`);
+    } else if (isProvision) {
+      console.log(`[AUTH_TRACE] POST /onboarding/provision END (${reqMs}ms)`);
+    }
 
     if (import.meta.env.DEV) {
       console.debug(`[AUTH_PERF] ${fetchOptions.method || 'GET'} ${endpoint}: ${reqMs}ms | status: ${response.status}`);
@@ -96,6 +159,12 @@ export async function apiClient<T>(
   } catch (err: any) {
     clearTimeout(timeoutId);
     const reqMs = Math.round(performance.now() - reqStart);
+
+    if (isMe) {
+      console.log(`[AUTH_TRACE] ERROR GET /users/me (${reqMs}ms):`, err.message || err);
+    } else if (isProvision) {
+      console.log(`[AUTH_TRACE] ERROR POST /onboarding/provision (${reqMs}ms):`, err.message || err);
+    }
 
     if (err instanceof ApiError) throw err;
     if (err.name === 'AbortError') {

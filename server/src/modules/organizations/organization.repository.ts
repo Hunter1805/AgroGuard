@@ -3,9 +3,10 @@ import { PrismaClient } from '@prisma/client';
 export class OrganizationRepository {
   constructor(private prisma: PrismaClient) {}
 
-  async findOrganizations(organizationId?: string) {
+  async findOrganizations(organizationId: string) {
+    if (!organizationId) return [];
     return this.prisma.organization.findMany({
-      where: organizationId ? { id: organizationId } : { status: 'ativo' },
+      where: { id: organizationId },
       include: {
         companies: {
           include: {

@@ -53,14 +53,14 @@ interface AuthContextType {
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: any }>;
   registerUser: (email: string, password: string, name: string, metadata?: Record<string, any>) => Promise<{ user: SupabaseUser | null; session: Session | null; error: any }>;
-  provisionOrganization: (payload: any) => Promise<{ data: any; error: any }>;
+  provisionOrganization: (payload: any, options?: { signal?: AbortSignal }) => Promise<{ data: any; error: any }>;
   updateOnboardingStep: (step: number) => Promise<{ data: any; error: any }>;
   /**
    * Recarrega o perfil do usuário.
    * IMPORTANTE: retorna o perfil carregado diretamente para evitar stale state.
    * Use o valor retornado para decisões de rota — nunca leia `profile` do closure.
    */
-  refreshProfile: () => Promise<UserProfileData | null>;
+  refreshProfile: (options?: { signal?: AbortSignal }) => Promise<UserProfileData | null>;
   updateProfile: (data: { name: string; phone?: string }) => Promise<{ data: UserProfileData | null; error: any }>;
 }
 
@@ -119,8 +119,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Flag para serializar fetches concorrentes e evitar race condition entre
   // onAuthStateChange e refreshProfile chamados em paralelo.
+  interface ActiveFetch {
+    userId: string;
+    promise: Promise<UserProfileData | null>;
+  }
   const isFetchingProfile = useRef(false);
-  const activeFetchPromise = useRef<Promise<UserProfileData | null> | null>(null);
+  const activeFetch = useRef<ActiveFetch | null>(null);
 
   // Derivado para compatibilidade com código existente
   const loading = authLoading || profileLoading;
@@ -204,13 +208,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
    * para evitar que guards interpretem a ausência temporária como "sem organização".
    * Retorna o perfil resultante ou null em caso de erro.
    */
-  const fetchUserProfile = async (authUser: SupabaseUser): Promise<UserProfileData | null> => {
-    // Serializa fetches concorrentes por meio de Promise compartilhada
-    if (activeFetchPromise.current) {
+  const fetchUserProfile = async (authUser: SupabaseUser, options?: { signal?: AbortSignal }): Promise<UserProfileData | null> => {
+    // Serializa fetches concorrentes por meio de Promise compartilhada para o mesmo usuário
+    if (activeFetch.current && activeFetch.current.userId === authUser.id) {
       if (import.meta.env.DEV) {
-        console.debug('[AUTH_DEBUG] fetchUserProfile: já em andamento — compartilhando promise existente');
+        console.debug('[AUTH_DEBUG] fetchUserProfile: já em andamento — compartilhando promise existente para o mesmo usuário');
       }
-      return activeFetchPromise.current;
+      return activeFetch.current.promise;
+    }
+
+    // Se houver uma Promise de outro usuário rodando, cancela o ref para evitar reuso
+    if (activeFetch.current) {
+      if (import.meta.env.DEV) {
+        console.warn('[AUTH_DEBUG] fetchUserProfile: Promise de outro usuário em andamento, descartando-a');
+      }
+      activeFetch.current = null;
     }
 
     isFetchingProfile.current = true;
@@ -223,7 +235,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       try {
         const profileTimeoutMs = getStageTimeout(AUTH_PROFILE_TIMEOUT_MS, 'carregar o perfil');
-        const res = await apiClient<UserProfileData>('/users/me', { timeoutMs: profileTimeoutMs });
+        const res = await apiClient<UserProfileData>('/users/me', { 
+          timeoutMs: profileTimeoutMs,
+          signal: options?.signal
+        });
         const perfMsMe = Math.round(performance.now() - perfStart);
 
         if (import.meta.env.DEV) {
@@ -320,12 +335,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     };
 
-    activeFetchPromise.current = runFetch();
+    const promise = runFetch();
+    activeFetch.current = { userId: authUser.id, promise };
 
     try {
-      return await activeFetchPromise.current;
+      return await promise;
     } finally {
-      activeFetchPromise.current = null;
+      if (activeFetch.current?.userId === authUser.id) {
+        activeFetch.current = null;
+      }
       isFetchingProfile.current = false;
       setProfileLoading(false);
     }
@@ -336,10 +354,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
    * RETORNA o perfil atualizado — use o valor retornado para decisões de rota,
    * nunca o `profile` do closure (que pode ser stale).
    */
-  const refreshProfile = async (): Promise<UserProfileData | null> => {
+  const refreshProfile = async (options?: { signal?: AbortSignal }): Promise<UserProfileData | null> => {
     if (!user) return null;
     const refreshTimeoutMs = getStageTimeout(AUTH_REFRESH_TIMEOUT_MS, 'atualizar o perfil');
-    return withTimeout(fetchUserProfile(user), refreshTimeoutMs, authTimeoutError('atualizar o perfil').message);
+    return withTimeout(fetchUserProfile(user, options), refreshTimeoutMs, authTimeoutError('atualizar o perfil').message);
   };
 
   const updateProfile = async (data: { name: string; phone?: string }) => {
@@ -374,6 +392,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setProfileError(null);
     setProfileLoading(false);
     isFetchingProfile.current = false;
+    activeFetch.current = null;
   };
 
   const resetPassword = async (email: string) => {
@@ -395,13 +414,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return { user: data.user, session: data.session, error };
   };
 
-  const provisionOrganization = async (payload: any) => {
+  const provisionOrganization = async (payload: any, options?: { signal?: AbortSignal }) => {
     try {
       const idempotencyKey = `onboarding-${payload?.ownerName || ''}-${payload?.organizationName || ''}-${payload?.workspaceName || ''}`.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
       const provisionTimeoutMs = getStageTimeout(AUTH_PROVISION_TIMEOUT_MS, 'provisionar a organização');
       const res = await apiClient<{ message: string; organizationId: string }>('/onboarding/provision', {
         method: 'POST',
         timeoutMs: provisionTimeoutMs,
+        signal: options?.signal,
         headers: {
           'Idempotency-Key': idempotencyKey,
         },

@@ -42,6 +42,11 @@ class AuthFlowSimulator {
   public mockUsersMeResponse: () => Promise<any> = async () => ({ id: 'usr-1', organizationId: 'org-1' });
   public mockProvisionResponse: () => Promise<any> = async () => ({ organizationId: 'org-1' });
 
+  // Suporte a AbortController e timeouts de teste
+  public abortController = new AbortController();
+  public unmounted = false;
+  public activeFetchPromise: Promise<any> | null = null;
+
   public navigate(path: string, options?: { replace?: boolean }) {
     this.currentPath = path;
     if (options?.replace) {
@@ -50,76 +55,138 @@ class AuthFlowSimulator {
   }
 
   // Simulação de apiClient com timeout
-  public async apiClient(endpoint: string, _options: { method?: string; body?: string; signal?: any } = {}) {
+  public async apiClient(endpoint: string, options: { method?: string; body?: string; signal?: AbortSignal } = {}) {
     if (endpoint === '/users/me') {
       this.usersMeCalls++;
+      if (options.signal) {
+        return new Promise<any>((resolve, reject) => {
+          const onAbort = () => reject(new ApiError('Requisição abortada pelo usuário.', 'ABORT_ERROR', 0));
+          if (options.signal?.aborted) return onAbort();
+          options.signal?.addEventListener('abort', onAbort);
+          this.mockUsersMeResponse().then(
+            (val) => { options.signal?.removeEventListener('abort', onAbort); resolve(val); },
+            (err) => { options.signal?.removeEventListener('abort', onAbort); reject(err); }
+          );
+        });
+      }
       return await this.mockUsersMeResponse();
     }
     if (endpoint === '/onboarding/provision') {
       this.provisionCalls++;
+      if (options.signal) {
+        return new Promise<any>((resolve, reject) => {
+          const onAbort = () => reject(new ApiError('Requisição abortada pelo usuário.', 'ABORT_ERROR', 0));
+          if (options.signal?.aborted) return onAbort();
+          options.signal?.addEventListener('abort', onAbort);
+          this.mockProvisionResponse().then(
+            (val) => { options.signal?.removeEventListener('abort', onAbort); resolve(val); },
+            (err) => { options.signal?.removeEventListener('abort', onAbort); reject(err); }
+          );
+        });
+      }
       return await this.mockProvisionResponse();
     }
     throw new Error('Not found');
   }
 
   // Simulação de fetchUserProfile da AuthContext
-  public async fetchUserProfile() {
-    if (this.profileLoading) return null;
-    this.profileLoading = true;
-    
-    try {
-      const data = await this.apiClient('/users/me');
-      this.profile = data;
-      this.profileError = null;
-      return data;
-    } catch (err: any) {
-      const isNotProvisioned = err?.code === 'PROFILE_NOT_PROVISIONED';
-      
-      this.profile = {
-        id: this.user?.id || '',
-        organizationId: '',
-        status: isNotProvisioned ? 'sem_organizacao' : 'erro',
-      };
-
-      if (isNotProvisioned) {
-        this.profileError = null;
-      } else {
-        this.profileError = err;
+  public async fetchUserProfile(options: { signal?: AbortSignal } = {}) {
+    // Simula Promise compartilhada (activeFetchPromise)
+    if (this.activeFetchPromise) {
+      const signal = options.signal;
+      if (signal) {
+        return new Promise<any>((resolve, reject) => {
+          const onAbort = () => reject(new ApiError('Requisição abortada pelo usuário.', 'ABORT_ERROR', 0));
+          if (signal.aborted) return onAbort();
+          signal.addEventListener('abort', onAbort);
+          this.activeFetchPromise!.then(
+            (val) => { signal.removeEventListener('abort', onAbort); resolve(val); },
+            (err) => { signal.removeEventListener('abort', onAbort); reject(err); }
+          );
+        });
       }
-      throw err;
+      return this.activeFetchPromise;
+    }
+
+    const runFetch = async () => {
+      this.profileLoading = true;
+      try {
+        const data = await this.apiClient('/users/me', options);
+        this.profile = data;
+        this.profileError = null;
+        return data;
+      } catch (err: any) {
+        const isNotProvisioned = err?.code === 'PROFILE_NOT_PROVISIONED';
+        this.profile = {
+          id: this.user?.id || '',
+          organizationId: '',
+          status: isNotProvisioned ? 'sem_organizacao' : 'erro',
+        };
+        if (isNotProvisioned) {
+          this.profileError = null;
+        } else {
+          this.profileError = err;
+        }
+        throw err;
+      } finally {
+        this.profileLoading = false;
+      }
+    };
+
+    this.activeFetchPromise = runFetch();
+    try {
+      return await this.activeFetchPromise;
     } finally {
-      this.profileLoading = false;
+      this.activeFetchPromise = null;
     }
   }
 
-  // Simulação de processAuthCallback no AuthCallbackPage
-  public async triggerAuthCallback() {
+  // Simulação de processAuthCallback no AuthCallbackPage (versão com suporte a timeout absoluto)
+  public async triggerAuthCallback(options: { timeoutMs?: number } = {}) {
     this.uiSpinner = true;
     this.uiError = null;
     this.statusText = 'Sincronizando seu perfil...';
 
-    if (this.processingRef) {
-      // Já está em andamento (Guarda contra concorrência)
-      return;
-    }
+    if (this.processingRef) return;
     this.processingRef = true;
 
+    const signal = this.abortController.signal;
+    const timeoutMs = options.timeoutMs || 30000;
+
+    const safetyTimer = setTimeout(() => {
+      this.abortController.abort();
+      this.uiError = 'Não foi possível concluir a configuração da sua conta. (TIMEOUT)';
+      this.uiSpinner = false;
+    }, timeoutMs);
+
     try {
-      const updatedProfile = await this.fetchUserProfile();
+      const updatedProfile = await this.fetchUserProfile({ signal });
       
-      // Decisão baseada no perfil
+      if (signal.aborted || this.unmounted) {
+        this.uiSpinner = false;
+        return;
+      }
+      
+      clearTimeout(safetyTimer);
+      this.uiSpinner = false;
+
       const destination = updatedProfile?.organizationId
         ? '/app/dashboard'
         : '/onboarding/preparando-ambiente';
         
       this.navigate(destination, { replace: true });
     } catch (err: any) {
+      if (signal.aborted || this.unmounted) {
+        this.uiSpinner = false;
+        return;
+      }
+
+      clearTimeout(safetyTimer);
+      this.uiSpinner = false;
       if (err?.code === 'PROFILE_NOT_PROVISIONED') {
-        // NOVO: Erro normal de novo usuário - envia para o preparando-ambiente
         this.navigate('/onboarding/preparando-ambiente', { replace: true });
       } else {
         this.uiError = err.message || 'Falha ao sincronizar perfil.';
-        this.uiSpinner = false;
       }
     } finally {
       this.processingRef = false;
@@ -127,17 +194,15 @@ class AuthFlowSimulator {
   }
 
   // Simulação de autoProvision no PreparingEnvironmentPage
-  public async triggerAutoProvision() {
-    if (this.processingRef) {
-      return;
-    }
+  public async triggerAutoProvision(options: { signal?: AbortSignal } = {}) {
+    if (this.processingRef) return;
     this.processingRef = true;
     this.uiSpinner = true;
     this.uiError = null;
     this.statusText = 'Preparando o ambiente...';
 
     try {
-      const provisionData = await this.apiClient('/onboarding/provision', { method: 'POST' });
+      const provisionData = await this.apiClient('/onboarding/provision', { method: 'POST', signal: options.signal });
       
       // Simula a atualização do perfil após o provisionamento
       this.mockUsersMeResponse = async () => ({
@@ -145,15 +210,24 @@ class AuthFlowSimulator {
         organizationId: provisionData.organizationId,
       });
 
-      const updatedProfile = await this.fetchUserProfile();
+      const updatedProfile = await this.fetchUserProfile(options);
 
+      if (options.signal?.aborted || this.unmounted) {
+        this.uiSpinner = false;
+        return;
+      }
+
+      this.uiSpinner = false;
       if (updatedProfile?.organizationId) {
         this.navigate('/app/dashboard', { replace: true });
       } else {
         this.uiError = 'Não foi possível confirmar o ambiente.';
-        this.uiSpinner = false;
       }
     } catch (err: any) {
+      if (options.signal?.aborted || this.unmounted) {
+        this.uiSpinner = false;
+        return;
+      }
       this.uiError = err.message || 'Erro ao provisionar.';
       this.uiSpinner = false;
     } finally {
@@ -359,5 +433,119 @@ describe('AgroGuard — Fluxo Completo de Autenticação e Onboarding (Cenários
     
     expect(sim.currentPath).toBe('/app/dashboard');
     expect(sim.uiError).toBeNull();
+  });
+
+  it('Cenário G-Extra: GET /users/me nunca resolve -> timeout simulado -> sai do spinner', async () => {
+    const sim = new AuthFlowSimulator();
+    sim.session = true;
+    sim.user = { id: 'auth-123', email: 'novo@agroguard.com' };
+
+    // /users/me nunca resolve (retorna Promise pendente perpétua)
+    sim.mockUsersMeResponse = () => new Promise(() => {});
+
+    // Dispara o callback com timeout rápido de 30ms para fins de teste unitário
+    await sim.triggerAuthCallback({ timeoutMs: 30 });
+
+    // Deve sair do spinner e indicar erro de timeout
+    expect(sim.uiSpinner).toBe(false);
+    expect(sim.uiError).toContain('Não foi possível concluir a configuração da sua conta. (TIMEOUT)');
+    expect(sim.currentPath).toBe(''); // Não navega
+  });
+
+  it('Cenário H-Extra: POST /onboarding/provision nunca resolve -> timeout simulado -> sai do spinner', async () => {
+    const sim = new AuthFlowSimulator();
+    sim.session = true;
+    sim.user = { id: 'auth-123', email: 'novo@agroguard.com' };
+
+    // provision nunca resolve
+    sim.mockProvisionResponse = () => new Promise(() => {});
+
+    // Dispara o autoProvision com sinal associado ao timeout
+    const controller = new AbortController();
+    const safetyTimer = setTimeout(() => controller.abort(), 30);
+
+    try {
+      await sim.triggerAutoProvision({ signal: controller.signal });
+    } catch (e) {
+      // espera erro de abort
+    }
+
+    clearTimeout(safetyTimer);
+
+    // Deve encerrar o spinner e não ter navegado
+    expect(sim.uiSpinner).toBe(false);
+    expect(sim.currentPath).toBe('');
+  });
+
+  it('Cenário I-Extra: activeFetchPromise nunca resolve -> timeout simulado -> sai do spinner', async () => {
+    const sim = new AuthFlowSimulator();
+    sim.session = true;
+    sim.user = { id: 'auth-123', email: 'novo@agroguard.com' };
+
+    // Simula a promise compartilhada de fetch já travada em andamento
+    sim.activeFetchPromise = new Promise(() => {});
+
+    // Dispara o callback
+    await sim.triggerAuthCallback({ timeoutMs: 30 });
+
+    // Deve encerrar o spinner com timeout
+    expect(sim.uiSpinner).toBe(false);
+    expect(sim.uiError).toContain('Não foi possível concluir a configuração da sua conta. (TIMEOUT)');
+  });
+
+  it('Cenário J-Extra: resposta tardia do backend (após timeout) -> não navega para dashboard', async () => {
+    const sim = new AuthFlowSimulator();
+    sim.session = true;
+    sim.user = { id: 'auth-123', email: 'novo@agroguard.com' };
+
+    let resolveUsersMe: any;
+    sim.mockUsersMeResponse = () => new Promise((resolve) => {
+      resolveUsersMe = resolve;
+    });
+
+    // Inicia fluxo com timeout curto de 20ms
+    const flowPromise = sim.triggerAuthCallback({ timeoutMs: 20 });
+    
+    // Aguarda o timeout disparar
+    await new Promise((r) => setTimeout(r, 40));
+    await flowPromise;
+
+    expect(sim.uiError).toContain('Não foi possível concluir a configuração da sua conta. (TIMEOUT)');
+    expect(sim.currentPath).toBe(''); // Timeout aconteceu, não navegou
+
+    // Resposta tardia resolve agora
+    resolveUsersMe({ id: 'usr-1', organizationId: 'org-tardia' });
+
+    // Aguarda microtasks
+    await new Promise((r) => setTimeout(r, 10));
+
+    // Mesmo com a resposta resolvendo depois, não pode navegar para o dashboard!
+    expect(sim.currentPath).toBe('');
+  });
+
+  it('Cenário K-Extra: componente desmonta -> nenhuma promise tardia altera estado/navegação', async () => {
+    const sim = new AuthFlowSimulator();
+    sim.session = true;
+    sim.user = { id: 'auth-123', email: 'novo@agroguard.com' };
+
+    let resolveUsersMe: any;
+    sim.mockUsersMeResponse = () => new Promise((resolve) => {
+      resolveUsersMe = resolve;
+    });
+
+    // Inicia fluxo
+    const flowPromise = sim.triggerAuthCallback({ timeoutMs: 1000 });
+
+    // Simula desmontagem do componente imediatamente
+    sim.unmounted = true;
+    sim.abortController.abort();
+
+    // Resposta tardia chega
+    resolveUsersMe({ id: 'usr-1', organizationId: 'org-ok' });
+
+    await flowPromise;
+
+    // Não deve ter navegado nem modificado UI
+    expect(sim.currentPath).toBe('');
   });
 });

@@ -1,5 +1,4 @@
 import type { SupplierMaster } from '../types/material-master-data';
-import { mockStorage } from './mock-storage';
 
 const defaultSuppliers: SupplierMaster[] = [
   {
@@ -49,27 +48,63 @@ const defaultSuppliers: SupplierMaster[] = [
   },
 ];
 
+function getTenantId(): string {
+  const profileStr = localStorage.getItem('agroguard_user_profile');
+  if (profileStr) {
+    try {
+      const profile = JSON.parse(profileStr);
+      return profile.organizationId || 'global';
+    } catch {
+      // ignore
+    }
+  }
+  return 'global';
+}
+
+function getLocalSuppliers(): SupplierMaster[] {
+  const tenantId = getTenantId();
+  const demoOrgId = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11';
+  const isDemo = tenantId === demoOrgId || tenantId === 'global' || tenantId === 'ORG-AGRO';
+
+  const storageKey = `agroguard_suppliers_${tenantId}`;
+  const saved = localStorage.getItem(storageKey);
+  if (saved) {
+    try {
+      return JSON.parse(saved);
+    } catch {
+      // ignore
+    }
+  }
+  return isDemo ? defaultSuppliers : [];
+}
+
+function saveLocalSuppliers(data: SupplierMaster[]) {
+  const tenantId = getTenantId();
+  const storageKey = `agroguard_suppliers_${tenantId}`;
+  localStorage.setItem(storageKey, JSON.stringify(data));
+}
+
 export const suppliersService = {
   async getAll(): Promise<SupplierMaster[]> {
-    return mockStorage.get<SupplierMaster>('suppliers', defaultSuppliers);
+    return getLocalSuppliers();
   },
 
   async getSuppliers(): Promise<SupplierMaster[]> {
-    return mockStorage.get<SupplierMaster>('suppliers', defaultSuppliers);
+    return getLocalSuppliers();
   },
 
   async getSupplierById(id: string): Promise<SupplierMaster | undefined> {
-    const list = await mockStorage.get<SupplierMaster>('suppliers', defaultSuppliers);
+    const list = getLocalSuppliers();
     return list.find(s => s.id === id || s.code === id);
   },
 
   async saveSupplier(data: Partial<SupplierMaster>): Promise<SupplierMaster> {
-    const list = await mockStorage.get<SupplierMaster>('suppliers', defaultSuppliers);
+    const list = getLocalSuppliers();
     if (data.id) {
       const idx = list.findIndex(s => s.id === data.id);
       if (idx >= 0) {
         list[idx] = { ...list[idx], ...data, updatedAt: new Date().toISOString() };
-        await mockStorage.set('suppliers', list);
+        saveLocalSuppliers(list);
         return list[idx];
       }
     }
@@ -88,7 +123,7 @@ export const suppliersService = {
       createdBy: 'Usuário Logado',
     };
     list.unshift(newSup);
-    await mockStorage.set('suppliers', list);
+    saveLocalSuppliers(list);
     return newSup;
   },
 
@@ -101,20 +136,20 @@ export const suppliersService = {
   },
 
   async activate(id: string): Promise<void> {
-    const list = await mockStorage.get<SupplierMaster>('suppliers', defaultSuppliers);
+    const list = getLocalSuppliers();
     const s = list.find(sup => sup.id === id);
     if (s) {
       s.status = 'ativo';
-      await mockStorage.set('suppliers', list);
+      saveLocalSuppliers(list);
     }
   },
 
   async deactivate(id: string): Promise<void> {
-    const list = await mockStorage.get<SupplierMaster>('suppliers', defaultSuppliers);
+    const list = getLocalSuppliers();
     const s = list.find(sup => sup.id === id);
     if (s) {
       s.status = 'inativo';
-      await mockStorage.set('suppliers', list);
+      saveLocalSuppliers(list);
     }
   },
 };

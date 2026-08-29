@@ -1,5 +1,7 @@
 import type { MasterDataCategoryCard } from '../types/master-data';
 import { ROUTES } from '../types/routes';
+import { organizationService } from './organization.service';
+import { suppliersService } from './suppliers.service';
 
 export const MASTER_DATA_CARDS: MasterDataCategoryCard[] = [
   // Grupo Organização
@@ -43,27 +45,71 @@ export const MASTER_DATA_CARDS: MasterDataCategoryCard[] = [
 
 export const masterDataService = {
   async getCategoryCards(): Promise<MasterDataCategoryCard[]> {
-    return MASTER_DATA_CARDS;
+    try {
+      const [companies, units, farms, sectors, locations, costCenters, workshops, warehouses, teams] = await Promise.all([
+        organizationService.getCompanies(),
+        organizationService.getUnits(),
+        organizationService.getFarms(),
+        organizationService.getSectors(),
+        organizationService.getLocations(),
+        organizationService.getCostCenters(),
+        organizationService.getWorkshops(),
+        organizationService.getWarehouses(),
+        organizationService.getTeams(),
+      ]);
+
+      const suppliers = await suppliersService.getAll();
+
+      const counts: Record<string, number> = {
+        emp: companies.length,
+        und: units.length,
+        fzm: farms.length,
+        sec: sectors.length,
+        loc: locations.length,
+        cc: costCenters.length,
+        ofc: workshops.length,
+        alm: warehouses.length,
+        eqp: teams.length,
+        for: suppliers.length,
+      };
+
+      return MASTER_DATA_CARDS.map(card => {
+        const count = counts[card.id] ?? card.activeCount; // Mantém fallback para outros cards globais
+        return {
+          ...card,
+          totalCount: count,
+          activeCount: count,
+        };
+      });
+    } catch (err) {
+      console.error('Erro ao computar contagens de master data:', err);
+      return MASTER_DATA_CARDS;
+    }
   },
 
   async getOverviewStats() {
-    const totalCategories = MASTER_DATA_CARDS.length;
-    const totalActiveRecords = MASTER_DATA_CARDS.reduce((acc, c) => acc + c.activeCount, 0);
+    const cards = await this.getCategoryCards();
+    const totalCategories = cards.length;
+    const totalActiveRecords = cards.reduce((acc, c) => acc + c.activeCount, 0);
+
+    const locations = cards.find(c => c.id === 'loc')?.activeCount ?? 0;
+    const suppliers = cards.find(c => c.id === 'for')?.activeCount ?? 0;
 
     return {
       totalCategories,
       totalActiveRecords,
-      activeSuppliersCount: 2,
-      registeredLocationsCount: 2,
-      equipmentModelsCount: 2,
-      maintenanceSystemsCount: 4,
+      activeSuppliersCount: suppliers,
+      registeredLocationsCount: locations,
+      equipmentModelsCount: 0,
+      maintenanceSystemsCount: 0,
     };
   },
 
   async searchMasterData(query: string) {
     if (!query) return [];
     const q = query.toLowerCase();
-    return MASTER_DATA_CARDS.filter(
+    const cards = await this.getCategoryCards();
+    return cards.filter(
       c => c.title.toLowerCase().includes(q) || c.description.toLowerCase().includes(q) || c.code.toLowerCase().includes(q)
     );
   },

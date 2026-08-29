@@ -35,6 +35,18 @@ export class StockRepository {
     });
   }
 
+  async findItemById(id: string, organizationId: string) {
+    return this.prisma.stockItem.findFirst({
+      where: { id, organizationId },
+    });
+  }
+
+  async findWorkOrderById(id: string, organizationId: string) {
+    return this.prisma.workOrder.findFirst({
+      where: { id, organizationId },
+    });
+  }
+
   async processMovementTransaction(warehouseId: string, stockItemId: string, type: 'entrada' | 'saida' | 'ajuste', quantity: number, unitCost: number, workOrderId?: string) {
     return this.prisma.$transaction(async (tx) => {
       const balance = await tx.stockBalance.findUnique({
