@@ -120,6 +120,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Flag para serializar fetches concorrentes e evitar race condition entre
   // onAuthStateChange e refreshProfile chamados em paralelo.
   const isFetchingProfile = useRef(false);
+  const activeFetchPromise = useRef<Promise<UserProfileData | null> | null>(null);
 
   // Derivado para compatibilidade com código existente
   const loading = authLoading || profileLoading;
@@ -137,16 +138,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         fetchUserProfile(initialSession.user)
           .catch((error) => {
             setProfileError(error instanceof Error ? error : new Error(String(error)));
-          })
-          .finally(() => {
-            setAuthLoading(false);
           });
       } else {
         clearAuthFlow();
-        setAuthLoading(false);
       }
     }).catch((error) => {
       setProfileError(error instanceof Error ? error : new Error(String(error)));
+    }).finally(() => {
       setAuthLoading(false);
     });
 
@@ -182,10 +180,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
 
         // Sem orgId persistido e sem fetch em andamento: busca o perfil normalmente
-        fetchUserProfile(newSession.user);
+        fetchUserProfile(newSession.user).catch((error) => {
+          if (import.meta.env.DEV) {
+            console.error('[AUTH_DEBUG] Erro em onAuthStateChange ao buscar perfil:', error);
+          }
+        });
       } else {
         setProfile(null);
         setProfileError(null);
+        setProfileLoading(false);
+        isFetchingProfile.current = false;
       }
     });
 
@@ -201,119 +205,129 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
    * Retorna o perfil resultante ou null em caso de erro.
    */
   const fetchUserProfile = async (authUser: SupabaseUser): Promise<UserProfileData | null> => {
-    // Serializa fetches concorrentes
-    if (isFetchingProfile.current) {
+    // Serializa fetches concorrentes por meio de Promise compartilhada
+    if (activeFetchPromise.current) {
       if (import.meta.env.DEV) {
-        console.debug('[AUTH_DEBUG] fetchUserProfile: já em andamento — aguardando');
+        console.debug('[AUTH_DEBUG] fetchUserProfile: já em andamento — compartilhando promise existente');
       }
-      return null;
+      return activeFetchPromise.current;
     }
 
     isFetchingProfile.current = true;
     setProfileLoading(true);
     // NÃO zeramos profile aqui — mantemos o valor anterior durante o refresh
 
-    const persistedOrgId = localStorage.getItem(`agroguard_org_id_${authUser.id}`);
-    const perfStart = performance.now();
+    const runFetch = async (): Promise<UserProfileData | null> => {
+      const persistedOrgId = localStorage.getItem(`agroguard_org_id_${authUser.id}`);
+      const perfStart = performance.now();
 
-    try {
-      const profileTimeoutMs = getStageTimeout(AUTH_PROFILE_TIMEOUT_MS, 'carregar o perfil');
-      const res = await apiClient<UserProfileData>('/users/me', { timeoutMs: profileTimeoutMs });
-      const perfMsMe = Math.round(performance.now() - perfStart);
-
-      if (import.meta.env.DEV) {
-        console.debug(`[AUTH_PERF] /users/me respondeu em ${perfMsMe}ms`);
-      }
-
-      if (res.data) {
-        // NUNCA sobrescreve o organizationId se já temos um localmente.
-        // O backend pode demorar a propagar após o provisionamento.
-        const finalOrgId = res.data.organizationId || persistedOrgId || '';
-        const finalData: UserProfileData = {
-          ...res.data,
-          organizationId: finalOrgId,
-        };
-
-        // Se já temos um profile em memória com organizationId e a API retornou sem ele,
-        // mantém o profile atual para não destruir o estado pós-provisionamento
-        let resultProfile: UserProfileData = finalData;
-        setProfile((prev) => {
-          if (prev?.organizationId && !res.data.organizationId) {
-            resultProfile = prev; // preserva o profile com organização
-            return prev;
-          }
-          return finalData;
-        });
-
-        localStorage.setItem(`agroguard_user_profile_${authUser.id}`, JSON.stringify(finalData));
-        localStorage.setItem('agroguard_user_profile', JSON.stringify(finalData));
-
-        // Persiste o orgId se veio da API
-        if (res.data.organizationId) {
-          localStorage.setItem(`agroguard_org_id_${authUser.id}`, res.data.organizationId);
-        }
-
-        setProfileError(null);
+      try {
+        const profileTimeoutMs = getStageTimeout(AUTH_PROFILE_TIMEOUT_MS, 'carregar o perfil');
+        const res = await apiClient<UserProfileData>('/users/me', { timeoutMs: profileTimeoutMs });
+        const perfMsMe = Math.round(performance.now() - perfStart);
 
         if (import.meta.env.DEV) {
-          console.debug('[AUTH_DEBUG] fetchUserProfile: sucesso', {
-            profileId: finalData.id,
-            organizationId: finalOrgId,
-            onboardingCompleted: finalData.onboardingCompleted,
-            onboardingStep: finalData.onboardingStep,
-          });
+          console.debug(`[AUTH_PERF] /users/me respondeu em ${perfMsMe}ms`);
         }
 
-        return resultProfile;
-      } else {
-        // API retornou sem dados — usa fallback mas preserva org existente
-        let fallbackResult: UserProfileData | null = null;
+        if (res.data) {
+          // NUNCA sobrescreve o organizationId se já temos um localmente.
+          // O backend pode demorar a propagar após o provisionamento.
+          const finalOrgId = res.data.organizationId || persistedOrgId || '';
+          const finalData: UserProfileData = {
+            ...res.data,
+            organizationId: finalOrgId,
+          };
+
+          // Se já temos um profile em memória com organizationId e a API retornou sem ele,
+          // mantém o profile atual para não destruir o estado pós-provisionamento
+          let resultProfile: UserProfileData = finalData;
+          setProfile((prev) => {
+            if (prev?.organizationId && !res.data.organizationId) {
+              resultProfile = prev; // preserva o profile com organização
+              return prev;
+            }
+            return finalData;
+          });
+
+          localStorage.setItem(`agroguard_user_profile_${authUser.id}`, JSON.stringify(finalData));
+          localStorage.setItem('agroguard_user_profile', JSON.stringify(finalData));
+
+          // Persiste o orgId se veio da API
+          if (res.data.organizationId) {
+            localStorage.setItem(`agroguard_org_id_${authUser.id}`, res.data.organizationId);
+          }
+
+          setProfileError(null);
+
+          if (import.meta.env.DEV) {
+            console.debug('[AUTH_DEBUG] fetchUserProfile: sucesso', {
+              profileId: finalData.id,
+              organizationId: finalOrgId,
+              onboardingCompleted: finalData.onboardingCompleted,
+              onboardingStep: finalData.onboardingStep,
+            });
+          }
+
+          return resultProfile;
+        } else {
+          // API retornou sem dados — usa fallback mas preserva org existente
+          let fallbackResult: UserProfileData | null = null;
+          setProfile((prev) => {
+            if (prev?.organizationId) {
+              fallbackResult = prev; // nunca destrói profile com organização
+              return prev;
+            }
+            const fb = getFallbackProfile(authUser);
+            fallbackResult = fb;
+            return fb;
+          });
+          setProfileError(null);
+          return fallbackResult;
+        }
+      } catch (err: any) {
+        const isNotProvisioned = err?.code === 'PROFILE_NOT_PROVISIONED';
+        // Em erro de rede ou não provisionado, usa fallback mas preserva o profile atual se tiver organizationId
+        let errorResult: UserProfileData | null = null;
         setProfile((prev) => {
           if (prev?.organizationId) {
-            fallbackResult = prev; // nunca destrói profile com organização
+            errorResult = prev; // Não destrói um profile válido
             return prev;
           }
-          const fb = getFallbackProfile(authUser);
-          fallbackResult = fb;
+          const fb = getFallbackProfile(authUser, isNotProvisioned ? { organizationId: '' } : undefined);
+          errorResult = fb;
           return fb;
         });
-        setProfileError(null);
-        return fallbackResult;
-      }
-    } catch (err: any) {
-      const isNotProvisioned = err?.code === 'PROFILE_NOT_PROVISIONED';
-      // Em erro de rede ou não provisionado, usa fallback mas preserva o profile atual se tiver organizationId
-      let errorResult: UserProfileData | null = null;
-      setProfile((prev) => {
-        if (prev?.organizationId) {
-          errorResult = prev; // Não destrói um profile válido
-          return prev;
+
+        if (isNotProvisioned) {
+          setProfileError(null); // Limpa o erro, é um estado normal/esperado de usuário novo
+        } else {
+          const profileFetchError = err instanceof Error ? err : new Error(String(err));
+          setProfileError(profileFetchError);
+          throw profileFetchError;
         }
-        const fb = getFallbackProfile(authUser, isNotProvisioned ? { organizationId: '' } : undefined);
-        errorResult = fb;
-        return fb;
-      });
 
-      if (isNotProvisioned) {
-        setProfileError(null); // Limpa o erro, é um estado normal/esperado de usuário novo
-      } else {
-        const profileFetchError = err instanceof Error ? err : new Error(String(err));
-        setProfileError(profileFetchError);
-        throw profileFetchError;
+        if (import.meta.env.DEV) {
+          console.debug('[AUTH_DEBUG] fetchUserProfile: erro tratado', { error: err?.message, isNotProvisioned });
+        }
+
+        return errorResult;
+      } finally {
+        const perfTotalMs = Math.round(performance.now() - perfStart);
+        if (import.meta.env.DEV) {
+          console.debug(`[AUTH_PERF] fetchUserProfile total: ${perfTotalMs}ms`);
+        }
       }
+    };
 
-      if (import.meta.env.DEV) {
-        console.debug('[AUTH_DEBUG] fetchUserProfile: erro tratado', { error: err?.message, isNotProvisioned });
-      }
+    activeFetchPromise.current = runFetch();
 
-      return errorResult;
+    try {
+      return await activeFetchPromise.current;
     } finally {
-      const perfTotalMs = Math.round(performance.now() - perfStart);
-      if (import.meta.env.DEV) {
-        console.debug(`[AUTH_PERF] fetchUserProfile total: ${perfTotalMs}ms`);
-      }
-      setProfileLoading(false);
+      activeFetchPromise.current = null;
       isFetchingProfile.current = false;
+      setProfileLoading(false);
     }
   };
 
@@ -358,6 +372,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(null);
     setProfile(null);
     setProfileError(null);
+    setProfileLoading(false);
+    isFetchingProfile.current = false;
   };
 
   const resetPassword = async (email: string) => {

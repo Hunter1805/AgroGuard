@@ -28,6 +28,7 @@ interface RouterState {
     status?: string;
   } | null;
   profileError: Error | null;
+  pathname?: string;
 }
 
 type RouteDecision =
@@ -43,7 +44,8 @@ type RouteDecision =
  * profile.status NÃO bloqueia acesso quando organizationId existe.
  */
 function decideRoute(state: RouterState): RouteDecision {
-  const { authLoading, profileLoading, hasSession, profile, profileError } = state;
+  const { authLoading, profileLoading, hasSession, profile, profileError, pathname } = state;
+  const targetPath = pathname || '/app/dashboard';
 
   // SE authLoading → spinner, nenhum redirect
   if (authLoading) return 'LOADING';
@@ -51,8 +53,13 @@ function decideRoute(state: RouterState): RouteDecision {
   // SE não existe session → /entrar
   if (!hasSession) return '/entrar';
 
-  // SE session existe E profileLoading → spinner (sempre)
-  if (profileLoading) return 'LOADING';
+  // A rota /auth/callback é imune ao bloqueio de profileLoading
+  if (targetPath === '/auth/callback') {
+    return '/auth/callback';
+  }
+
+  // SE session existe E profileLoading e sem perfil carregado → spinner de rota protegida
+  if (profileLoading && !profile) return 'LOADING';
 
   // SE session existe E perfil falhou sem cache → tela de erro (não assume sem-org)
   if (profileError && !profile) return 'PROFILE_ERROR';
@@ -123,19 +130,18 @@ describe('AgroGuard — Regra Única de Routing P0', () => {
   });
 
   /**
-   * CASO 4: profileLoading=true mesmo com profile anterior → spinner (regra P0)
-   * Nota: profileLoading sempre mostra spinner, não há exceção por profile existente.
+   * CASO 4: profileLoading=true com profile anterior → Dashboard (evita spinner com cache)
+   * Nota: Na nova regra, profileLoading com profile em cache renderiza normalmente para evitar piscar tela.
    */
-  it('CASO 4: profileLoading=true → LOADING (regra P0: sempre spinner durante profileLoading)', () => {
+  it('CASO 4: profileLoading=true com profile anterior → Dashboard (evita spinner com cache)', () => {
     const result = decideRoute({
       authLoading: false,
       profileLoading: true,
       hasSession: true,
-      profile: { organizationId: 'org-1', status: 'ativo' }, // profile preservado, mas profileLoading ativo
+      profile: { organizationId: 'org-1', status: 'ativo' }, // profile preservado
       profileError: null,
     });
-    // Regra P0: profileLoading → sempre LOADING
-    expect(result).toBe('LOADING');
+    expect(result).toBe('/app/dashboard');
   });
 
   /**
@@ -436,5 +442,78 @@ describe('AgroGuard — Regra Única de Routing P0', () => {
       profileError: new Error('Network error'),
     });
     expect(result).toBe('PROFILE_ERROR');
+  });
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // NOVOS CASOS DE TESTE — DEADLOCK E IMUNIDADE DE CALLBACK
+  // ─────────────────────────────────────────────────────────────────────────
+
+  it('TESTE MAIS IMPORTANTE: URL=/auth/callback, authLoading=false, profileLoading=true → AuthCallbackPage (imunidade a profileLoading)', () => {
+    const result = decideRoute({
+      authLoading: false,
+      profileLoading: true,
+      hasSession: true,
+      profile: null,
+      profileError: null,
+      pathname: '/auth/callback',
+    });
+    expect(result).toBe('/auth/callback');
+  });
+
+  it('OUTROS TESTES A: authLoading=true → LOADING (global loader)', () => {
+    const result = decideRoute({
+      authLoading: true,
+      profileLoading: false,
+      hasSession: false,
+      profile: null,
+      profileError: null,
+    });
+    expect(result).toBe('LOADING');
+  });
+
+  it('OUTROS TESTES B: authLoading=false, route=/auth/callback, profileLoading=true → /auth/callback', () => {
+    const result = decideRoute({
+      authLoading: false,
+      profileLoading: true,
+      hasSession: true,
+      profile: null,
+      profileError: null,
+      pathname: '/auth/callback',
+    });
+    expect(result).toBe('/auth/callback');
+  });
+
+  it('OUTROS TESTES G: protected route + profileLoading=true + profile=null → LOADING (loading protegido)', () => {
+    const result = decideRoute({
+      authLoading: false,
+      profileLoading: true,
+      hasSession: true,
+      profile: null,
+      profileError: null,
+      pathname: '/app/dashboard',
+    });
+    expect(result).toBe('LOADING');
+  });
+
+  it('OUTROS TESTES H: /auth/callback nunca fica bloqueado por profileLoading (mesmo com profile em cache ou nulo)', () => {
+    const resultWithNull = decideRoute({
+      authLoading: false,
+      profileLoading: true,
+      hasSession: true,
+      profile: null,
+      profileError: null,
+      pathname: '/auth/callback',
+    });
+    expect(resultWithNull).toBe('/auth/callback');
+
+    const resultWithProfile = decideRoute({
+      authLoading: false,
+      profileLoading: true,
+      hasSession: true,
+      profile: { organizationId: 'org-1' },
+      profileError: null,
+      pathname: '/auth/callback',
+    });
+    expect(resultWithProfile).toBe('/auth/callback');
   });
 });

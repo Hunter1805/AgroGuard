@@ -283,4 +283,81 @@ describe('AgroGuard — Fluxo Completo de Autenticação e Onboarding (Cenários
     expect(sim.currentPath).toBe('/onboarding/preparando-ambiente');
     expect(sim.uiError).toBeNull();
   });
+
+  it('Cenário C-Extra: profile fetch 404 (PROFILE_NOT_PROVISIONED) -> profileLoading é resetado para false', async () => {
+    const sim = new AuthFlowSimulator();
+    sim.session = true;
+    sim.user = { id: 'auth-123', email: 'novo@agroguard.com' };
+    
+    sim.mockUsersMeResponse = async () => {
+      throw new ApiError('Perfil não provisionado.', 'PROFILE_NOT_PROVISIONED', 404);
+    };
+
+    try {
+      await sim.fetchUserProfile();
+    } catch (err) {
+      // espera erro
+    }
+
+    expect(sim.profileLoading).toBe(false);
+  });
+
+  it('Cenário D-Extra: profile fetch timeout -> profileLoading é resetado para false', async () => {
+    const sim = new AuthFlowSimulator();
+    sim.session = true;
+    sim.user = { id: 'auth-123', email: 'teste@agroguard.com' };
+    
+    sim.mockUsersMeResponse = async () => {
+      throw new ApiError('Tempo limite excedido.', 'REQUEST_TIMEOUT', 408);
+    };
+
+    try {
+      await sim.fetchUserProfile();
+    } catch (err) {
+      // espera erro
+    }
+
+    expect(sim.profileLoading).toBe(false);
+  });
+
+  it('Cenário E-Extra: profile fetch AbortError -> profileLoading é resetado para false', async () => {
+    const sim = new AuthFlowSimulator();
+    sim.session = true;
+    sim.user = { id: 'auth-123', email: 'teste@agroguard.com' };
+    
+    sim.mockUsersMeResponse = async () => {
+      throw new ApiError('Requisição abortada pelo usuário.', 'ABORT_ERROR', 0);
+    };
+
+    try {
+      await sim.fetchUserProfile();
+    } catch (err) {
+      // espera erro
+    }
+
+    expect(sim.profileLoading).toBe(false);
+  });
+
+  it('Cenário F-Extra: isFetchingProfile/processingRef concorrência destrava após falha de rede', async () => {
+    const sim = new AuthFlowSimulator();
+    sim.session = true;
+    sim.user = { id: 'auth-123', email: 'teste@agroguard.com' };
+    
+    sim.mockUsersMeResponse = async () => {
+      throw new ApiError('Falha de rede.', 'NETWORK_ERROR', 500);
+    };
+
+    // Chamada falha
+    await sim.triggerAuthCallback();
+    expect(sim.processingRef).toBe(false); // destrava processamento
+    expect(sim.uiSpinner).toBe(false);
+    expect(sim.uiError).toBe('Falha de rede.');
+
+    // Agora re-tentamos após o servidor voltar e deve funcionar
+    sim.mockUsersMeResponse = async () => ({ id: 'usr-1', organizationId: 'org-ok' });
+    await sim.triggerAuthCallback();
+    
+    expect(sim.currentPath).toBe('/app/dashboard');
+    expect(sim.uiError).toBeNull();
+  });
 });

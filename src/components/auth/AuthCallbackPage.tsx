@@ -61,8 +61,9 @@ export const AuthCallbackPage: React.FC = () => {
         return;
       }
 
-      // Aguarda o estado de auth inicial ser resolvido
-      if (authLoading || profileLoading) return;
+      // Aguarda o estado de auth inicial ser resolvido.
+      // A rota /auth/callback é imune a profileLoading para evitar deadlock de bootstrap.
+      if (authLoading) return;
       if (cancelled) return;
       setError(null);
 

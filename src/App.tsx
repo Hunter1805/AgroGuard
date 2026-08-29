@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { CheckCircle2, AlertTriangle } from 'lucide-react';
 import { ROUTES } from './types/routes';
@@ -67,6 +67,7 @@ import { PreparingEnvironmentPage } from './components/auth/PreparingEnvironment
 import { AcceptInvitationPage } from './components/auth/AcceptInvitationPage';
 import { WelcomeOnboardingPage } from './components/onboarding/WelcomeOnboardingPage';
 import { UsersListView } from './components/users/UsersListView';
+import { ProtectedRoute } from './components/auth/ProtectedRoute';
 
 export function App() {
   const { user, profile, authLoading, profileLoading, profileError, refreshProfile } = useAuth();
@@ -78,6 +79,7 @@ export function App() {
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [bootTimeout, setBootTimeout] = useState(false);
 
   const { collapsed, toggle } = useSidebarState();
   const { orders, addOrder } = useOrders();
@@ -89,25 +91,72 @@ export function App() {
     setTimeout(() => setToastMessage(null), 4000);
   };
 
+  useEffect(() => {
+    if (authLoading) {
+      const timer = setTimeout(() => {
+        setBootTimeout(true);
+      }, 10000); // 10s
+      return () => clearTimeout(timer);
+    } else {
+      setBootTimeout(false);
+    }
+  }, [authLoading]);
+
   if (import.meta.env.DEV) {
-    const location = window.location;
-    console.debug('[ROUTER_DEBUG]', {
-      source: 'App',
-      path: location.pathname,
-      hasSession: !!user,
+    const renderingComponent = authLoading
+      ? 'GlobalLoader'
+      : window.location.pathname === '/auth/callback'
+      ? 'AuthCallbackPage'
+      : 'AppRouter';
+
+    console.debug('[BOOT_DEBUG]', {
+      route: window.location.pathname,
       authLoading,
       profileLoading,
-      profileId: profile?.id,
-      organizationId: profile?.organizationId,
-      hasOrganization,
+      hasSession: !!user,
+      hasUser: !!user,
+      hasProfile: !!profile,
       profileError: profileError?.message ?? null,
+      renderingComponent,
     });
   }
 
-  // 1. Loader de Inicialização — regra P0:
-  // authLoading → spinner
-  // session + profileLoading → spinner (sempre, independente de profile anterior)
-  if (authLoading || (user && profileLoading)) {
+  // 1. Loader de Inicialização com Hard Timeout
+  if (authLoading) {
+    if (bootTimeout) {
+      return (
+        <div className="min-h-screen w-full flex bg-slate-50 justify-center items-center font-sans text-slate-800">
+          <div className="flex flex-col items-center space-y-4 max-w-sm text-center p-6">
+            <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-600">
+              <AlertTriangle size={20} />
+            </div>
+            <div className="space-y-1">
+              <p className="font-bold text-slate-900">Não foi possível iniciar sua sessão.</p>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                O tempo limite de conexão foi atingido ao tentar iniciar o AgroGuard.
+              </p>
+            </div>
+            <div className="flex flex-col gap-2 w-full">
+              <button
+                onClick={() => window.location.reload()}
+                className="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-4 py-2.5 rounded transition-colors"
+              >
+                Tentar novamente
+              </button>
+              <button
+                onClick={() => {
+                  window.location.href = '/entrar';
+                }}
+                className="bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold px-4 py-2.5 rounded transition-colors"
+              >
+                Voltar para entrar
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="min-h-screen w-full flex bg-slate-50 justify-center items-center font-sans text-slate-800">
         <div className="flex flex-col items-center space-y-3">
@@ -119,7 +168,8 @@ export function App() {
   }
 
   // 2. Erro ao carregar perfil sem cache — tela de retry (não assume sem-org)
-  if (user && profileError && !profile) {
+  // A rota /auth/callback é imune a esse bloqueio e deve renderizar seu próprio tratamento
+  if (user && profileError && !profile && window.location.pathname !== '/auth/callback') {
     return (
       <div className="min-h-screen w-full flex bg-slate-50 justify-center items-center font-sans text-slate-800">
         <div className="flex flex-col items-center space-y-4 max-w-sm text-center p-6">
@@ -184,13 +234,14 @@ export function App() {
       <Route
         path="/*"
         element={
-          !user ? (
-            <Navigate to="/entrar" replace />
-          ) : !hasOrganization ? (
-            <Navigate to="/auth/callback" replace />
-          ) : (
-            // Usuário autenticado com organização: onboardingCompleted não bloqueia o layout.
-            <div className={`h-screen flex overflow-hidden ${isCorpUI ? 'bg-app text-primary' : 'bg-background text-on-background bg-pattern'}`}>
+          <ProtectedRoute>
+            {!user ? (
+              <Navigate to="/entrar" replace />
+            ) : !hasOrganization ? (
+              <Navigate to="/auth/callback" replace />
+            ) : (
+              // Usuário autenticado com organização: onboardingCompleted não bloqueia o layout.
+              <div className={`h-screen flex overflow-hidden ${isCorpUI ? 'bg-app text-primary' : 'bg-background text-on-background bg-pattern'}`}>
               {/* Toast */}
               {toastMessage && (
                 <div className="fixed bottom-6 right-6 z-50 glass-card bg-surface-container-highest border border-primary/40 text-primary px-4 py-3 rounded-lg shadow-2xl flex items-center gap-2 animate-bounce">
@@ -402,7 +453,8 @@ export function App() {
                 onOpenNewOS={() => setIsNewOSOpen(true)}
               />
             </div>
-          )
+            )}
+          </ProtectedRoute>
         }
       />
     </Routes>
