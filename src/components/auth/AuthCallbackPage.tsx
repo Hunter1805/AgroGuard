@@ -26,7 +26,7 @@ function getProvisionPayload(user: NonNullable<ReturnType<typeof useAuth>['user'
 }
 
 export const AuthCallbackPage: React.FC = () => {
-  const { user, authLoading, refreshProfile, provisionOrganization } = useAuth();
+  const { user, authLoading, refreshProfile, provisionOrganization, updateProfile } = useAuth();
   const navigate = useNavigate();
 
   const [statusText, setStatusText] = useState('Autenticando...');
@@ -229,6 +229,16 @@ export const AuthCallbackPage: React.FC = () => {
         }
 
         if (signal?.aborted) return;
+
+        // Garante que o nome do perfil reflete o que o usuário digitou no cadastro.
+        // Sem isso, um provisionamento anterior (idempotência/cache do backend) podia
+        // deixar um nome antigo grudado no header (ex: "Fernando").
+        const desiredName = getProvisionPayload(user).ownerName;
+        if (desiredName && updatedProfile?.name && updatedProfile.name !== desiredName) {
+          console.log('[AUTH_TRACE] corrigindo nome do perfil', { antigo: updatedProfile.name, novo: desiredName });
+          await updateProfile({ name: desiredName, phone: updatedProfile.phone });
+          updatedProfile = await refreshProfile({ signal, timeoutMs: getRemainingTime() });
+        }
 
         // Se o usuário está bloqueado ou inativo, redireciona
         if (updatedProfile?.status === 'bloqueado' || updatedProfile?.status === 'inativo') {
