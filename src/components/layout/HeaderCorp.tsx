@@ -372,7 +372,7 @@ export const HeaderCorp: React.FC<HeaderCorpProps> = ({
               {userName}
             </span>
             <span className="text-[11px]" style={{ color: 'var(--color-text-muted)' }}>
-              {profile?.role ? ({ ADMIN: 'Administrador', ADMIN_ORGANIZACAO: 'Administrador', GESTOR: 'Gestor', OPERADOR: 'Operador' }[profile.role] || profile.role) : 'Função não disponível'}
+              {profile?.role ? ({ ADMIN: 'Administrador', ADMIN_ORGANIZACAO: 'Administrador', GESTOR: 'Gestor', OPERADOR: 'Operador', proprietario: 'Proprietário', administrador: 'Administrador', tecnico: 'Técnico', supervisor: 'Supervisor' }[profile.role] || profile.role) : 'Função não disponível'}
             </span>
           </div>
           <ChevronDown size={13} className="hidden sm:block" style={{ color: 'var(--color-text-muted)' }} />

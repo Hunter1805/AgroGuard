@@ -15,6 +15,10 @@ const roleLabels: Record<string, string> = {
   ADMIN_ORGANIZACAO: 'Administrador',
   GESTOR: 'Gestor',
   OPERADOR: 'Operador',
+  proprietario: 'Proprietário',
+  administrador: 'Administrador',
+  tecnico: 'Técnico',
+  supervisor: 'Supervisor',
 };
 
 const MenuLink: React.FC<{ to: string; icon: React.ReactNode; children: React.ReactNode; onClick: () => void }> = ({ to, icon, children, onClick }) => (

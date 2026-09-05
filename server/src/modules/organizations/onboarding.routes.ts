@@ -167,7 +167,7 @@ export async function onboardingRoutes(app: FastifyInstance) {
       if (!internalUser) {
         internalUser = user || await tx.user.findUnique({ where: { email } });
       }
-      
+
       if (!internalUser) {
         request.log.info({ authUserId, email }, '[ONBOARDING_PROVISION] 4.3. Criando usuário interno');
         internalUser = await tx.user.create({
@@ -185,6 +185,17 @@ export async function onboardingRoutes(app: FastifyInstance) {
         internalUser = await tx.user.update({
           where: { id: internalUser.id },
           data: { authUserId },
+        });
+      }
+
+      // O nome informado no cadastro é a fonte de verdade para o proprietário.
+      // Se a linha do usuário já existia (ex: testes anteriores com o mesmo e-mail),
+      // o nome antigo ficava gravado para sempre — aqui ele é sincronizado.
+      if (body.ownerName && body.ownerName.trim() && internalUser.name !== body.ownerName.trim()) {
+        request.log.info({ authUserId, oldName: internalUser.name, newName: body.ownerName.trim() }, '[ONBOARDING_PROVISION] Sincronizando nome do usuário com o nome informado no cadastro');
+        internalUser = await tx.user.update({
+          where: { id: internalUser.id },
+          data: { name: body.ownerName.trim() },
         });
       }
 
@@ -214,7 +225,7 @@ export async function onboardingRoutes(app: FastifyInstance) {
         .substring(0, 15);
 
       const orgCode = `${baseSlug}-${authUserId.slice(0, 8)}`;
-      
+
       const orgStart = Date.now();
       const organization = await tx.organization.create({
         data: {

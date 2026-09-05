@@ -19,6 +19,25 @@ function getStageTimeout(maximumMs: number, stage: string): number {
   if (remainingMs <= 0) throw authTimeoutError(stage);
   return Math.min(maximumMs, remainingMs);
 }
+
+/**
+ * Remove o cache de perfil compartilhado quando ele pertence a OUTRO usuário.
+ * Sem isso, ao trocar de conta o fallback podia exibir o nome/organização
+ * da conta anterior (ex: nome "Fernando" grudado no header).
+ */
+function clearStaleProfileCache(currentAuthUserId: string): void {
+  const sharedKey = 'agroguard_user_profile';
+  const shared = localStorage.getItem(sharedKey);
+  if (!shared) return;
+  try {
+    const parsed = JSON.parse(shared);
+    if (parsed?.authUserId && parsed.authUserId !== currentAuthUserId) {
+      localStorage.removeItem(sharedKey);
+    }
+  } catch {
+    localStorage.removeItem(sharedKey);
+  }
+}
 import { apiClient } from '../lib/api/api-client';
 
 export interface UserProfileData {
@@ -140,6 +159,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setSession(initialSession);
       setUser(initialSession?.user ?? null);
       if (initialSession?.user) {
+        clearStaleProfileCache(initialSession.user.id);
         fetchUserProfile(initialSession.user)
           .catch((error) => {
             setProfileError(error instanceof Error ? error : new Error(String(error)));
@@ -162,6 +182,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(newSession?.user ?? null);
 
       if (newSession?.user) {
+        clearStaleProfileCache(newSession.user.id);
         // TOKEN_REFRESHED e USER_UPDATED não requerem re-fetch do perfil
         if (event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') return;
 
