@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Shield, AlertTriangle, RefreshCw, LogIn } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { AUTH_FLOW_TOTAL_TIMEOUT_MS, startAuthFlow } from '../../services/auth-flow.service';
+import { warmUpApi } from '../../lib/api/api-client';
 
 function isTransientProfileFailure(err: any): boolean {
   if (!err || [400, 401, 403, 422].includes(err.statusCode)) return false;
@@ -44,6 +45,11 @@ export const AuthCallbackPage: React.FC = () => {
   useEffect(() => {
     console.log('[AUTH_TRACE] callback mounted');
     callbackStartedAtRef.current = performance.now();
+
+    // Acorda a API (Render free tier tem cold start de ~25s) imediatamente,
+    // em paralelo ao carregamento da sessão, para que o /users/me não bata
+    // em um servidor dormindo.
+    warmUpApi();
 
     // AbortController exclusivo para as requisições deste mount
     const abortController = new AbortController();
@@ -144,7 +150,9 @@ export const AuthCallbackPage: React.FC = () => {
           try {
             updatedProfile = await refreshProfile({
               signal,
-              timeoutMs: Math.min(10_000, remainingAttempt),
+              // Sem cap rígido de 10s: em cold start a resposta demora ~25s.
+              // A tentativa aguarda até o deadline global restante.
+              timeoutMs: remainingAttempt,
             });
             profileLoaded = true;
             break;
@@ -193,7 +201,7 @@ export const AuthCallbackPage: React.FC = () => {
           // Chama provisionamento no backend
           const { error: provisionError } = await provisionOrganization(getProvisionPayload(user), {
             signal,
-            timeoutMs: Math.min(15000, remainingProvision)
+            timeoutMs: Math.min(30_000, remainingProvision)
           });
           if (provisionError) throw provisionError;
 
@@ -214,7 +222,7 @@ export const AuthCallbackPage: React.FC = () => {
 
           updatedProfile = await refreshProfile({
             signal,
-            timeoutMs: Math.min(8000, remaining2)
+            timeoutMs: remaining2
           });
 
           console.log('[AUTH_TRACE] refreshProfile #2 END');
@@ -291,6 +299,7 @@ export const AuthCallbackPage: React.FC = () => {
 
     startedRef.current = false;
     startAuthFlow();
+    warmUpApi();
     setError(null);
     setErrorCode(null);
     setStatusText('Sincronizando seu perfil...');
@@ -365,7 +374,7 @@ export const AuthCallbackPage: React.FC = () => {
               </span>
               <p className="text-sm font-semibold text-slate-800">{statusText}</p>
               <p className="text-xs text-slate-400 mt-1">
-                Isso não deve demorar mais do que 30 segundos.
+                Isso pode levar até 1 minuto na primeira conexão do dia.
               </p>
             </div>
           </div>

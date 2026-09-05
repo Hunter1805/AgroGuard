@@ -92,6 +92,19 @@ function combineSignals(...signals: Array<AbortSignal | undefined | null>): Comb
   return { signal: controller.signal, cleanup };
 }
 
+/**
+ * "Aquece" o servidor da API (Render free tier tem cold start de ~25s).
+ * Dispara um ping fire-and-forget para o /api/health em paralelo ao login,
+ * de forma que o servidor esteja acordado quando o fluxo de auth precisar dele.
+ * Nunca lança erro — é apenas uma otimização de latência.
+ */
+export function warmUpApi(): Promise<void> {
+  const base = BASE_URL.replace(/\/api\/v1\/?$/, '');
+  return fetch(`${base}/api/health`, { method: 'GET' })
+    .then(() => console.log('[AUTH_TRACE] warmUpApi: servidor acordado'))
+    .catch((err) => console.warn('[AUTH_TRACE] warmUpApi falhou (ignorado):', err?.message || err));
+}
+
 export async function apiClient<T>(
   endpoint: string,
   options: ApiClientOptions = {}
