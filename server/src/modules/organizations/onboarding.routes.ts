@@ -215,6 +215,7 @@ export async function onboardingRoutes(app: FastifyInstance) {
 
       const orgCode = `${baseSlug}-${authUserId.slice(0, 8)}`;
       
+      const orgStart = Date.now();
       const organization = await tx.organization.create({
         data: {
           name: organizationName,
@@ -222,7 +223,9 @@ export async function onboardingRoutes(app: FastifyInstance) {
           status: 'ativo',
         },
       });
+      request.log.info({ authUserId, orgMs: Date.now() - orgStart }, '[ONBOARDING_PROVISION] 4.5.1. Organização criada');
 
+      const companyStart = Date.now();
       const company = await tx.company.create({
         data: {
           organizationId: organization.id,
@@ -231,7 +234,9 @@ export async function onboardingRoutes(app: FastifyInstance) {
           status: 'ativo',
         },
       });
+      request.log.info({ authUserId, companyMs: Date.now() - companyStart }, '[ONBOARDING_PROVISION] 4.5.2. Empresa criada');
 
+      const unitStart = Date.now();
       const unit = await tx.unit.create({
         data: {
           organizationId: organization.id,
@@ -242,7 +247,9 @@ export async function onboardingRoutes(app: FastifyInstance) {
           status: 'ativo',
         },
       });
+      request.log.info({ authUserId, unitMs: Date.now() - unitStart }, '[ONBOARDING_PROVISION] 4.5.3. Unidade criada');
 
+      const membershipStart = Date.now();
       const membership = await tx.organizationMembership.create({
         data: {
           organizationId: organization.id,
@@ -251,6 +258,7 @@ export async function onboardingRoutes(app: FastifyInstance) {
           status: 'ativo',
         },
       });
+      request.log.info({ authUserId, membershipMs: Date.now() - membershipStart }, '[ONBOARDING_PROVISION] 4.5.4. Membership criada');
 
       let adminRole = await tx.role.findUnique({
         where: { code: 'admin' },

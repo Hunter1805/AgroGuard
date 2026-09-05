@@ -20,23 +20,24 @@ class AuthFlowSimulator {
   public authLoading = false;
   public profileLoading = false;
   public profileError: any = null;
-  
+
   // Rota ativa
   public currentPath = '';
-  
+
   // Refs
   public navigatedRef = false;
   public processingRef = false;
   public provisioningAttempted = false;
-  
+
   // Status UI
   public statusText = '';
   public uiError: string | null = null;
   public uiSpinner = false;
-  
+
   // Contadores de rede para verificar concorrência
   public usersMeCalls = 0;
   public provisionCalls = 0;
+  public pendingOnboarding = false;
 
   // Configuração de Mocks de endpoints
   public mockUsersMeResponse: () => Promise<any> = async () => ({ id: 'usr-1', organizationId: 'org-1' });
@@ -160,20 +161,44 @@ class AuthFlowSimulator {
     }, timeoutMs);
 
     try {
-      const updatedProfile = await this.fetchUserProfile({ signal });
-      
+      let updatedProfile;
+      // Espelha o comportamento do AuthCallbackPage: retentativas automáticas
+      // para falhas TRANSITÓRIAS, para QUALQUER usuário (até 3 tentativas).
+      const MAX_PROFILE_ATTEMPTS = 3;
+      let lastError: any = null;
+      let profileLoaded = false;
+
+      for (let attemptIndex = 1; attemptIndex <= MAX_PROFILE_ATTEMPTS; attemptIndex++) {
+        if (signal.aborted) break;
+        try {
+          updatedProfile = await this.fetchUserProfile({ signal });
+          profileLoaded = true;
+          break;
+        } catch (attemptError: any) {
+          lastError = attemptError;
+          const isTransient = attemptError?.code === 'REQUEST_TIMEOUT' || attemptError?.code === 'NETWORK_ERROR' || [502, 503, 504, 408].includes(attemptError?.statusCode);
+          const nonRetryable = [400, 401, 403, 422].includes(attemptError?.statusCode);
+          const canRetry = isTransient && !nonRetryable && attemptIndex < MAX_PROFILE_ATTEMPTS;
+          if (!canRetry || signal.aborted) throw attemptError;
+          this.statusText = 'Finalizando a preparação do seu ambiente...';
+        }
+      }
+      if (!profileLoaded) {
+        throw lastError ?? new Error('TIMEOUT');
+      }
+
       if (signal.aborted || this.unmounted) {
         this.uiSpinner = false;
         return;
       }
-      
+
       clearTimeout(safetyTimer);
       this.uiSpinner = false;
 
       const destination = updatedProfile?.organizationId
         ? '/app/dashboard'
         : '/onboarding/preparando-ambiente';
-        
+
       this.navigate(destination, { replace: true });
     } catch (err: any) {
       if (signal.aborted || this.unmounted) {
@@ -203,7 +228,7 @@ class AuthFlowSimulator {
 
     try {
       const provisionData = await this.apiClient('/onboarding/provision', { method: 'POST', signal: options.signal });
-      
+
       // Simula a atualização do perfil após o provisionamento
       this.mockUsersMeResponse = async () => ({
         id: this.user?.id || 'usr-1',
@@ -242,7 +267,7 @@ describe('AgroGuard — Fluxo Completo de Autenticação e Onboarding (Cenários
     const sim = new AuthFlowSimulator();
     sim.session = true;
     sim.user = { id: 'auth-123', email: 'novo@agroguard.com' };
-    
+
     // /users/me retorna 404 PROFILE_NOT_PROVISIONED
     sim.mockUsersMeResponse = async () => {
       throw new ApiError('Perfil não provisionado.', 'PROFILE_NOT_PROVISIONED', 404);
@@ -273,6 +298,71 @@ describe('AgroGuard — Fluxo Completo de Autenticação e Onboarding (Cenários
     expect(sim.profile.organizationId).toBe('org-criada-999');
   });
 
+  it('Cenário P0-A: primeira chamada fria falha, retry único responde -> Dashboard sem erro intermediário', async () => {
+    const sim = new AuthFlowSimulator();
+    sim.session = true;
+    sim.pendingOnboarding = true;
+    sim.user = { id: 'auth-new', email: 'novo@agroguard.com' };
+    let calls = 0;
+    sim.mockUsersMeResponse = async () => {
+      calls += 1;
+      if (calls === 1) throw new ApiError('Tempo limite excedido.', 'REQUEST_TIMEOUT', 408);
+      return { id: 'usr-new', organizationId: 'org-new' };
+    };
+
+    await sim.triggerAuthCallback();
+
+    expect(sim.usersMeCalls).toBe(2);
+    expect(sim.currentPath).toBe('/app/dashboard');
+    expect(sim.uiError).toBeNull();
+    expect(sim.statusText).toBe('Finalizando a preparação do seu ambiente...');
+  });
+
+  it('Cenário P0-B: primeira e segunda chamadas falham -> erro persistente após retry', async () => {
+    const sim = new AuthFlowSimulator();
+    sim.session = true;
+    sim.pendingOnboarding = true;
+    sim.user = { id: 'auth-new', email: 'novo@agroguard.com' };
+    sim.mockUsersMeResponse = async () => {
+      throw new ApiError('Tempo limite excedido.', 'REQUEST_TIMEOUT', 408);
+    };
+
+    await sim.triggerAuthCallback();
+
+    expect(sim.usersMeCalls).toBe(3);
+    expect(sim.uiError).toBe('Tempo limite excedido.');
+    expect(sim.currentPath).toBe('');
+  });
+
+  it('Cenário P0-C: usuário existente TAMBÉM faz retry em falha transitória (cold start)', async () => {
+    const sim = new AuthFlowSimulator();
+    sim.session = true;
+    sim.user = { id: 'auth-existing', email: 'existente@agroguard.com' };
+    sim.mockUsersMeResponse = async () => {
+      throw new ApiError('Tempo limite excedido.', 'REQUEST_TIMEOUT', 408);
+    };
+
+    await sim.triggerAuthCallback();
+
+    expect(sim.usersMeCalls).toBe(3);
+    expect(sim.uiError).toBe('Tempo limite excedido.');
+  });
+
+  it('Cenário P0-D: 401 nunca faz retry mesmo em cadastro', async () => {
+    const sim = new AuthFlowSimulator();
+    sim.session = true;
+    sim.pendingOnboarding = true;
+    sim.user = { id: 'auth-new', email: 'novo@agroguard.com' };
+    sim.mockUsersMeResponse = async () => {
+      throw new ApiError('Não autorizado.', 'UNAUTHORIZED', 401);
+    };
+
+    await sim.triggerAuthCallback();
+
+    expect(sim.usersMeCalls).toBe(1);
+    expect(sim.uiError).toBe('Não autorizado.');
+  });
+
   it('Cenário C: /users/me demora além do timeout -> erro visível -> spinner termina', async () => {
     const sim = new AuthFlowSimulator();
     sim.session = true;
@@ -285,7 +375,7 @@ describe('AgroGuard — Fluxo Completo de Autenticação e Onboarding (Cenários
 
     await sim.triggerAuthCallback();
 
-    // Deve encerrar o spinner e exibir a mensagem de erro
+    // Deve encerrar o spinner e exibir a mensagem de erro (após esgotar as retentativas)
     expect(sim.uiSpinner).toBe(false);
     expect(sim.uiError).toBe('Tempo limite excedido.');
     expect(sim.currentPath).toBe(''); // Não navega
@@ -362,7 +452,7 @@ describe('AgroGuard — Fluxo Completo de Autenticação e Onboarding (Cenários
     const sim = new AuthFlowSimulator();
     sim.session = true;
     sim.user = { id: 'auth-123', email: 'novo@agroguard.com' };
-    
+
     sim.mockUsersMeResponse = async () => {
       throw new ApiError('Perfil não provisionado.', 'PROFILE_NOT_PROVISIONED', 404);
     };
@@ -380,7 +470,7 @@ describe('AgroGuard — Fluxo Completo de Autenticação e Onboarding (Cenários
     const sim = new AuthFlowSimulator();
     sim.session = true;
     sim.user = { id: 'auth-123', email: 'teste@agroguard.com' };
-    
+
     sim.mockUsersMeResponse = async () => {
       throw new ApiError('Tempo limite excedido.', 'REQUEST_TIMEOUT', 408);
     };
@@ -398,7 +488,7 @@ describe('AgroGuard — Fluxo Completo de Autenticação e Onboarding (Cenários
     const sim = new AuthFlowSimulator();
     sim.session = true;
     sim.user = { id: 'auth-123', email: 'teste@agroguard.com' };
-    
+
     sim.mockUsersMeResponse = async () => {
       throw new ApiError('Requisição abortada pelo usuário.', 'ABORT_ERROR', 0);
     };
@@ -416,7 +506,7 @@ describe('AgroGuard — Fluxo Completo de Autenticação e Onboarding (Cenários
     const sim = new AuthFlowSimulator();
     sim.session = true;
     sim.user = { id: 'auth-123', email: 'teste@agroguard.com' };
-    
+
     sim.mockUsersMeResponse = async () => {
       throw new ApiError('Falha de rede.', 'NETWORK_ERROR', 500);
     };
@@ -430,7 +520,7 @@ describe('AgroGuard — Fluxo Completo de Autenticação e Onboarding (Cenários
     // Agora re-tentamos após o servidor voltar e deve funcionar
     sim.mockUsersMeResponse = async () => ({ id: 'usr-1', organizationId: 'org-ok' });
     await sim.triggerAuthCallback();
-    
+
     expect(sim.currentPath).toBe('/app/dashboard');
     expect(sim.uiError).toBeNull();
   });
@@ -505,7 +595,7 @@ describe('AgroGuard — Fluxo Completo de Autenticação e Onboarding (Cenários
 
     // Inicia fluxo com timeout curto de 20ms
     const flowPromise = sim.triggerAuthCallback({ timeoutMs: 20 });
-    
+
     // Aguarda o timeout disparar
     await new Promise((r) => setTimeout(r, 40));
     await flowPromise;

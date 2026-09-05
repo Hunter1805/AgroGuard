@@ -2,6 +2,13 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Shield, AlertTriangle, RefreshCw, LogIn } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { AUTH_FLOW_TOTAL_TIMEOUT_MS, startAuthFlow } from '../../services/auth-flow.service';
+
+function isTransientProfileFailure(err: any): boolean {
+  if (!err || [400, 401, 403, 422].includes(err.statusCode)) return false;
+  return err.code === 'REQUEST_TIMEOUT' || err.code === 'NETWORK_ERROR' || [502, 503, 504].includes(err.statusCode);
+}
+
 function getProvisionPayload(user: NonNullable<ReturnType<typeof useAuth>['user']>) {
   const metadata = user.user_metadata || {};
   const pending = JSON.parse(localStorage.getItem('agroguard_onboarding_pending') || '{}');
@@ -37,21 +44,21 @@ export const AuthCallbackPage: React.FC = () => {
   useEffect(() => {
     console.log('[AUTH_TRACE] callback mounted');
     callbackStartedAtRef.current = performance.now();
-    
+
     // AbortController exclusivo para as requisições deste mount
     const abortController = new AbortController();
     callbackAbortControllerRef.current = abortController;
 
-    // Teto absoluto de 30 segundos (30.000 ms)
-    const timeoutMs = 30_000;
-    
+    // Teto absoluto de 30 segundos compartilhado por todas as tentativas deste fluxo.
+    const timeoutMs = AUTH_FLOW_TOTAL_TIMEOUT_MS;
+
     safetyTimerRef.current = setTimeout(() => {
       const elapsed = Math.round(performance.now() - callbackStartedAtRef.current);
       console.error(`[AUTH_TRACE] ERROR callback timeout absoluto atingido (${elapsed}ms)`);
-      
+
       // Aborta todas as requisições em andamento
       abortController.abort();
-      
+
       // Define erro de timeout técnico apropriado
       setErrorCode(errorTypeRef.current || 'AUTH-PROFILE-TIMEOUT');
       setError('Não foi possível concluir a configuração da sua conta.');
@@ -88,6 +95,11 @@ export const AuthCallbackPage: React.FC = () => {
       const signal = callbackAbortControllerRef.current?.signal;
       const callbackStart = callbackStartedAtRef.current;
 
+      const getRemainingTime = () => {
+        const elapsed = performance.now() - callbackStartedAtRef.current;
+        return Math.max(0, AUTH_FLOW_TOTAL_TIMEOUT_MS - elapsed);
+      };
+
       // 0. Checar se o Supabase retornou um erro de link expirado ou já utilizado na URL
       const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
       const errorDescription = hashParams.get('error_description');
@@ -110,9 +122,59 @@ export const AuthCallbackPage: React.FC = () => {
         // --- Etapa 1: /users/me (refreshProfile #1) ---
         console.log('[AUTH_TRACE] refreshProfile #1 START');
         errorTypeRef.current = 'AUTH-PROFILE-TIMEOUT';
-        
-        let updatedProfile = await refreshProfile({ signal });
-        
+
+        const remaining1 = getRemainingTime();
+        if (remaining1 <= 0) throw new Error('TIMEOUT');
+
+          let updatedProfile;
+        // Busca o perfil com retentativas automáticas para falhas TRANSITÓRIAS
+        // (cold start do backend, timeout de rede, 502/503/504).
+        // Isso vale para QUALQUER usuário — nunca mostramos erro frio de
+        // infraestrutura para o cliente na primeira entrada.
+        const MAX_PROFILE_ATTEMPTS = 3;
+        let lastError: any = null;
+        let profileLoaded = false;
+
+        for (let attemptIndex = 1; attemptIndex <= MAX_PROFILE_ATTEMPTS; attemptIndex++) {
+          if (signal?.aborted) return;
+
+          const remainingAttempt = getRemainingTime();
+          if (remainingAttempt <= 0) break;
+
+          try {
+            updatedProfile = await refreshProfile({
+              signal,
+              timeoutMs: Math.min(10_000, remainingAttempt),
+            });
+            profileLoaded = true;
+            break;
+          } catch (attemptError: any) {
+            lastError = attemptError;
+            const isTransient = isTransientProfileFailure(attemptError);
+            const canRetry = isTransient && attemptIndex < MAX_PROFILE_ATTEMPTS;
+
+            console.warn(`[AUTH_TRACE] /users/me tentativa ${attemptIndex}/${MAX_PROFILE_ATTEMPTS} falhou`, {
+              code: attemptError?.code,
+              statusCode: attemptError?.statusCode,
+              transient: isTransient,
+              willRetry: canRetry,
+              elapsedMs: Math.round(performance.now() - callbackStart),
+            });
+
+            if (!canRetry || signal?.aborted) throw attemptError;
+
+            // Backoff curto antes da próxima tentativa (respeitando o deadline global)
+            const backoffMs = Math.min(1500 * attemptIndex, getRemainingTime() - 2000);
+            if (backoffMs > 0) {
+              setStatusText('Finalizando a preparação do seu ambiente...');
+              await new Promise((resolve) => setTimeout(resolve, backoffMs));
+            }
+          }
+        }
+
+        if (!profileLoaded) {
+          throw lastError ?? new Error('TIMEOUT');
+        }
         console.log('[AUTH_TRACE] refreshProfile #1 END');
 
         if (signal?.aborted) return;
@@ -123,10 +185,18 @@ export const AuthCallbackPage: React.FC = () => {
           errorTypeRef.current = 'PROVISION-TIMEOUT';
           setStatusText('Provisionando seu ambiente...');
 
+          const remainingProvision = getRemainingTime();
+          if (remainingProvision <= 0) {
+            throw new Error('TIMEOUT');
+          }
+
           // Chama provisionamento no backend
-          const { error: provisionError } = await provisionOrganization(getProvisionPayload(user), { signal });
+          const { error: provisionError } = await provisionOrganization(getProvisionPayload(user), {
+            signal,
+            timeoutMs: Math.min(15000, remainingProvision)
+          });
           if (provisionError) throw provisionError;
-          
+
           localStorage.removeItem('agroguard_onboarding_pending');
           console.log('[AUTH_TRACE] provision END');
 
@@ -136,9 +206,17 @@ export const AuthCallbackPage: React.FC = () => {
           console.log('[AUTH_TRACE] refreshProfile #2 START');
           errorTypeRef.current = 'PROFILE-REFRESH-TIMEOUT';
           setStatusText('Confirmando seu ambiente...');
-          
-          updatedProfile = await refreshProfile({ signal });
-          
+
+          const remaining2 = getRemainingTime();
+          if (remaining2 <= 0) {
+            throw new Error('TIMEOUT');
+          }
+
+          updatedProfile = await refreshProfile({
+            signal,
+            timeoutMs: Math.min(8000, remaining2)
+          });
+
           console.log('[AUTH_TRACE] refreshProfile #2 END');
         }
 
@@ -162,12 +240,12 @@ export const AuthCallbackPage: React.FC = () => {
 
         // Sucesso total, desliga o safety timer
         if (safetyTimerRef.current) clearTimeout(safetyTimerRef.current);
-        
+
         const totalMs = Math.round(performance.now() - callbackStart);
         console.log(`[AUTH_TRACE] Flow completed in ${totalMs}ms. Navigating to dashboard.`);
-        
+
         navigate('/app/dashboard', { replace: true });
-        
+
       } catch (err: any) {
         // Se o fluxo foi cancelado/abortado, ignora erros tardios (o timeout já cuidou disso)
         if (signal?.aborted) {
@@ -177,19 +255,21 @@ export const AuthCallbackPage: React.FC = () => {
 
         const elapsed = Math.round(performance.now() - callbackStart);
         console.error(`[AUTH_TRACE] ERROR no fluxo de callback (${elapsed}ms):`, err.message || err);
-        
+
         if (safetyTimerRef.current) clearTimeout(safetyTimerRef.current);
-        
+
         // Mapear erro técnico para código curto
         let code = errorTypeRef.current || 'AUTH-CALLBACK-ERROR';
-        if (err.message?.includes('sessão') || err.message?.includes('session')) {
+        if (err.message === 'TIMEOUT') {
+          code = errorTypeRef.current || 'TIMEOUT';
+        } else if (err.message?.includes('sessão') || err.message?.includes('session')) {
           code = 'SESSION-TIMEOUT';
         } else if (err.code === 'REQUEST_TIMEOUT' || err.statusCode === 408) {
           code = errorTypeRef.current || 'TIMEOUT';
         }
 
         setErrorCode(code);
-        setError(err.message || 'Falha ao conectar com o servidor para sincronizar perfil.');
+        setError('Não foi possível concluir a configuração da sua conta.');
       }
     };
 
@@ -198,11 +278,23 @@ export const AuthCallbackPage: React.FC = () => {
   }, [authLoading, user, attempt]);
 
   const handleRetry = () => {
+    // Cancela completamente a tentativa anterior antes de iniciar outra.
+    // Sem isso, o timer/AbortController antigo podia continuar ativo e
+    // sobrescrever o resultado da nova tentativa.
+    if (safetyTimerRef.current) {
+      clearTimeout(safetyTimerRef.current);
+      safetyTimerRef.current = null;
+    }
+    if (callbackAbortControllerRef.current) {
+      callbackAbortControllerRef.current.abort();
+    }
+
     startedRef.current = false;
+    startAuthFlow();
     setError(null);
     setErrorCode(null);
     setStatusText('Sincronizando seu perfil...');
-    
+
     // Recria timer e abort controller para o retry
     const abortController = new AbortController();
     callbackAbortControllerRef.current = abortController;
@@ -215,7 +307,7 @@ export const AuthCallbackPage: React.FC = () => {
       abortController.abort();
       setErrorCode(errorTypeRef.current || 'AUTH-PROFILE-TIMEOUT');
       setError('Não foi possível concluir a configuração da sua conta.');
-    }, 30_000);
+    }, AUTH_FLOW_TOTAL_TIMEOUT_MS);
 
     setAttempt((curr) => curr + 1);
   };

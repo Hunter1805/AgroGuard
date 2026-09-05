@@ -2,7 +2,15 @@ import type { ApiResponse, ApiErrorResponse } from './api-types';
 import { supabase } from '../supabase/supabase-client';
 import { withTimeout } from '../../services/auth-flow.service';
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3333/api/v1';
+const configuredBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim();
+
+// Em produção, nunca use localhost: o navegador resolveria esse endereço
+// para o computador do usuário, e não para o servidor da API.
+const BASE_URL = configuredBaseUrl || (
+  import.meta.env.PROD
+    ? 'https://api.agroguard.com.br/api/v1'
+    : 'http://localhost:3333/api/v1'
+);
 
 /** Códigos HTTP que nunca devem ser retentados. */
 const NON_RETRYABLE_STATUS = new Set([400, 401, 403, 422]);
@@ -46,10 +54,19 @@ export function isRetryableError(err: unknown): boolean {
  * Auxiliar para combinar múltiplos AbortSignals.
  * O sinal resultante será cancelado se qualquer um dos sinais fornecidos for cancelado.
  */
-function combineSignals(...signals: Array<AbortSignal | undefined | null>): AbortSignal | undefined {
+interface CombinedSignalResult {
+  signal: AbortSignal | undefined;
+  cleanup?: () => void;
+}
+
+/**
+ * Auxiliar para combinar múltiplos AbortSignals.
+ * O sinal resultante será cancelado se qualquer um dos sinais fornecidos for cancelado.
+ */
+function combineSignals(...signals: Array<AbortSignal | undefined | null>): CombinedSignalResult {
   const activeSignals = signals.filter((s): s is AbortSignal => !!s);
-  if (activeSignals.length === 0) return undefined;
-  if (activeSignals.length === 1) return activeSignals[0];
+  if (activeSignals.length === 0) return { signal: undefined };
+  if (activeSignals.length === 1) return { signal: activeSignals[0] };
 
   const controller = new AbortController();
   const onAbort = () => {
@@ -67,12 +84,12 @@ function combineSignals(...signals: Array<AbortSignal | undefined | null>): Abor
     if (signal.aborted) {
       controller.abort();
       cleanup();
-      return controller.signal;
+      return { signal: controller.signal };
     }
     signal.addEventListener('abort', onAbort);
   }
 
-  return controller.signal;
+  return { signal: controller.signal, cleanup };
 }
 
 export async function apiClient<T>(
@@ -99,7 +116,7 @@ export async function apiClient<T>(
   const sessionStart = performance.now();
   console.log('[AUTH_TRACE] getSession START');
   let session = null;
-  
+
   try {
     // Timeout para obter a sessão para evitar deadlock antes do fetch de fato
     const sessionPromise = supabase.auth.getSession();
@@ -123,7 +140,7 @@ export async function apiClient<T>(
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
   // Combina o signal recebido no options com o sinal de timeout local do apiClient
-  const combinedSignal = combineSignals(options.signal, controller.signal);
+  const { signal: combinedSignal, cleanup: signalCleanup } = combineSignals(options.signal, controller.signal);
 
   const reqStart = performance.now();
   try {
@@ -134,6 +151,8 @@ export async function apiClient<T>(
     });
 
     clearTimeout(timeoutId);
+    if (signalCleanup) signalCleanup();
+
     const reqMs = Math.round(performance.now() - reqStart);
 
     if (isMe) {
@@ -158,6 +177,8 @@ export async function apiClient<T>(
     return data as ApiResponse<T>;
   } catch (err: any) {
     clearTimeout(timeoutId);
+    if (signalCleanup) signalCleanup();
+
     const reqMs = Math.round(performance.now() - reqStart);
 
     if (isMe) {

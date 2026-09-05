@@ -1,5 +1,5 @@
 import { FastifyInstance } from 'fastify';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../../shared/db/prisma';
 import { UserRepository } from './user.repository';
 import { UserService } from './user.service';
 import { createUserSchema } from './user.schemas';
@@ -7,7 +7,6 @@ import { requireAuthentication } from '../../shared/middleware/authGuard';
 import { AppError } from '../../shared/errors/AppError';
 import type { ApiResponse } from '../../shared/http/ApiResponse';
 
-const prisma = new PrismaClient();
 const repo = new UserRepository(prisma);
 const service = new UserService(repo);
 
@@ -19,34 +18,44 @@ export async function userRoutes(app: FastifyInstance) {
     },
     preHandler: [requireAuthentication()],
   }, async (request, reply) => {
-    const { authUserId } = request.actor!;
-    const routeStart = Date.now();
+    const actor = request.actor!;
+    const { authUserId } = actor;
+    const routeStart = performance.now();
+    const mark = (name: string, start: number) => request.log.info({ durationMs: Number((performance.now() - start).toFixed(2)), url: request.url }, `[USER_ME_PERF] ${name}`);
+    request.log.info({ authUserId }, '[AUTH_TRACE] GET /users/me START');
 
-    const user = await prisma.user.findUnique({
-      where: { authUserId },
-      include: {
-        memberships: {
-          where: { status: 'ativo' },
-          include: {
-            organization: {
-              include: {
-                onboardingState: true,
-                companies: { take: 1, orderBy: { createdAt: 'asc' } },
-              },
-            },
-          },
-        },
-      },
-    });
-
-    const queryMs = Date.now() - routeStart;
-    request.log.info({ authUserId, queryMs }, '[PERF] users/me db query');
-
-    if (!user) {
+    if (!actor.userId || !actor.profile) {
+      mark('response_sent', routeStart);
       throw new AppError('Perfil não provisionado no banco local.', 404, 'PROFILE_NOT_PROVISIONED');
     }
+    const user = actor.profile;
+    const membershipStart = performance.now();
+    mark('membership_start', membershipStart);
+    const membership = actor.membership;
+    mark('membership_end', membershipStart);
 
-    const membership = user.memberships[0];
+    const organizationStart = performance.now();
+    mark('organization_start', organizationStart);
+    const workspaceStart = performance.now();
+    mark('company_workspace_start', workspaceStart);
+    const [organization, workspace] = membership
+      ? await Promise.all([
+          prisma.organization.findUnique({
+            where: { id: membership.organizationId },
+            select: {
+              name: true,
+              onboardingState: { select: { completed: true, currentStep: true } },
+            },
+          }),
+          prisma.company.findFirst({
+            where: { organizationId: membership.organizationId, status: 'ativo' },
+            orderBy: { createdAt: 'asc' },
+            select: { name: true },
+          }),
+        ])
+      : [null, null];
+    mark('organization_end', organizationStart);
+    mark('company_workspace_end', workspaceStart);
 
     const data = {
      id: user.id,
@@ -56,17 +65,17 @@ export async function userRoutes(app: FastifyInstance) {
      phone: user.phone || undefined,
      role: membership ? membership.role : '',
       organizationId: membership ? membership.organizationId : '',
-      organizationName: membership?.organization.name || '',
-      workspaceName: membership?.organization.companies?.[0]?.name || membership?.organization.name || '',
+      organizationName: organization?.name || '',
+      workspaceName: workspace?.name || organization?.name || '',
       status: membership ? membership.status : 'sem_organizacao',
-      onboardingCompleted: membership && membership.organization.onboardingState ? membership.organization.onboardingState.completed : false,
-      onboardingStep: membership && membership.organization.onboardingState ? membership.organization.onboardingState.currentStep : 0,
+      onboardingCompleted: organization?.onboardingState?.completed || false,
+      onboardingStep: organization?.onboardingState?.currentStep || 0,
     };
 
-    const totalMs = Date.now() - routeStart;
-    request.log.info({ authUserId, totalMs, hasOrganization: !!membership }, '[PERF] users/me total');
-
+    const totalMs = performance.now() - routeStart;
+    request.log.info({ authUserId, totalMs, hasOrganization: !!membership }, `[AUTH_TRACE] GET /users/me END (${totalMs}ms)`);
     const response: ApiResponse<typeof data> = { data };
+    mark('response_sent', routeStart);
     return reply.send(response);
   });
 

@@ -34,7 +34,7 @@ export const MasterDataOverviewStats: React.FC<StatsProps> = ({ stats, loading =
     { label: 'Sistemas Manutenção', value: stats.maintenanceSystemsCount, icon: Settings, color: 'text-info' },
     { label: 'Categorias Totais', value: stats.totalCategories, icon: Building2, color: 'text-on-surface' },
     { label: 'Com Pendências', value: stats.pendingRecordsCount ?? 0, icon: AlertCircle, color: 'text-warning' },
-    { label: 'Com Vínculos', value: stats.linkedRecordsCount ?? 18, icon: Link, color: 'text-success' },
+    { label: 'Com Vínculos', value: stats.linkedRecordsCount ?? 0, icon: Link, color: 'text-success' },
   ];
 
   return (

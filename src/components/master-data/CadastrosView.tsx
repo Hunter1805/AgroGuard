@@ -32,13 +32,13 @@ export const CadastrosView: React.FC = () => {
   const [selectedGroup, setSelectedGroup] = useState<MasterDataGroupType | 'todos'>('todos');
   const [stats, setStats] = useState({
     totalCategories: MASTER_DATA_CARDS.length,
-    totalActiveRecords: 45,
-    activeSuppliersCount: 2,
-    registeredLocationsCount: 2,
-    equipmentModelsCount: 2,
-    maintenanceSystemsCount: 4,
+    totalActiveRecords: 0,
+    activeSuppliersCount: 0,
+    registeredLocationsCount: 0,
+    equipmentModelsCount: 0,
+    maintenanceSystemsCount: 0,
     pendingRecordsCount: 0,
-    linkedRecordsCount: 24,
+    linkedRecordsCount: 0,
   });
 
   useEffect(() => {

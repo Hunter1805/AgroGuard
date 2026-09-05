@@ -53,14 +53,14 @@ interface AuthContextType {
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: any }>;
   registerUser: (email: string, password: string, name: string, metadata?: Record<string, any>) => Promise<{ user: SupabaseUser | null; session: Session | null; error: any }>;
-  provisionOrganization: (payload: any, options?: { signal?: AbortSignal }) => Promise<{ data: any; error: any }>;
+  provisionOrganization: (payload: any, options?: { signal?: AbortSignal; timeoutMs?: number }) => Promise<{ data: any; error: any }>;
   updateOnboardingStep: (step: number) => Promise<{ data: any; error: any }>;
   /**
    * Recarrega o perfil do usuário.
    * IMPORTANTE: retorna o perfil carregado diretamente para evitar stale state.
    * Use o valor retornado para decisões de rota — nunca leia `profile` do closure.
    */
-  refreshProfile: (options?: { signal?: AbortSignal }) => Promise<UserProfileData | null>;
+  refreshProfile: (options?: { signal?: AbortSignal; timeoutMs?: number }) => Promise<UserProfileData | null>;
   updateProfile: (data: { name: string; phone?: string }) => Promise<{ data: UserProfileData | null; error: any }>;
 }
 
@@ -122,6 +122,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   interface ActiveFetch {
     userId: string;
     promise: Promise<UserProfileData | null>;
+    controller: AbortController;
   }
   const isFetchingProfile = useRef(false);
   const activeFetch = useRef<ActiveFetch | null>(null);
@@ -197,7 +198,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+      if (activeFetch.current) {
+        activeFetch.current.controller.abort();
+        activeFetch.current = null;
+      }
+    };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -208,21 +215,64 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
    * para evitar que guards interpretem a ausência temporária como "sem organização".
    * Retorna o perfil resultante ou null em caso de erro.
    */
-  const fetchUserProfile = async (authUser: SupabaseUser, options?: { signal?: AbortSignal }): Promise<UserProfileData | null> => {
-    // Serializa fetches concorrentes por meio de Promise compartilhada para o mesmo usuário
+  const fetchUserProfile = async (authUser: SupabaseUser, options?: { signal?: AbortSignal; timeoutMs?: number }): Promise<UserProfileData | null> => {
+    // 1. Se houver uma Promise de outro usuário rodando, aborta e descarta
+    if (activeFetch.current && activeFetch.current.userId !== authUser.id) {
+      if (import.meta.env.DEV) {
+        console.warn(`[AUTH_DEBUG] fetchUserProfile: usuário mudou (${activeFetch.current.userId} -> ${authUser.id}). Abortando promise anterior.`);
+      }
+      activeFetch.current.controller.abort();
+      activeFetch.current = null;
+    }
+
+    // 2. Serializa fetches concorrentes por meio de Promise compartilhada para o mesmo usuário.
+    // Uma tentativa abortada não pode ser reutilizada pelo botão "Tentar novamente".
+    if (activeFetch.current?.controller.signal.aborted) {
+      activeFetch.current = null;
+      isFetchingProfile.current = false;
+    }
+
     if (activeFetch.current && activeFetch.current.userId === authUser.id) {
       if (import.meta.env.DEV) {
         console.debug('[AUTH_DEBUG] fetchUserProfile: já em andamento — compartilhando promise existente para o mesmo usuário');
       }
+
+      // Se a nova chamada tem um signal, vincula ele ao abort controller da chamada ativa
+      if (options?.signal) {
+        const activeController = activeFetch.current.controller;
+        const onAbort = () => {
+          console.warn('[AUTH_TRACE] fetchUserProfile: abort de chamada concorrente propagado');
+          activeController.abort();
+        };
+
+        if (options.signal.aborted) {
+          activeController.abort();
+        } else {
+          options.signal.addEventListener('abort', onAbort);
+          activeFetch.current.promise.finally(() => {
+            options.signal?.removeEventListener('abort', onAbort);
+          });
+        }
+      }
+
       return activeFetch.current.promise;
     }
 
-    // Se houver uma Promise de outro usuário rodando, cancela o ref para evitar reuso
-    if (activeFetch.current) {
-      if (import.meta.env.DEV) {
-        console.warn('[AUTH_DEBUG] fetchUserProfile: Promise de outro usuário em andamento, descartando-a');
+    // 3. Caso contrário, inicia nova Promise e AbortController
+    const controller = new AbortController();
+
+    // Vincula o options.signal inicial se houver
+    const onSignalAbort = () => {
+      console.warn('[AUTH_TRACE] fetchUserProfile: abort do signal inicial propagado');
+      controller.abort();
+    };
+
+    if (options?.signal) {
+      if (options.signal.aborted) {
+        controller.abort();
+      } else {
+        options.signal.addEventListener('abort', onSignalAbort);
       }
-      activeFetch.current = null;
     }
 
     isFetchingProfile.current = true;
@@ -234,11 +284,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const perfStart = performance.now();
 
       try {
-        const profileTimeoutMs = getStageTimeout(AUTH_PROFILE_TIMEOUT_MS, 'carregar o perfil');
-        const res = await apiClient<UserProfileData>('/users/me', { 
+        const defaultTimeout = getStageTimeout(AUTH_PROFILE_TIMEOUT_MS, 'carregar o perfil');
+        const profileTimeoutMs = options?.timeoutMs ?? defaultTimeout;
+
+        const res = await apiClient<UserProfileData>('/users/me', {
           timeoutMs: profileTimeoutMs,
-          signal: options?.signal
+          signal: controller.signal // usamos o controller local que criamos
         });
+
         const perfMsMe = Math.round(performance.now() - perfStart);
 
         if (import.meta.env.DEV) {
@@ -246,16 +299,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
 
         if (res.data) {
-          // NUNCA sobrescreve o organizationId se já temos um localmente.
-          // O backend pode demorar a propagar após o provisionamento.
           const finalOrgId = res.data.organizationId || persistedOrgId || '';
           const finalData: UserProfileData = {
             ...res.data,
             organizationId: finalOrgId,
           };
 
-          // Se já temos um profile em memória com organizationId e a API retornou sem ele,
-          // mantém o profile atual para não destruir o estado pós-provisionamento
           let resultProfile: UserProfileData = finalData;
           setProfile((prev) => {
             if (prev?.organizationId && !res.data.organizationId) {
@@ -268,7 +317,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           localStorage.setItem(`agroguard_user_profile_${authUser.id}`, JSON.stringify(finalData));
           localStorage.setItem('agroguard_user_profile', JSON.stringify(finalData));
 
-          // Persiste o orgId se veio da API
           if (res.data.organizationId) {
             localStorage.setItem(`agroguard_org_id_${authUser.id}`, res.data.organizationId);
           }
@@ -286,11 +334,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
           return resultProfile;
         } else {
-          // API retornou sem dados — usa fallback mas preserva org existente
           let fallbackResult: UserProfileData | null = null;
           setProfile((prev) => {
             if (prev?.organizationId) {
-              fallbackResult = prev; // nunca destrói profile com organização
+              fallbackResult = prev;
               return prev;
             }
             const fb = getFallbackProfile(authUser);
@@ -302,11 +349,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       } catch (err: any) {
         const isNotProvisioned = err?.code === 'PROFILE_NOT_PROVISIONED';
-        // Em erro de rede ou não provisionado, usa fallback mas preserva o profile atual se tiver organizationId
         let errorResult: UserProfileData | null = null;
         setProfile((prev) => {
           if (prev?.organizationId) {
-            errorResult = prev; // Não destrói um profile válido
+            errorResult = prev;
             return prev;
           }
           const fb = getFallbackProfile(authUser, isNotProvisioned ? { organizationId: '' } : undefined);
@@ -315,7 +361,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
 
         if (isNotProvisioned) {
-          setProfileError(null); // Limpa o erro, é um estado normal/esperado de usuário novo
+          setProfileError(null);
         } else {
           const profileFetchError = err instanceof Error ? err : new Error(String(err));
           setProfileError(profileFetchError);
@@ -323,11 +369,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
 
         if (import.meta.env.DEV) {
-          console.debug('[AUTH_DEBUG] fetchUserProfile: erro tratado', { error: err?.message, isNotProvisioned });
+          console.debug('[AUTH_DEBUG] fetchUserProfile: erro treated', { error: err?.message, isNotProvisioned });
         }
 
         return errorResult;
       } finally {
+        if (options?.signal) {
+          options.signal.removeEventListener('abort', onSignalAbort);
+        }
         const perfTotalMs = Math.round(performance.now() - perfStart);
         if (import.meta.env.DEV) {
           console.debug(`[AUTH_PERF] fetchUserProfile total: ${perfTotalMs}ms`);
@@ -336,7 +385,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     const promise = runFetch();
-    activeFetch.current = { userId: authUser.id, promise };
+    activeFetch.current = { userId: authUser.id, promise, controller };
 
     try {
       return await promise;
@@ -354,10 +403,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
    * RETORNA o perfil atualizado — use o valor retornado para decisões de rota,
    * nunca o `profile` do closure (que pode ser stale).
    */
-  const refreshProfile = async (options?: { signal?: AbortSignal }): Promise<UserProfileData | null> => {
+  const refreshProfile = async (options?: { signal?: AbortSignal; timeoutMs?: number }): Promise<UserProfileData | null> => {
     if (!user) return null;
-    const refreshTimeoutMs = getStageTimeout(AUTH_REFRESH_TIMEOUT_MS, 'atualizar o perfil');
-    return withTimeout(fetchUserProfile(user, options), refreshTimeoutMs, authTimeoutError('atualizar o perfil').message);
+    const defaultTimeout = getStageTimeout(AUTH_REFRESH_TIMEOUT_MS, 'atualizar o perfil');
+    const timeoutMs = options?.timeoutMs ?? defaultTimeout;
+    return withTimeout(fetchUserProfile(user, options), timeoutMs, authTimeoutError('atualizar o perfil').message);
   };
 
   const updateProfile = async (data: { name: string; phone?: string }) => {
@@ -392,7 +442,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setProfileError(null);
     setProfileLoading(false);
     isFetchingProfile.current = false;
-    activeFetch.current = null;
+    if (activeFetch.current) {
+      activeFetch.current.controller.abort();
+      activeFetch.current = null;
+    }
   };
 
   const resetPassword = async (email: string) => {
@@ -414,10 +467,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return { user: data.user, session: data.session, error };
   };
 
-  const provisionOrganization = async (payload: any, options?: { signal?: AbortSignal }) => {
+  const provisionOrganization = async (payload: any, options?: { signal?: AbortSignal; timeoutMs?: number }) => {
     try {
       const idempotencyKey = `onboarding-${payload?.ownerName || ''}-${payload?.organizationName || ''}-${payload?.workspaceName || ''}`.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-      const provisionTimeoutMs = getStageTimeout(AUTH_PROVISION_TIMEOUT_MS, 'provisionar a organização');
+      const defaultTimeout = getStageTimeout(AUTH_PROVISION_TIMEOUT_MS, 'provisionar a organização');
+      const provisionTimeoutMs = options?.timeoutMs ?? defaultTimeout;
       const res = await apiClient<{ message: string; organizationId: string }>('/onboarding/provision', {
         method: 'POST',
         timeoutMs: provisionTimeoutMs,

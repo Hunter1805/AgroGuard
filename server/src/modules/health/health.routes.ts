@@ -1,4 +1,5 @@
 import { FastifyInstance } from 'fastify';
+import { prisma } from '../../shared/db/prisma';
 
 export async function healthRoutes(app: FastifyInstance) {
   app.get('/api/health', {
@@ -17,9 +18,18 @@ export async function healthRoutes(app: FastifyInstance) {
       },
     },
   }, async (request, reply) => {
+    const dbStart = performance.now();
+    let database = 'connected';
+    try {
+      await prisma.$queryRaw`SELECT 1`;
+    } catch (error) {
+      database = 'disconnected';
+      request.log.warn({ error: error instanceof Error ? error.message : 'unknown' }, '[HEALTH] database ping failed');
+    }
     return reply.send({
       status: 'ok',
-      database: 'connected',
+      database,
+      databasePingMs: Number((performance.now() - dbStart).toFixed(2)),
       timestamp: new Date().toISOString(),
     });
   });

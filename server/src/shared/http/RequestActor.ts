@@ -1,14 +1,26 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
-import { PrismaClient } from '@prisma/client';
 import { createClient } from '@supabase/supabase-js';
 import { env } from '../../config/env';
+import { prisma } from '../db/prisma';
 import type { AuthenticatedActor, EffectivePermission } from './AuthenticatedActor';
-
-const prisma = new PrismaClient();
 
 export interface RequestActor extends AuthenticatedActor {
   isMockActor?: boolean;
+  profile?: { id: string; authUserId: string | null; name: string; email: string; phone: string | null; status: string };
+  membership?: { organizationId: string; role: string; status: string };
 }
+
+const isUserMe = (request: FastifyRequest) => request.url.split('?')[0] === '/api/v1/users/me';
+const perf = (request: FastifyRequest, mark: string, start: number, extra: Record<string, unknown> = {}) => {
+  if (isUserMe(request)) {
+    request.log.info({ durationMs: Number((performance.now() - start).toFixed(2)), url: request.url, ...extra }, `[USER_ME_PERF] ${mark}`);
+  }
+};
+
+// Reutilizado pelo processo do backend; não criar um cliente Supabase por request.
+const supabase = env.SUPABASE_URL && env.SUPABASE_SERVICE_ROLE_KEY
+  ? createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } })
+  : null;
 
 declare module 'fastify' {
   interface FastifyRequest {
@@ -17,23 +29,49 @@ declare module 'fastify' {
 }
 
 export async function requestActorMiddleware(request: FastifyRequest, _reply: FastifyReply) {
+  const actorStart = performance.now();
+  perf(request, 'request_received', actorStart);
+  perf(request, 'request_actor_start', actorStart);
   // 1. Extração do Bearer Token no formato Standard Authorization: Bearer <token>
   const authHeader = request.headers.authorization;
   const token = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : null;
 
   if (token && env.SUPABASE_URL && env.SUPABASE_SERVICE_ROLE_KEY) {
-    const actorStart = Date.now();
+    const authActorStart = performance.now();
     try {
-      const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, {
-        auth: { persistSession: false },
+      const supabaseStart = performance.now();
+      perf(request, 'supabase_auth_start', supabaseStart);
+
+      // Cria um timer para abortar caso o Supabase demore mais que 8 segundos
+      const getUserPromise = supabase!.auth.getUser(token);
+      let timeoutId: any;
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        timeoutId = setTimeout(() => {
+          reject(new Error('Timeout na validação da sessão do Supabase Auth (8s)'));
+        }, 8000);
       });
 
-      const supabaseStart = Date.now();
-      const { data: { user: authUser }, error } = await supabase.auth.getUser(token);
-      const supabaseMs = Date.now() - supabaseStart;
+      let authUser = null;
+      let error = null;
+
+      try {
+        const result = await Promise.race([getUserPromise, timeoutPromise]);
+        clearTimeout(timeoutId);
+        authUser = result.data.user;
+        error = result.error;
+      } catch (err: any) {
+        clearTimeout(timeoutId);
+        request.log.error({ err: err.message, url: request.url }, '[Auth] Falha ou Timeout ao validar token no Supabase');
+        throw err;
+      }
+
+      const supabaseMs = performance.now() - supabaseStart;
+      perf(request, 'supabase_auth_end', supabaseStart);
 
       if (supabaseMs > 3000) {
         request.log.warn({ supabaseMs, url: request.url }, '[PERF] requestActor: supabase.auth.getUser lento');
+      } else {
+        request.log.info({ supabaseMs, url: request.url }, '[PERF] requestActor: supabase.auth.getUser concluído');
       }
 
       if (error) {
@@ -42,25 +80,30 @@ export async function requestActorMiddleware(request: FastifyRequest, _reply: Fa
 
       if (!error && authUser) {
         // Buscar usuário interno correspondente pelo UUID authUserId ou por e-mail no primeiro login
-        const dbStart = Date.now();
-        let user = await prisma.user.findFirst({
+        const dbStart = performance.now();
+        perf(request, 'prisma_user_start', dbStart);
+        const user = await prisma.user.findFirst({
           where: {
-            OR: [
-              { authUserId: authUser.id },
-              { email: authUser.email },
-            ],
-            status: 'ativo',
-            archivedAt: null,
-            deletedAt: null,
+            OR: [{ authUserId: authUser.id }, { email: authUser.email }],
+            status: 'ativo', archivedAt: null, deletedAt: null,
           },
-          include: {
+          select: {
+            id: true,
+            authUserId: true,
+            name: true,
+            email: true,
+            phone: true,
+            status: true,
             userRoles: {
-              include: {
-                role: true,
+              select: {
+                roleId: true,
+                role: { select: { code: true } },
               },
             },
           },
         });
+        perf(request, 'prisma_user_end', dbStart);
+        const userRoles = user?.userRoles ?? [];
         if (user) {
           // Atualizar o authUserId se foi associado pelo e-mail ou se o UUID de autenticação mudou (ex: recriação de conta)
           if (user.authUserId !== authUser.id) {
@@ -77,23 +120,25 @@ export async function requestActorMiddleware(request: FastifyRequest, _reply: Fa
           let permissions: EffectivePermission[] = [];
 
           // Buscar o vínculo organizacional ativo do usuário
+          const membershipStart = performance.now();
+          perf(request, 'membership_start', membershipStart);
           const membership = await prisma.organizationMembership.findFirst({
-            where: {
-              userId: user.id,
-              status: 'ativo',
-            },
-            include: {
-              scope: true,
-            },
+            where: { userId: user.id, status: 'ativo' },
+            select: { organizationId: true, role: true, status: true, scope: true },
           });
+          perf(request, 'membership_end', membershipStart);
 
           if (membership) {
             organizationId = membership.organizationId;
             const scope = membership.scope;
 
             if (scope) {
-              // 1. Resolver empresas da organização
-              if (scope.allCompanies) {
+              // /users/me não precisa resolver o escopo operacional completo.
+              // Esses IDs são necessários para módulos operacionais, não para o perfil.
+              if (isUserMe(request)) {
+                // Mantém os arrays vazios sem consultar companies, units ou farms.
+              } else if (scope.allCompanies) {
+                // 1. Resolver empresas da organização
                 const companies = await prisma.company.findMany({
                   where: { organizationId, status: 'ativo' },
                   select: { id: true },
@@ -130,7 +175,7 @@ export async function requestActorMiddleware(request: FastifyRequest, _reply: Fa
             const isAdmin =
               membership.role === 'proprietario' ||
               membership.role === 'administrador' ||
-              user.userRoles.some((ur) => ur.role.code === 'admin');
+              userRoles.some((ur) => ur.role.code === 'admin');
 
             if (isAdmin) {
               permissions = [{ module: 'all', action: 'all', allowed: true }];
@@ -146,17 +191,18 @@ export async function requestActorMiddleware(request: FastifyRequest, _reply: Fa
             }
           }
 
-          const actorMs = Date.now() - actorStart;
+          const actorMs = performance.now() - authActorStart;
+          const requestActorReport = {
+            actorMs: Number(actorMs.toFixed(2)),
+            dbMs: Number((performance.now() - dbStart).toFixed(2)),
+            supabaseMs: Number(supabaseMs.toFixed(2)),
+            scopeResolutionSkipped: isUserMe(request),
+            requestActor: true,
+            url: request.url,
+          };
+          request.log.info(requestActorReport, '[AUTH_PERF] request actor report');
           if (actorMs > 2000) {
-            request.log.warn(
-              { actorMs, dbMs: Date.now() - dbStart, supabaseMs, url: request.url },
-              '[PERF] requestActor: middleware lento'
-            );
-          } else {
-            request.log.info(
-              { actorMs, url: request.url },
-              '[PERF] requestActor'
-            );
+            request.log.warn(requestActorReport, '[PERF] requestActor: middleware lento');
           }
 
           request.actor = {
@@ -168,10 +214,13 @@ export async function requestActorMiddleware(request: FastifyRequest, _reply: Fa
             farmIds,
             workshopIds: [],
             warehouseIds: [],
-            roleIds: user.userRoles.map((ur) => ur.roleId),
+            roleIds: userRoles.map((ur) => ur.roleId),
             permissions,
             isMockActor: false,
+            profile: { id: user.id, authUserId: user.authUserId, name: user.name, email: user.email, phone: user.phone, status: user.status },
+            membership: membership ? { organizationId: membership.organizationId, role: membership.role, status: membership.status } : undefined,
           };
+          perf(request, 'request_actor_end', actorStart);
           return;
         } else {
           // Usuário existe no Supabase Auth mas ainda não foi provisionado no banco interno do AgroGuard
@@ -189,6 +238,7 @@ export async function requestActorMiddleware(request: FastifyRequest, _reply: Fa
             permissions: [],
             isMockActor: false,
           };
+          perf(request, 'request_actor_end', actorStart);
           return;
         }
       }
@@ -219,4 +269,6 @@ export async function requestActorMiddleware(request: FastifyRequest, _reply: Fa
       isMockActor: true,
     };
   }
+
+  perf(request, 'request_actor_end', actorStart);
 }

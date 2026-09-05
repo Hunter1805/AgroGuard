@@ -63,8 +63,10 @@ function getTenantId(): string {
 
 function getLocalSuppliers(): SupplierMaster[] {
   const tenantId = getTenantId();
+  // APENAS a organização demo dedicada recebe dados de demonstração.
+  // Contas novas (ou sem organização resolvida) devem iniciar 100% vazias.
   const demoOrgId = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11';
-  const isDemo = tenantId === demoOrgId || tenantId === 'global' || tenantId === 'ORG-AGRO';
+  const isDemo = tenantId === demoOrgId;
 
   const storageKey = `agroguard_suppliers_${tenantId}`;
   const saved = localStorage.getItem(storageKey);
