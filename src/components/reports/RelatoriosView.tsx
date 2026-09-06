@@ -29,8 +29,11 @@ export const RelatoriosView: React.FC<RelatoriosViewProps> = ({ initialTab }) =>
   const navigate = useNavigate();
 
   const getActiveTabFromPath = (): string => {
-    if (initialTab) return initialTab;
     const path = location.pathname;
+    // A URL é a fonte de verdade da aba ativa. O `initialTab` existe apenas
+    // como fallback para a rota base, evitando que a aba fique presa no valor
+    // usado na montagem inicial do componente.
+    if (path === ROUTES.RELATORIOS && initialTab) return initialTab;
     if (path.includes('/equipamentos')) return 'equipamentos';
     if (path.includes('/leituras')) return 'leituras';
     if (path.includes('/manutencoes')) return 'manutencoes';
@@ -81,6 +84,7 @@ export const RelatoriosView: React.FC<RelatoriosViewProps> = ({ initialTab }) =>
             <button
               key={tab.id}
               onClick={() => navigate(tab.route)}
+              type="button"
               className={`flex items-center gap-2 pb-2.5 pt-1.5 px-3 border-b-2 font-semibold text-xs transition-all whitespace-nowrap cursor-pointer ${
                 isSelected
                   ? 'border-[var(--color-brand)] text-[var(--color-brand)] font-bold'
