@@ -70,8 +70,8 @@ export const EquipmentPlanLinkModal: React.FC<EquipmentPlanLinkModalProps> = ({ 
         const mapped = list.map((eq) => ({
           id: eq.id,
           name: eq.name,
-          code: eq.plateOrCode || eq.code || eq.id,
-          currentRead: eq.currentMeter ?? eq.currentHours ?? 0,
+          code: eq.plateOrCode || (eq as any).code || eq.id,
+          currentRead: (eq as any).currentMeter ?? eq.currentHours ?? 0,
         }));
         setAvailableMachines(mapped);
       })
