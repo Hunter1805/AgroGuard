@@ -50,6 +50,11 @@ import { ConfiguracoesView } from './components/settings/ConfiguracoesView';
 import { NovaOrdemServicoModal } from './components/orders/NovaOrdemServicoModal';
 import { CommandPaletteModal } from './components/CommandPaletteModal';
 
+// Badge de alertas no menu/header: só existe no modo demo (dados mockados).
+// Fora dele, contas novas começam com ZERO alertas — nada de badge vermelho fantasma.
+import { dataSourceConfig } from './config/data-source.config';
+const mockPendingAlerts = dataSourceConfig.mode === 'mock' ? 3 : 0;
+
 // Hooks
 import { useOrders } from './hooks/useOrders';
 import { useMaintenance } from './hooks/useMaintenance';
@@ -255,14 +260,14 @@ export function App() {
                 <SidebarCorp
                   collapsed={collapsed}
                   onToggle={toggle}
-                  pendingAlerts={3}
+                  pendingAlerts={mockPendingAlerts}
                   mobileOpen={mobileMenuOpen}
                   onMobileClose={() => setMobileMenuOpen(false)}
                 />
               ) : (
                 <SidebarLegacy
                   onOpenNewOS={() => setIsNewOSOpen(true)}
-                  pendingAlerts={3}
+                  pendingAlerts={mockPendingAlerts}
                 />
               )}
 
@@ -272,7 +277,7 @@ export function App() {
                   <HeaderCorp
                     onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
                     onMobileMenuOpen={() => setMobileMenuOpen(true)}
-                    pendingAlerts={3}
+                    pendingAlerts={mockPendingAlerts}
                   />
                 ) : (
                   <HeaderLegacy onOpenCommandPalette={() => setIsCommandPaletteOpen(true)} />
