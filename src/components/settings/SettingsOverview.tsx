@@ -1,11 +1,18 @@
 import React from 'react';
 import { Users, Shield, Lock, Bell, History } from 'lucide-react';
+import { isExplicitMockMode } from '../../config/data-source.config';
 
 interface OverviewProps {
   onNavigate: (section: string) => void;
 }
 
 export const SettingsOverview: React.FC<OverviewProps> = ({ onNavigate }) => {
+  // Números de demonstração só existem no modo demo.
+  // Fora dele, a conta nova começa com contadores reais (zero até haver dados de verdade).
+  const kpis = isExplicitMockMode
+    ? { usuariosAtivos: 4, perfisAcesso: 11, bloqueados: 1, alertasAtivos: 5 }
+    : { usuariosAtivos: 0, perfisAcesso: 0, bloqueados: 0, alertasAtivos: 0 };
+
   return (
     <div className="space-y-6">
       {/* Indicadores do Módulo Administrativo */}
@@ -13,7 +20,7 @@ export const SettingsOverview: React.FC<OverviewProps> = ({ onNavigate }) => {
         <div className="glass-card rounded-xl border border-white/10 p-4 space-y-1">
           <span className="text-[11px] font-mono-label text-on-surface-variant/70 uppercase">Usuários Ativos</span>
           <div className="flex items-center justify-between">
-            <span className="text-[22px] font-bold text-on-surface">4</span>
+            <span className="text-[22px] font-bold text-on-surface">{kpis.usuariosAtivos}</span>
             <Users size={20} className="text-primary" />
           </div>
         </div>
@@ -21,7 +28,7 @@ export const SettingsOverview: React.FC<OverviewProps> = ({ onNavigate }) => {
         <div className="glass-card rounded-xl border border-white/10 p-4 space-y-1">
           <span className="text-[11px] font-mono-label text-on-surface-variant/70 uppercase">Perfis de Acesso</span>
           <div className="flex items-center justify-between">
-            <span className="text-[22px] font-bold text-on-surface">11</span>
+            <span className="text-[22px] font-bold text-on-surface">{kpis.perfisAcesso}</span>
             <Shield size={20} className="text-primary" />
           </div>
         </div>
@@ -29,7 +36,7 @@ export const SettingsOverview: React.FC<OverviewProps> = ({ onNavigate }) => {
         <div className="glass-card rounded-xl border border-white/10 p-4 space-y-1">
           <span className="text-[11px] font-mono-label text-on-surface-variant/70 uppercase">Bloqueados</span>
           <div className="flex items-center justify-between">
-            <span className="text-[22px] font-bold text-error">1</span>
+            <span className="text-[22px] font-bold text-error">{kpis.bloqueados}</span>
             <Lock size={20} className="text-error" />
           </div>
         </div>
@@ -37,7 +44,7 @@ export const SettingsOverview: React.FC<OverviewProps> = ({ onNavigate }) => {
         <div className="glass-card rounded-xl border border-white/10 p-4 space-y-1">
           <span className="text-[11px] font-mono-label text-on-surface-variant/70 uppercase">Alertas Ativos</span>
           <div className="flex items-center justify-between">
-            <span className="text-[22px] font-bold text-warning">5</span>
+            <span className="text-[22px] font-bold text-warning">{kpis.alertasAtivos}</span>
             <Bell size={20} className="text-warning" />
           </div>
         </div>
