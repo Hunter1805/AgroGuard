@@ -4,6 +4,7 @@ import { PageHeader } from '../ui/PageHeader';
 import { PriorityBadge } from '../ui/PriorityBadge';
 import { StatusBadge } from '../ui/StatusBadge';
 import { Tabs } from '../ui/Tabs';
+import { isExplicitMockMode } from '../../config/data-source.config';
 
 type AlertPriority = 'Informativo' | 'Baixo' | 'Médio' | 'Alto' | 'Crítico';
 type AlertStatus = 'Novo' | 'Visualizado' | 'Em tratamento' | 'Adiado' | 'Resolvido' | 'Ignorado' | 'Cancelado';
@@ -55,8 +56,8 @@ const mockAlerts: Alert[] = [
 ];
 
 const TABS = [
-  { id: 'todos', label: 'Todos', badge: mockAlerts.filter((a) => a.status === 'Novo' || a.status === 'Em tratamento').length },
-  { id: 'critico', label: 'Crítico', badge: mockAlerts.filter((a) => a.priority === 'Crítico').length },
+  { id: 'todos', label: 'Todos' },
+  { id: 'critico', label: 'Crítico' },
   { id: 'alto', label: 'Alto' },
   { id: 'resolvidos', label: 'Resolvidos' },
 ];
@@ -79,7 +80,10 @@ function formatDate(iso: string) {
 export const CentralAlertas: React.FC = () => {
   const [activeTab, setActiveTab] = React.useState('todos');
 
-  const filtered = mockAlerts.filter((a) => {
+  // Fora do modo demo, novas contas começam com alertas 100% vazios.
+  const alerts = isExplicitMockMode ? mockAlerts : [];
+
+  const filtered = alerts.filter((a) => {
     if (activeTab === 'todos') return a.status !== 'Resolvido' && a.status !== 'Cancelado';
     if (activeTab === 'critico') return a.priority === 'Crítico';
     if (activeTab === 'alto') return a.priority === 'Alto';
@@ -88,10 +92,10 @@ export const CentralAlertas: React.FC = () => {
   });
 
   const stats = {
-    criticos: mockAlerts.filter((a) => a.priority === 'Crítico').length,
-    altos: mockAlerts.filter((a) => a.priority === 'Alto').length,
-    medios: mockAlerts.filter((a) => a.priority === 'Médio').length,
-    total: mockAlerts.filter((a) => a.status !== 'Resolvido').length,
+    criticos: alerts.filter((a) => a.priority === 'Crítico').length,
+    altos: alerts.filter((a) => a.priority === 'Alto').length,
+    medios: alerts.filter((a) => a.priority === 'Médio').length,
+    total: alerts.filter((a) => a.status !== 'Resolvido').length,
   };
 
   return (

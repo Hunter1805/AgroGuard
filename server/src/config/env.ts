@@ -2,7 +2,11 @@ import { z } from 'zod';
 import dotenv from 'dotenv';
 import path from 'path';
 
+// Carrega primeiro o .env da raiz (padrões compartilhados) e depois o .env do próprio
+// server, que tem precedência — evita que o servidor use um DATABASE_URL local (Docker)
+// quando a configuração real do backend (ex.: Supabase) está em server/.env.
 dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
+dotenv.config({ path: path.resolve(__dirname, '../../.env'), override: true });
 
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),

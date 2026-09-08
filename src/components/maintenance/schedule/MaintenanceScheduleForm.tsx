@@ -9,12 +9,12 @@ interface MaintenanceScheduleFormProps {
 }
 
 export const MaintenanceScheduleForm: React.FC<MaintenanceScheduleFormProps> = ({ onClose, onSuccess }) => {
-  const [eqName, setEqName] = useState('Trator LS U80 22 4x4');
-  const [serviceName, setServiceName] = useState('Revisão Preventiva de 500h - Sistema Hidráulico');
+  const [eqName, setEqName] = useState('');
+  const [serviceName, setServiceName] = useState('');
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
   const [time, setTime] = useState('08:00');
-  const [workshop, setWorkshop] = useState('Oficina Central Sede');
-  const [responsible, setResponsible] = useState('Carlos Roberto (Mecânico Chefe)');
+  const [workshop, setWorkshop] = useState('');
+  const [responsible, setResponsible] = useState('');
   const [priority, setPriority] = useState<'normal' | 'media' | 'alta' | 'critica'>('alta');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

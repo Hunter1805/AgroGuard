@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Link2, ShieldCheck } from 'lucide-react';
 import type { MaintenancePlan } from '../../../types/maintenance-plan';
 import { maintenancePlanService } from '../../../services/maintenance-plan.service';
+import { equipmentService } from '../../../services/equipment.service';
 import { Button } from '../../ui/Button';
 
 interface EquipmentPlanLinkModalProps {
@@ -10,7 +11,7 @@ interface EquipmentPlanLinkModalProps {
   onSuccess: () => void;
 }
 
-const mockAvailableMachines = [
+const fallbackMachines = [
   { id: 'EQ-022', name: 'Trator LS U80 22 4x4', code: 'TR-022', currentRead: 6185 },
   { id: 'EQ-001', name: 'Trator Massey 265 01 4x2', code: 'MAS-01', currentRead: 3442 },
   { id: 'EQ-005', name: 'Colhedora John Deere S700', code: 'COL-01', currentRead: 12515 },
@@ -18,17 +19,18 @@ const mockAvailableMachines = [
 ];
 
 export const EquipmentPlanLinkModal: React.FC<EquipmentPlanLinkModalProps> = ({ plan, onClose, onSuccess }) => {
-  const [selectedEqId, setSelectedEqId] = useState<string>(mockAvailableMachines[0].id);
-  const [baseReading, setBaseReading] = useState<number>(mockAvailableMachines[0].currentRead);
+  const [availableMachines, setAvailableMachines] = useState(fallbackMachines);
+  const [selectedEqId, setSelectedEqId] = useState<string>('');
+  const [baseReading, setBaseReading] = useState<number>(0);
   const [baseDate, setBaseDate] = useState<string>(new Date().toISOString().slice(0, 10));
-  const [workshop, setWorkshop] = useState<string>('Oficina Central Sede');
-  const [responsible, setResponsible] = useState<string>('Eng. Mecânico (Carlos Roberto)');
+  const [workshop, setWorkshop] = useState<string>('');
+  const [responsible, setResponsible] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleEqChange = (id: string) => {
     setSelectedEqId(id);
-    const m = mockAvailableMachines.find((x) => x.id === id);
+    const m = availableMachines.find((x) => x.id === id);
     if (m) setBaseReading(m.currentRead);
   };
 
@@ -36,7 +38,7 @@ export const EquipmentPlanLinkModal: React.FC<EquipmentPlanLinkModalProps> = ({ 
     setLoading(true);
     setError(null);
     try {
-      const machine = mockAvailableMachines.find((x) => x.id === selectedEqId);
+      const machine = availableMachines.find((x) => x.id === selectedEqId);
       await maintenancePlanService.linkPlanToEquipment({
         equipmentId: selectedEqId,
         equipmentCode: machine?.code || '',
@@ -58,6 +60,28 @@ export const EquipmentPlanLinkModal: React.FC<EquipmentPlanLinkModalProps> = ({ 
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    let alive = true;
+    equipmentService
+      .getAllEquipments()
+      .then((list) => {
+        if (!alive || !Array.isArray(list) || list.length === 0) return;
+        const mapped = list.map((eq) => ({
+          id: eq.id,
+          name: eq.name,
+          code: eq.plateOrCode || eq.code || eq.id,
+          currentRead: eq.currentMeter ?? eq.currentHours ?? 0,
+        }));
+        setAvailableMachines(mapped);
+      })
+      .catch(() => {
+        /* mantém fallback (vazio em modo API) */
+      });
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
@@ -88,7 +112,7 @@ export const EquipmentPlanLinkModal: React.FC<EquipmentPlanLinkModalProps> = ({ 
                 onChange={(e) => handleEqChange(e.target.value)}
                 className="w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white/70 dark:bg-gray-800 text-gray-900 dark:text-white font-semibold text-sm focus:ring-2 focus:ring-purple-500"
               >
-                {mockAvailableMachines.map((m) => (
+                {availableMachines.map((m) => (
                   <option key={m.id} value={m.id}>
                     {m.code} • {m.name} (Leitura Atual: {m.currentRead}h)
                   </option>

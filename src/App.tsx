@@ -430,6 +430,8 @@ export function App() {
                       <Route path="cadastros/especialidades" element={<MasterDataRouteHandler type="especialidades" />} />
 
                       {/* Configurações Globais */}
+                      {/* A Sidebar usa /configuracoes; mantemos também a rota antiga /app/configuracoes. */}
+                      <Route path="configuracoes" element={<ConfiguracoesView initialTab="visao_geral" />} />
                       <Route path="app/configuracoes" element={<ConfiguracoesView initialTab="visao_geral" />} />
 
                       {/* Fallback de redirecionamento interno */}

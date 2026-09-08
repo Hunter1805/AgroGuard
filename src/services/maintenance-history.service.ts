@@ -1,4 +1,5 @@
 import type { MaintenanceHistoryEntry, MaintenanceHistoryFilterState } from '../types/maintenance-schedule';
+import { isExplicitMockMode } from '../config/data-source.config';
 
 let mockHistory: MaintenanceHistoryEntry[] = [
   {
@@ -78,6 +79,8 @@ let mockHistory: MaintenanceHistoryEntry[] = [
 
 export const maintenanceHistoryService = {
   async getMaintenanceHistory(filters?: Partial<MaintenanceHistoryFilterState>): Promise<MaintenanceHistoryEntry[]> {
+    // Fora do modo demo, novas contas começam com histórico 100% vazio.
+    if (!isExplicitMockMode) return Promise.resolve([]);
     let result = [...mockHistory];
     if (!filters) return Promise.resolve(result);
 
@@ -114,11 +117,13 @@ export const maintenanceHistoryService = {
   },
 
   async getHistoryById(id: string): Promise<MaintenanceHistoryEntry | undefined> {
+    if (!isExplicitMockMode) return Promise.resolve(undefined);
     const found = mockHistory.find((h) => h.id === id || h.code === id);
     return Promise.resolve(found ? { ...found } : undefined);
   },
 
   async completeMaintenance(data: Omit<MaintenanceHistoryEntry, 'id' | 'code' | 'createdAt'>): Promise<MaintenanceHistoryEntry> {
+    if (!isExplicitMockMode) throw new Error('Modo demo desabilitado.');
     const id = `HIST-${9000 + mockHistory.length + 1}`;
     const newEntry: MaintenanceHistoryEntry = {
       ...data,
