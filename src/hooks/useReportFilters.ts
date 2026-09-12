@@ -1,10 +1,11 @@
+import { useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import type { ReportFilter, ReportQuickPeriod } from '../types/report-filters';
 
 export function useReportFilters() {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const filters: ReportFilter = {
+  const filters: ReportFilter = useMemo(() => ({
     period: (searchParams.get('period') as ReportQuickPeriod) || '30d',
     startDate: searchParams.get('startDate') || undefined,
     endDate: searchParams.get('endDate') || undefined,
@@ -13,7 +14,7 @@ export function useReportFilters() {
     unitId: searchParams.get('unitId') || undefined,
     status: searchParams.get('status') || undefined,
     search: searchParams.get('search') || undefined,
-  };
+  }), [searchParams]);
 
   const updateFilters = (newFilters: Partial<ReportFilter>) => {
     const params = new URLSearchParams(searchParams);
