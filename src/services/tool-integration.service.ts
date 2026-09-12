@@ -1,5 +1,6 @@
 import { toolLoanService } from './tool-loan.service';
 import { toolsService } from './tools.service';
+import { isExplicitMockMode } from '../config/data-source.config';
 
 export interface WorkOrderToolCheckResult {
   hasPendingTools: boolean;
@@ -41,6 +42,8 @@ export const toolIntegrationService = {
    * Retorna os alertas simulados de ferramentas para integração com a Central de Alertas e Dashboard.
    */
   async getToolAlerts(): Promise<any[]> {
+    if (!isExplicitMockMode) return [];
+
     const stats = await toolsService.getToolsDashboard();
     const alerts: any[] = [];
 

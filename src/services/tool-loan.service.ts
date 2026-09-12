@@ -1,5 +1,6 @@
 import type { ToolLoan, ToolLoanFilter, ToolLoanItem } from '../types/tool-loan';
 import { toolsService } from './tools.service';
+import { isExplicitMockMode } from '../config/data-source.config';
 
 let mockLoans: ToolLoan[] = [
   {
@@ -60,6 +61,8 @@ let mockLoans: ToolLoan[] = [
 
 export const toolLoanService = {
   async getToolLoans(filter?: ToolLoanFilter): Promise<ToolLoan[]> {
+    if (!isExplicitMockMode) return [];
+
     let result = [...mockLoans];
 
     if (filter?.search) {
@@ -90,6 +93,8 @@ export const toolLoanService = {
   },
 
   async getToolLoanById(id: string): Promise<ToolLoan | undefined> {
+    if (!isExplicitMockMode) return undefined;
+
     const loan = mockLoans.find(l => l.id === id || l.code === id);
     return Promise.resolve(loan ? { ...loan } : undefined);
   },

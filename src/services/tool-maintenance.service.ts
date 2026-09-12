@@ -1,5 +1,6 @@
 import type { ToolMaintenance, ToolMaintenanceStatus, ToolMaintenanceType } from '../types/tool-maintenance';
 import { toolsService } from './tools.service';
+import { isExplicitMockMode } from '../config/data-source.config';
 
 let mockMaintenances: ToolMaintenance[] = [
   {
@@ -19,6 +20,8 @@ let mockMaintenances: ToolMaintenance[] = [
 
 export const toolMaintenanceService = {
   async getToolMaintenances(filters?: { search?: string; toolId?: string; status?: ToolMaintenanceStatus | 'todos' }): Promise<ToolMaintenance[]> {
+    if (!isExplicitMockMode) return [];
+
     let result = [...mockMaintenances];
 
     if (filters?.search) {

@@ -1,5 +1,6 @@
 import type { ToolCalibration, ToolCalibrationResult } from '../types/tool-calibration';
 import { toolsService } from './tools.service';
+import { isExplicitMockMode } from '../config/data-source.config';
 
 let mockCalibrations: ToolCalibration[] = [
   {
@@ -25,6 +26,8 @@ let mockCalibrations: ToolCalibration[] = [
 
 export const toolCalibrationService = {
   async getToolCalibrations(filters?: { search?: string; toolId?: string; result?: ToolCalibrationResult | 'todos' }): Promise<ToolCalibration[]> {
+    if (!isExplicitMockMode) return [];
+
     let result = [...mockCalibrations];
 
     if (filters?.search) {

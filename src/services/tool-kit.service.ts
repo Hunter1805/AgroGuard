@@ -1,4 +1,5 @@
 import type { ToolKit, ToolKitInspection, ToolKitStatus } from '../types/tool-kit';
+import { isExplicitMockMode } from '../config/data-source.config';
 
 let mockKits: ToolKit[] = [
   {
@@ -61,6 +62,9 @@ let mockInspections: ToolKitInspection[] = [];
 
 export const toolKitService = {
   async getToolKits(filters?: { search?: string; type?: string; status?: ToolKitStatus | 'todos' }): Promise<ToolKit[]> {
+    // Dados de demonstração só podem aparecer quando o modo mock foi explicitamente ativado.
+    if (!isExplicitMockMode) return [];
+
     let result = [...mockKits];
 
     if (filters?.search) {
@@ -85,6 +89,8 @@ export const toolKitService = {
   },
 
   async getToolKitById(id: string): Promise<ToolKit | undefined> {
+    if (!isExplicitMockMode) return undefined;
+
     const kit = mockKits.find(k => k.id === id || k.code === id);
     return Promise.resolve(kit ? { ...kit } : undefined);
   },

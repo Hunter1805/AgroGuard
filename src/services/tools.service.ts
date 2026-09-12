@@ -203,6 +203,10 @@ const mockTirePressures: TirePressureEntry[] = [
 
 export const toolsService = {
   async getToolsDashboard(): Promise<ToolsDashboardStats> {
+    if (!isExplicitMockMode) {
+      return { totalTools: 0, availableTools: 0, loanedTools: 0, overdueLoans: 0, reservedTools: 0, inMaintenanceTools: 0, damagedTools: 0, lostTools: 0, expiredCalibrations: 0, upcomingCalibrations: 0, incompleteKits: 0, totalPatrimonyValue: 0 };
+    }
+
     const list = await mockStorage.get<Tool>('tools', defaultTools);
     const totalTools = list.length;
     const availableTools = list.filter(t => t.status === 'disponivel').length;
@@ -303,6 +307,7 @@ export const toolsService = {
   },
 
   async createTool(data: Partial<Tool>): Promise<Tool> {
+    if (!isExplicitMockMode) throw new Error('Cadastro de ferramentas requer o gateway da API.');
     const list = await mockStorage.get<Tool>('tools', defaultTools);
     const id = `TOOL-${String(list.length + 1).padStart(3, '0')}`;
     const code = data.code || `FER-${String(list.length + 1).padStart(3, '0')}`;
@@ -350,6 +355,7 @@ export const toolsService = {
   },
 
   async updateTool(id: string, data: Partial<Tool>): Promise<Tool> {
+    if (!isExplicitMockMode) throw new Error('Edição de ferramentas requer o gateway da API.');
     const list = await mockStorage.get<Tool>('tools', defaultTools);
     const index = list.findIndex(t => t.id === id || t.code === id);
     if (index === -1) throw new Error('Ferramenta não encontrada.');
@@ -524,6 +530,7 @@ export const toolsService = {
   },
 
   async getToolHistory(toolId?: string): Promise<ToolHistoryLog[]> {
+    if (!isExplicitMockMode) return [];
     const history = await mockStorage.get<ToolHistoryLog>('tool_history', defaultHistory);
     if (!toolId) return [...history];
     return history.filter(h => h.toolId === toolId || h.toolCode === toolId);

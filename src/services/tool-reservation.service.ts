@@ -1,5 +1,6 @@
 import type { ToolReservation, ToolReservationStatus } from '../types/tools';
 import { toolsService } from './tools.service';
+import { isExplicitMockMode } from '../config/data-source.config';
 
 let mockReservations: ToolReservation[] = [
   {
@@ -24,6 +25,8 @@ let mockReservations: ToolReservation[] = [
 
 export const toolReservationService = {
   async getToolReservations(filters?: { search?: string; status?: ToolReservationStatus | 'todos'; workOrderId?: string }): Promise<ToolReservation[]> {
+    if (!isExplicitMockMode) return [];
+
     let result = [...mockReservations];
 
     if (filters?.search) {
