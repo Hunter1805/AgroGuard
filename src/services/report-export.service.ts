@@ -1,7 +1,8 @@
 import type { ReportExportLog, ReportExportFormat } from '../types/report-export';
 import type { ReportTableData } from '../types/reports';
+import { isExplicitMockMode } from '../config/data-source.config';
 
-let exportLogsStore: ReportExportLog[] = [
+const demoExportLogs: ReportExportLog[] = [
   {
     id: 'EXP-001',
     reportName: 'Relatório Consolidado de Custos',
@@ -15,9 +16,12 @@ let exportLogsStore: ReportExportLog[] = [
   },
 ];
 
+// Contas reais começam sem histórico. O registro demo só existe no modo mock explícito.
+let exportLogsStore: ReportExportLog[] = isExplicitMockMode ? [...demoExportLogs] : [];
+
 export const reportExportService = {
   async getExportHistory(): Promise<ReportExportLog[]> {
-    return exportLogsStore;
+    return [...exportLogsStore];
   },
 
   async exportReport(
@@ -25,7 +29,7 @@ export const reportExportService = {
     category: any,
     format: ReportExportFormat,
     tableData: ReportTableData,
-    userName: string = 'Roberto Alves'
+    userName = ''
   ): Promise<void> {
     const visibleCols = tableData.columns.filter(c => c.visible);
 
