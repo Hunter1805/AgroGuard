@@ -46,6 +46,7 @@ export const ROUTES = {
   ORDEM_ENCERRAMENTO: '/ordens-servico/:orderId/encerramento',
 
   ALERTAS: '/alertas',
+  INDICADORES: '/indicadores',
 
   PNEUS: '/pneus',
   PNEUS_INSTALADOS: '/pneus/instalados',

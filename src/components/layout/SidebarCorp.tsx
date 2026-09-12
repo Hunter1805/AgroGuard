@@ -280,6 +280,7 @@ export const SidebarCorp: React.FC<SidebarCorpProps> = ({
         <SectionLabel label="Gestão" collapsed={collapsed} />
 
         <NavItem to={ROUTES.RELATORIOS} icon={<BarChart3 size={16} />} label="Relatórios" collapsed={collapsed} />
+        <NavItem to={ROUTES.INDICADORES} icon={<BarChart3 size={16} />} label="Indicadores / KPIs" collapsed={collapsed} />
         <NavItem to={ROUTES.CADASTROS} icon={<FileText size={16} />} label="Cadastros" collapsed={collapsed} />
         <NavItem to={ROUTES.CONFIGURACOES} icon={<Settings size={16} />} label="Configurações" collapsed={collapsed} />
       </div>

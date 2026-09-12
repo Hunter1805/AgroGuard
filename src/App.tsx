@@ -45,6 +45,7 @@ import { StockItemDetailView } from './components/parts/detail/StockItemDetailVi
 import { CadastrosView } from './components/auxiliary/CadastrosView';
 import { MasterDataRouteHandler } from './components/master-data/MasterDataRouteHandler';
 import { ConfiguracoesView } from './components/settings/ConfiguracoesView';
+import { KpiDashboardView } from './components/indicators/KpiDashboardView';
 
 // Modais globais
 import { NovaOrdemServicoModal } from './components/orders/NovaOrdemServicoModal';
@@ -287,6 +288,9 @@ export function App() {
                 <main className="min-h-0 flex-1 overflow-y-auto">
                   <div className="mx-auto w-full max-w-[1600px] p-6">
                     <Routes>
+                      {/* Indicadores e KPIs */}
+                      <Route path="indicadores" element={<KpiDashboardView />} />
+
                       {/* Dashboard */}
                       <Route
                         path="app/dashboard"
