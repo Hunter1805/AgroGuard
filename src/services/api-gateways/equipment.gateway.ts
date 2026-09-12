@@ -1,14 +1,18 @@
 import { apiClient } from '../../lib/api/api-client';
 import type { Equipment } from '../../types/equipment';
 
-export async function fetchEquipmentsFromApi(query?: string): Promise<Equipment[]> {
-  const q = query ? `?search=${encodeURIComponent(query)}` : '';
-  const response = await apiClient<any[]>(`/equipment${q}`);
+let equipmentCache: Equipment[] | null = null;
+let equipmentRequest: Promise<Equipment[]> | null = null;
 
-  return response.data.map(eq => ({
+export async function fetchEquipmentsFromApi(query?: string): Promise<Equipment[]> {
+  if (!query && equipmentCache) return equipmentCache;
+  if (!query && equipmentRequest) return equipmentRequest;
+
+  const q = query ? `?search=${encodeURIComponent(query)}` : '';
+  const request = apiClient<any[]>(`/equipment${q}`, { timeoutMs: 8_000 }).then((response) => response.data.map(eq => ({
     id: eq.id,
     assetId: eq.id,
-    assetType: 'Trator',
+    assetType: 'Trator' as any,
     code: eq.code,
     plateOrCode: eq.code,
     name: eq.name,
@@ -23,7 +27,7 @@ export async function fetchEquipmentsFromApi(query?: string): Promise<Equipment[
     currentMeter: Number(eq.meters?.[0]?.currentValue || 0),
     currentHours: Number(eq.meters?.[0]?.currentValue || 0),
     meterUnit: 'h',
-    meterType: 'horimetro',
+    meterType: 'horimetro' as any,
     fuelLevel: 100,
     lastMaintenanceDate: eq.updatedAt,
     nextMaintenanceDate: eq.updatedAt,
@@ -39,7 +43,20 @@ export async function fetchEquipmentsFromApi(query?: string): Promise<Equipment[
     location: 'Pátio Central',
     unitId: eq.unitId,
     farmId: eq.farmId || undefined,
-  }));
+  })));
+
+  if (!query) {
+    equipmentRequest = request;
+    try {
+      const data = await request;
+      equipmentCache = data;
+      return data;
+    } finally {
+      equipmentRequest = null;
+    }
+  }
+
+  return request;
 }
 
 export async function registerReadingInApi(equipmentId: string, meterId: string, value: number) {
