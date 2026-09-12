@@ -83,6 +83,22 @@ interface AuthContextType {
   updateProfile: (data: { name: string; phone?: string }) => Promise<{ data: UserProfileData | null; error: any }>;
 }
 
+function getCachedProfile(authUser: SupabaseUser): UserProfileData | null {
+  const cached = localStorage.getItem(`agroguard_user_profile_${authUser.id}`);
+  if (!cached) return null;
+
+  try {
+    const parsed = JSON.parse(cached) as UserProfileData;
+    if (parsed?.authUserId === authUser.id && parsed.organizationId) {
+      return parsed;
+    }
+  } catch {
+    localStorage.removeItem(`agroguard_user_profile_${authUser.id}`);
+  }
+
+  return null;
+}
+
 function getFallbackProfile(authUser: SupabaseUser, overrideData?: Partial<UserProfileData>): UserProfileData {
   const cachedKey = `agroguard_user_profile_${authUser.id}`;
   const cached = localStorage.getItem(cachedKey) || localStorage.getItem('agroguard_user_profile');
@@ -160,6 +176,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(initialSession?.user ?? null);
       if (initialSession?.user) {
         clearStaleProfileCache(initialSession.user.id);
+        const cachedProfile = getCachedProfile(initialSession.user);
+        if (cachedProfile) {
+          // Mostra o ambiente imediatamente ao reabrir o app. A API atualiza em segundo plano.
+          setProfile(cachedProfile);
+        }
         fetchUserProfile(initialSession.user)
           .catch((error) => {
             setProfileError(error instanceof Error ? error : new Error(String(error)));
@@ -183,6 +204,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (newSession?.user) {
         clearStaleProfileCache(newSession.user.id);
+        const cachedProfile = getCachedProfile(newSession.user);
+        if (cachedProfile) {
+          setProfile(cachedProfile);
+        }
         // TOKEN_REFRESHED e USER_UPDATED não requerem re-fetch do perfil
         if (event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') return;
 

@@ -26,7 +26,7 @@ function getProvisionPayload(user: NonNullable<ReturnType<typeof useAuth>['user'
 }
 
 export const AuthCallbackPage: React.FC = () => {
-  const { user, authLoading, refreshProfile, provisionOrganization, updateProfile } = useAuth();
+  const { user, profile, authLoading, refreshProfile, provisionOrganization, updateProfile } = useAuth();
   const navigate = useNavigate();
 
   const [statusText, setStatusText] = useState('Autenticando...');
@@ -90,6 +90,14 @@ export const AuthCallbackPage: React.FC = () => {
       }
       console.log('[AUTH_TRACE] no user found, redirecting to login');
       navigate('/entrar');
+      return;
+    }
+
+    // Se o perfil salvo localmente já confirma a organização, não aguarda
+    // o backend acordar novamente ao reabrir o aplicativo.
+    if (profile?.organizationId) {
+      if (safetyTimerRef.current) clearTimeout(safetyTimerRef.current);
+      navigate('/app/dashboard', { replace: true });
       return;
     }
 
