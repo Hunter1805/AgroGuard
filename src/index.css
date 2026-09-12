@@ -10,6 +10,9 @@
   --color-bg:                  #F5F7FA;
   --color-surface:             #FFFFFF;
   --color-surface-secondary:   #F9FAFB;
+  --color-surface-container:         #F0F2F5;
+  --color-surface-container-high:    #E8EBF0;
+  --color-surface-container-highest: #FFFFFF;
 
   /* Sidebar */
   --color-sidebar:             #142B47;
@@ -78,6 +81,9 @@ body {
   --color-bg:                  #111827;
   --color-surface:             #1F2937;
   --color-surface-secondary:   #161E2E;
+  --color-surface-container:         #1A2333;
+  --color-surface-container-high:    #232E42;
+  --color-surface-container-highest: #2A3750;
   --color-border:              #374151;
   --color-border-strong:       #4B5563;
   --color-text-primary:        #F9FAFB;
@@ -162,14 +168,14 @@ body {
    Serão removidas na Fase 17C/17D após migração completa.
    ───────────────────────────────────────────────────────────────────────── */
 
-/* glass-card: substituída por bg-surface + border-default nas telas novas */
+/* glass-card: fundo sólido (sem transparência) para melhor legibilidade */
 .glass-card {
-  background: rgba(255,255,255,0.85);
+  background: var(--color-surface);
   border: 1px solid var(--color-border);
   backdrop-filter: none;
 }
 .dark .glass-card {
-  background: rgba(31,41,55,0.92);
+  background: var(--color-surface);
   border: 1px solid var(--color-border);
 }
 

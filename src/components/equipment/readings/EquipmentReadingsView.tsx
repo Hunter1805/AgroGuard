@@ -67,7 +67,7 @@ export const EquipmentReadingsView: React.FC = () => {
   return (
     <div className="space-y-6 pb-14">
         {/* Cabeçalho da Página */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 glass-card p-6 rounded-2xl border border-white/10">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 glass-card p-6 rounded-2xl border border-default">
           <div className="space-y-1">
             {id && (
               <button

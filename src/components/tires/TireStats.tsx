@@ -85,7 +85,7 @@ export const TireStats: React.FC<TireStatsProps> = ({ stats }) => {
       {statItems.map((item, idx) => {
         const Icon = item.icon;
         return (
-          <div key={idx} className="glass-card rounded-xl p-3 border border-white/10 flex flex-col justify-between">
+          <div key={idx} className="glass-card rounded-xl p-3 border border-default flex flex-col justify-between">
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-mono-label text-on-surface-variant/70 truncate">{item.label}</span>
               <div className={`p-1.5 rounded-lg ${item.bg}`}>

@@ -14,7 +14,7 @@ export const ReadingsFilters: React.FC<ReadingsFiltersProps> = ({
   onClearFilters,
 }) => {
   return (
-    <div className="glass-card rounded-xl border border-white/10 p-4 space-y-3">
+    <div className="glass-card rounded-xl border border-default p-4 space-y-3">
       <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">
         {/* Busca textual */}
         <div className="relative flex-1">
@@ -24,7 +24,7 @@ export const ReadingsFilters: React.FC<ReadingsFiltersProps> = ({
             placeholder="Buscar por equipamento, código, placa ou responsável..."
             value={filters.search}
             onChange={(e) => onFilterChange({ search: e.target.value })}
-            className="w-full bg-surface-container border border-white/10 rounded-lg pl-9 pr-3 py-2 text-[12px] text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary"
+            className="w-full bg-surface-container border border-default rounded-lg pl-9 pr-3 py-2 text-[12px] text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary"
           />
         </div>
 
@@ -33,7 +33,7 @@ export const ReadingsFilters: React.FC<ReadingsFiltersProps> = ({
           <select
             value={filters.meterType}
             onChange={(e) => onFilterChange({ meterType: e.target.value as ReadingsFilterState['meterType'] })}
-            className="bg-surface-container border border-white/10 rounded-lg px-3 py-2 text-on-surface focus:outline-none"
+            className="bg-surface-container border border-default rounded-lg px-3 py-2 text-on-surface focus:outline-none"
           >
             <option value="todos">Todos os Medidores</option>
             <option value="horimetro">Horímetro</option>
@@ -43,7 +43,7 @@ export const ReadingsFilters: React.FC<ReadingsFiltersProps> = ({
           <select
             value={filters.status}
             onChange={(e) => onFilterChange({ status: e.target.value as ReadingsFilterState['status'] })}
-            className="bg-surface-container border border-white/10 rounded-lg px-3 py-2 text-on-surface focus:outline-none"
+            className="bg-surface-container border border-default rounded-lg px-3 py-2 text-on-surface focus:outline-none"
           >
             <option value="todos">Todos os Status</option>
             <option value="valida">Válida</option>
@@ -57,7 +57,7 @@ export const ReadingsFilters: React.FC<ReadingsFiltersProps> = ({
           <select
             value={filters.source}
             onChange={(e) => onFilterChange({ source: e.target.value as ReadingsFilterState['source'] })}
-            className="bg-surface-container border border-white/10 rounded-lg px-3 py-2 text-on-surface focus:outline-none"
+            className="bg-surface-container border border-default rounded-lg px-3 py-2 text-on-surface focus:outline-none"
           >
             <option value="todos">Todas as Origens</option>
             <option value="manual">Manual</option>
@@ -70,7 +70,7 @@ export const ReadingsFilters: React.FC<ReadingsFiltersProps> = ({
 
           <button
             onClick={onClearFilters}
-            className="inline-flex items-center gap-1 px-3 py-2 rounded-lg bg-surface-container-highest border border-white/10 text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1 px-3 py-2 rounded-lg bg-surface-container-highest border border-default text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer"
             title="Limpar Filtros"
           >
             <RotateCcw size={14} /> Limpar
@@ -79,7 +79,7 @@ export const ReadingsFilters: React.FC<ReadingsFiltersProps> = ({
       </div>
 
       {/* Botões rápidos de alternância */}
-      <div className="flex items-center gap-2 text-[11px] pt-1 border-t border-white/5 flex-wrap">
+      <div className="flex items-center gap-2 text-[11px] pt-1 border-t border-default flex-wrap">
         <span className="text-on-surface-variant/60 font-mono-label flex items-center gap-1">
           <Filter size={12} /> Filtros rápidos:
         </span>
@@ -89,7 +89,7 @@ export const ReadingsFilters: React.FC<ReadingsFiltersProps> = ({
           className={`px-2.5 py-1 rounded-md border text-[11px] font-medium inline-flex items-center gap-1.5 transition-all cursor-pointer ${
             filters.onlySuspicious
               ? 'bg-error/20 border-error/40 text-error'
-              : 'bg-surface-container-highest/40 border-white/5 text-on-surface-variant hover:text-on-surface'
+              : 'bg-surface-container-highest/40 border-default text-on-surface-variant hover:text-on-surface'
           }`}
         >
           <AlertTriangle size={12} /> Somente Suspeitas
@@ -100,7 +100,7 @@ export const ReadingsFilters: React.FC<ReadingsFiltersProps> = ({
           className={`px-2.5 py-1 rounded-md border text-[11px] font-medium inline-flex items-center gap-1.5 transition-all cursor-pointer ${
             filters.onlyRegressive
               ? 'bg-warning/20 border-warning/40 text-warning'
-              : 'bg-surface-container-highest/40 border-white/5 text-on-surface-variant hover:text-on-surface'
+              : 'bg-surface-container-highest/40 border-default text-on-surface-variant hover:text-on-surface'
           }`}
         >
           <RefreshCw size={12} /> Somente Regressivas
@@ -111,7 +111,7 @@ export const ReadingsFilters: React.FC<ReadingsFiltersProps> = ({
           className={`px-2.5 py-1 rounded-md border text-[11px] font-medium inline-flex items-center gap-1.5 transition-all cursor-pointer ${
             filters.onlyCorrected
               ? 'bg-primary/20 border-primary/40 text-primary'
-              : 'bg-surface-container-highest/40 border-white/5 text-on-surface-variant hover:text-on-surface'
+              : 'bg-surface-container-highest/40 border-default text-on-surface-variant hover:text-on-surface'
           }`}
         >
           <CheckCircle2 size={12} /> Somente Corrigidas

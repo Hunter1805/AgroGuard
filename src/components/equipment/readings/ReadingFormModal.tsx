@@ -57,9 +57,9 @@ export const ReadingFormModal: React.FC<ReadingFormModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs animate-fade-in">
-      <div className="relative max-w-xl w-full glass-card bg-surface-container-highest border border-white/10 rounded-2xl overflow-hidden shadow-2xl space-y-4 p-6">
+      <div className="relative max-w-xl w-full glass-card bg-surface-container-highest border border-default rounded-2xl overflow-hidden shadow-2xl space-y-4 p-6">
         {/* Header do Modal */}
-        <div className="flex justify-between items-center pb-3 border-b border-white/10">
+        <div className="flex justify-between items-center pb-3 border-b border-default">
           <div className="flex items-center gap-2.5">
             <div className="p-2 rounded-xl bg-primary/10 text-primary border border-primary/20">
               <Gauge size={20} />
@@ -100,7 +100,7 @@ export const ReadingFormModal: React.FC<ReadingFormModalProps> = ({
                 value={selectedEquipmentId}
                 onChange={(e) => setSelectedEquipmentId(e.target.value)}
                 disabled={!!initialEquipmentId}
-                className="w-full bg-surface-container border border-white/10 rounded-lg px-3 py-2 text-on-surface focus:outline-none focus:border-primary disabled:opacity-70"
+                className="w-full bg-surface-container border border-default rounded-lg px-3 py-2 text-on-surface focus:outline-none focus:border-primary disabled:opacity-70"
               >
                 <option value="">Selecione o equipamento...</option>
                 {equipments.map((eq) => (
@@ -119,7 +119,7 @@ export const ReadingFormModal: React.FC<ReadingFormModalProps> = ({
                 value={selectedMeterId}
                 onChange={(e) => handleMeterChange(e.target.value)}
                 disabled={availableMeters.length <= 1}
-                className="w-full bg-surface-container border border-white/10 rounded-lg px-3 py-2 text-on-surface focus:outline-none focus:border-primary disabled:opacity-70"
+                className="w-full bg-surface-container border border-default rounded-lg px-3 py-2 text-on-surface focus:outline-none focus:border-primary disabled:opacity-70"
               >
                 {availableMeters.map((m) => (
                   <option key={m.id} value={m.id}>
@@ -132,7 +132,7 @@ export const ReadingFormModal: React.FC<ReadingFormModalProps> = ({
 
           {/* Leitura Anterior vs Nova Leitura */}
           {selectedMeter && (
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3 bg-surface-container/50 rounded-xl border border-white/5 font-mono-label">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3 bg-surface-container/50 rounded-xl border border-default font-mono-label">
               <div>
                 <span className="text-[10px] text-on-surface-variant/60 uppercase block">Leitura Anterior</span>
                 <span className="text-[15px] font-bold text-on-surface">
@@ -174,7 +174,7 @@ export const ReadingFormModal: React.FC<ReadingFormModalProps> = ({
                 value={readingAt}
                 onChange={(e) => setReadingAt(e.target.value)}
                 placeholder="YYYY-MM-DD HH:mm"
-                className="w-full bg-surface-container border border-white/10 rounded-lg px-3 py-2 text-on-surface focus:outline-none"
+                className="w-full bg-surface-container border border-default rounded-lg px-3 py-2 text-on-surface focus:outline-none"
                 required
               />
             </div>
@@ -186,7 +186,7 @@ export const ReadingFormModal: React.FC<ReadingFormModalProps> = ({
               <select
                 value={source}
                 onChange={(e) => setSource(e.target.value as MeterReadingSource)}
-                className="w-full bg-surface-container border border-white/10 rounded-lg px-3 py-2 text-on-surface focus:outline-none capitalize"
+                className="w-full bg-surface-container border border-default rounded-lg px-3 py-2 text-on-surface focus:outline-none capitalize"
               >
                 <option value="manual">Manual (Apontamento)</option>
                 <option value="checklist">Checklist Diário</option>
@@ -228,12 +228,12 @@ export const ReadingFormModal: React.FC<ReadingFormModalProps> = ({
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Notas gerais sobre a operação ou horímetro..."
-              className="w-full bg-surface-container border border-white/10 rounded-lg px-3 py-2 text-on-surface focus:outline-none"
+              className="w-full bg-surface-container border border-default rounded-lg px-3 py-2 text-on-surface focus:outline-none"
             />
           </div>
 
           {/* Rodapé e Botões */}
-          <div className="flex justify-end gap-2 pt-3 border-t border-white/10">
+          <div className="flex justify-end gap-2 pt-3 border-t border-default">
             <Button variant="outline" size="sm" type="button" onClick={onClose}>
               Cancelar
             </Button>

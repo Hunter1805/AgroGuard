@@ -20,7 +20,7 @@ export const FormSection: React.FC<FormSectionProps> = ({
   return (
     <div className={`space-y-4 ${className}`}>
       {/* Cabeçalho da seção */}
-      <div className="flex items-center gap-2 pb-2 border-b border-white/10">
+      <div className="flex items-center gap-2 pb-2 border-b border-default">
         {icon && (
           <span className="text-primary">{icon}</span>
         )}

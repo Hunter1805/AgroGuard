@@ -19,7 +19,7 @@ export const ToolCalibrationForm: React.FC<ToolCalibrationFormProps> = ({ toolId
   const [error, setError] = useState<string | null>(null);
 
   const [toolId, setToolId] = useState(initialToolId || '');
-  const [calibrationType, setCalibrationType] = useState('Aferição de Precisão Standard');
+  const [calibrationType, setCalibrationType] = useState('');
   const [sentDate, setSentDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [calibrationDate, setCalibrationDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [nextCalibrationDate, setNextCalibrationDate] = useState(() => {
@@ -27,13 +27,13 @@ export const ToolCalibrationForm: React.FC<ToolCalibrationFormProps> = ({ toolId
     d.setMonth(d.getMonth() + 6);
     return d.toISOString().split('T')[0];
   });
-  const [responsibleCompany, setResponsibleCompany] = useState('Inmetro / TecnoCalib');
-  const [certificateNumber, setCertificateNumber] = useState(`CERT-${Math.floor(100000 + Math.random() * 900000)}`);
+  const [responsibleCompany, setResponsibleCompany] = useState('');
+  const [certificateNumber, setCertificateNumber] = useState('');
   const [result, setResult] = useState<ToolCalibrationResult>('aprovada');
-  const [deviationFound, setDeviationFound] = useState('Sem desvios detectados');
-  const [adjustmentMade, setAdjustmentMade] = useState('Calibração e zera de ponteiro');
-  const [cost, setCost] = useState<number | ''>(250);
-  const [responsibleName, setResponsibleName] = useState('Roberto Alves');
+  const [deviationFound, setDeviationFound] = useState('');
+  const [adjustmentMade, setAdjustmentMade] = useState('');
+  const [cost, setCost] = useState<number | ''>('');
+  const [responsibleName, setResponsibleName] = useState('');
   const [notes, setNotes] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -72,9 +72,9 @@ export const ToolCalibrationForm: React.FC<ToolCalibrationFormProps> = ({ toolId
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 text-xs">
-      <div className="bg-surface-container-highest border border-white/10 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl animate-fade-in max-h-[90vh] flex flex-col">
-        <div className="p-4 border-b border-white/10 flex items-center justify-between">
+    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4 text-xs">
+      <div className="bg-surface-container-highest border border-default rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl animate-fade-in max-h-[90vh] flex flex-col">
+        <div className="p-4 border-b border-default flex items-center justify-between">
           <h3 className="font-bold text-on-surface text-sm flex items-center gap-2">
             <CalendarCheck size={16} className="text-primary" />
             Registrar Calibração de Ferramenta
@@ -97,7 +97,7 @@ export const ToolCalibrationForm: React.FC<ToolCalibrationFormProps> = ({ toolId
             <select
               value={toolId}
               onChange={e => setToolId(e.target.value)}
-              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
               required
             >
               <option value="">Selecione a ferramenta a calibrar...</option>
@@ -116,7 +116,7 @@ export const ToolCalibrationForm: React.FC<ToolCalibrationFormProps> = ({ toolId
                 type="text"
                 value={calibrationType}
                 onChange={e => setCalibrationType(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
               />
             </div>
             <div>
@@ -125,7 +125,7 @@ export const ToolCalibrationForm: React.FC<ToolCalibrationFormProps> = ({ toolId
                 type="text"
                 value={certificateNumber}
                 onChange={e => setCertificateNumber(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-mono-label font-bold"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-mono-label font-bold"
               />
             </div>
           </div>
@@ -137,7 +137,7 @@ export const ToolCalibrationForm: React.FC<ToolCalibrationFormProps> = ({ toolId
                 type="date"
                 value={sentDate}
                 onChange={e => setSentDate(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-mono-label"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-mono-label"
               />
             </div>
             <div>
@@ -146,7 +146,7 @@ export const ToolCalibrationForm: React.FC<ToolCalibrationFormProps> = ({ toolId
                 type="date"
                 value={calibrationDate}
                 onChange={e => setCalibrationDate(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-mono-label"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-mono-label"
                 required
               />
             </div>
@@ -156,7 +156,7 @@ export const ToolCalibrationForm: React.FC<ToolCalibrationFormProps> = ({ toolId
                 type="date"
                 value={nextCalibrationDate}
                 onChange={e => setNextCalibrationDate(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-mono-label"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-mono-label"
                 required
               />
             </div>
@@ -168,7 +168,7 @@ export const ToolCalibrationForm: React.FC<ToolCalibrationFormProps> = ({ toolId
               <select
                 value={result}
                 onChange={e => setResult(e.target.value as any)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-bold"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-bold"
               >
                 <option value="aprovada">Aprovada</option>
                 <option value="aprovada_com_restricao">Aprovada com Restrição</option>
@@ -181,7 +181,7 @@ export const ToolCalibrationForm: React.FC<ToolCalibrationFormProps> = ({ toolId
                 type="text"
                 value={responsibleCompany}
                 onChange={e => setResponsibleCompany(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
                 required
               />
             </div>
@@ -194,7 +194,7 @@ export const ToolCalibrationForm: React.FC<ToolCalibrationFormProps> = ({ toolId
                 type="text"
                 value={adjustmentMade}
                 onChange={e => setAdjustmentMade(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
               />
             </div>
             <div>
@@ -203,7 +203,7 @@ export const ToolCalibrationForm: React.FC<ToolCalibrationFormProps> = ({ toolId
                 type="text"
                 value={responsibleName}
                 onChange={e => setResponsibleName(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
                 required
               />
             </div>
@@ -216,7 +216,7 @@ export const ToolCalibrationForm: React.FC<ToolCalibrationFormProps> = ({ toolId
                 type="text"
                 value={deviationFound}
                 onChange={e => setDeviationFound(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
               />
             </div>
             <div>
@@ -226,7 +226,7 @@ export const ToolCalibrationForm: React.FC<ToolCalibrationFormProps> = ({ toolId
                 step="0.01"
                 value={cost}
                 onChange={e => setCost(e.target.value === '' ? '' : Number(e.target.value))}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-mono-label"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-mono-label"
               />
             </div>
           </div>
@@ -237,12 +237,12 @@ export const ToolCalibrationForm: React.FC<ToolCalibrationFormProps> = ({ toolId
               rows={2}
               value={notes}
               onChange={e => setNotes(e.target.value)}
-              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
               placeholder="Instruções ou ressalvas técnicas..."
             />
           </div>
 
-          <div className="pt-3 border-t border-white/10 flex items-center justify-end gap-2">
+          <div className="pt-3 border-t border-default flex items-center justify-end gap-2">
             <Button type="button" variant="outline" size="sm" onClick={onClose}>
               Cancelar
             </Button>

@@ -25,11 +25,11 @@ export const TirePositionCard: React.FC<TirePositionCardProps> = ({
         isOccupied
           ? installedTire?.condition === 'atencao' || installedTire?.condition === 'critico'
             ? 'bg-amber-500/10 border-amber-500/30'
-            : 'bg-surface-container/60 border-white/10'
-          : 'bg-surface-container-low/30 border-dashed border-white/20'
+            : 'bg-surface-container/60 border-default'
+          : 'bg-surface-container-low/30 border-dashed border-default'
       }`}
     >
-      <div className="flex items-center justify-between border-b border-white/5 pb-2 mb-2">
+      <div className="flex items-center justify-between border-b border-default pb-2 mb-2">
         <div className="flex items-center gap-1.5">
           <Disc size={15} className={isOccupied ? 'text-primary' : 'text-on-surface-variant/40'} />
           <span className="font-bold text-on-surface text-xs font-mono-label">{position.code}</span>
@@ -63,7 +63,7 @@ export const TirePositionCard: React.FC<TirePositionCardProps> = ({
             <span>Sulco: <strong className="text-on-surface">{installedTire.currentTreadDepth || 14} mm</strong></span>
           </div>
 
-          <div className="flex items-center justify-end gap-1 pt-2 border-t border-white/5">
+          <div className="flex items-center justify-end gap-1 pt-2 border-t border-default">
             {onCalibrate && (
               <button
                 onClick={() => onCalibrate(position.id, installedTire)}

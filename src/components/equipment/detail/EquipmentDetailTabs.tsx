@@ -63,7 +63,7 @@ export const EquipmentDetailTabs: React.FC<EquipmentDetailTabsProps> = ({
   ];
 
   return (
-    <div className="w-full overflow-x-auto scrollbar-none border-b border-white/10">
+    <div className="w-full overflow-x-auto scrollbar-none border-b border-default">
       <Tabs
         tabs={tabsList}
         activeTab={activeTab}

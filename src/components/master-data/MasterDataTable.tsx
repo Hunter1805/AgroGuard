@@ -23,7 +23,7 @@ export const MasterDataTable: React.FC<TableProps> = ({
 }) => {
   if (loading) {
     return (
-      <div className="glass-card rounded-xl border border-white/10 p-12 text-center text-[13px] text-on-surface-variant animate-pulse">
+      <div className="glass-card rounded-xl border border-default p-12 text-center text-[13px] text-on-surface-variant animate-pulse">
         Carregando registros de cadastro...
       </div>
     );
@@ -31,7 +31,7 @@ export const MasterDataTable: React.FC<TableProps> = ({
 
   if (items.length === 0) {
     return (
-      <div className="glass-card rounded-xl border border-white/10 p-12 text-center">
+      <div className="glass-card rounded-xl border border-default p-12 text-center">
         <p className="text-[14px] font-medium text-on-surface">Nenhum registro encontrado</p>
         <p className="text-[12px] text-on-surface-variant/60 mt-1">
           Não há cadastros que correspondam aos filtros selecionados.
@@ -41,11 +41,11 @@ export const MasterDataTable: React.FC<TableProps> = ({
   }
 
   return (
-    <div className="glass-card rounded-xl border border-white/10 overflow-hidden shadow-lg">
+    <div className="glass-card rounded-xl border border-default overflow-hidden shadow-lg">
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse text-[13px]">
           <thead>
-            <tr className="border-b border-white/10 bg-surface-container-high/60 text-[11px] font-semibold text-on-surface-variant/70 uppercase tracking-wider">
+            <tr className="border-b border-default bg-surface-container-high/60 text-[11px] font-semibold text-on-surface-variant/70 uppercase tracking-wider">
               <th className="py-3 px-4">Código</th>
               <th className="py-3 px-4">Nome / Descrição</th>
               <th className="py-3 px-4">Status</th>

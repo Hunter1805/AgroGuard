@@ -5,7 +5,7 @@ interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 export const Card: React.FC<CardProps> = ({ children, variant = 'glass', className = '', ...props }) => {
-  const base = variant === 'glass' ? 'glass-card border border-white/5' : 'bg-surface-container border border-white/5';
+  const base = variant === 'glass' ? 'glass-card border border-default' : 'bg-surface-container border border-default';
   return (
     <div className={`${base} rounded-xl ${className}`} {...props}>
       {children}
@@ -14,7 +14,7 @@ export const Card: React.FC<CardProps> = ({ children, variant = 'glass', classNa
 };
 
 export const CardHeader: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ children, className = '', ...props }) => (
-  <div className={`p-4 border-b border-white/5 bg-surface/30 rounded-t-xl flex justify-between items-center ${className}`} {...props}>
+  <div className={`p-4 border-b border-default bg-surface/30 rounded-t-xl flex justify-between items-center ${className}`} {...props}>
     {children}
   </div>
 );

@@ -3,7 +3,7 @@ import { FileText } from 'lucide-react';
 
 export const StockDocumentsTab: React.FC = () => {
   return (
-    <div className="glass-card rounded-2xl p-5 border border-white/10 space-y-4 text-xs">
+    <div className="glass-card rounded-2xl p-5 border border-default space-y-4 text-xs">
       <h3 className="font-bold text-on-surface text-sm flex items-center gap-2">
         <FileText size={16} className="text-primary" /> Notas Fiscais e Laudos Técnicos
       </h3>

@@ -31,7 +31,7 @@ export const StockItemTable: React.FC<StockItemTableProps> = ({ items, onOpenAct
     <div className="overflow-x-auto">
       <table className="w-full text-left text-xs">
         <thead>
-          <tr className="bg-surface-container-highest/40 text-on-surface-variant/70 font-mono-label uppercase border-b border-white/5">
+          <tr className="bg-surface-container-highest/40 text-on-surface-variant/70 font-mono-label uppercase border-b border-default">
             <th className="px-4 py-3 font-medium">Código</th>
             <th className="px-4 py-3 font-medium">Item</th>
             <th className="px-4 py-3 font-medium">Tipo</th>

@@ -17,7 +17,7 @@ export const TireDiscardModal: React.FC<TireDiscardModalProps> = ({ tire, onClos
 
   const [reason, setReason] = useState('Desgaste total de carcaça');
   const [residualValue, setResidualValue] = useState<number | ''>('');
-  const [responsibleName, setResponsibleName] = useState('Carlos Silva');
+  const [responsibleName, setResponsibleName] = useState('');
   const [notes, setNotes] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -45,9 +45,9 @@ export const TireDiscardModal: React.FC<TireDiscardModalProps> = ({ tire, onClos
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-surface-container-highest border border-white/10 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl animate-fade-in">
-        <div className="p-4 border-b border-white/10 flex items-center justify-between">
+    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+      <div className="bg-surface-container-highest border border-default rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl animate-fade-in">
+        <div className="p-4 border-b border-default flex items-center justify-between">
           <h3 className="font-bold text-on-surface text-sm flex items-center gap-2 text-rose-400">
             <Trash2 size={16} />
             Descartar Pneu {tire.internalCode}
@@ -74,7 +74,7 @@ export const TireDiscardModal: React.FC<TireDiscardModalProps> = ({ tire, onClos
             <select
               value={reason}
               onChange={e => setReason(e.target.value)}
-              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
               required
             >
               <option value="Desgaste total de carcaça">Desgaste total de carcaça</option>
@@ -95,7 +95,7 @@ export const TireDiscardModal: React.FC<TireDiscardModalProps> = ({ tire, onClos
                 placeholder="Ex: 150.00"
                 value={residualValue}
                 onChange={e => setResidualValue(e.target.value === '' ? '' : Number(e.target.value))}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-mono-label"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-mono-label"
               />
             </div>
 
@@ -105,7 +105,7 @@ export const TireDiscardModal: React.FC<TireDiscardModalProps> = ({ tire, onClos
                 type="text"
                 value={responsibleName}
                 onChange={e => setResponsibleName(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
                 required
               />
             </div>
@@ -117,12 +117,12 @@ export const TireDiscardModal: React.FC<TireDiscardModalProps> = ({ tire, onClos
               rows={2}
               value={notes}
               onChange={e => setNotes(e.target.value)}
-              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
               placeholder="Número de nota fiscal de sucata ou laudo técnico..."
             />
           </div>
 
-          <div className="pt-3 border-t border-white/10 flex items-center justify-end gap-2">
+          <div className="pt-3 border-t border-default flex items-center justify-end gap-2">
             <Button type="button" variant="outline" size="sm" onClick={onClose}>
               Cancelar
             </Button>

@@ -17,7 +17,7 @@ export const ChecklistExecutionReview: React.FC<ChecklistExecutionReviewProps> =
   onComplete,
   onBackToSections,
 }) => {
-  const [operatorSignature, setOperatorSignature] = useState('Marcos Paulo (Operador Logado)');
+  const [operatorSignature, setOperatorSignature] = useState('');
   const [generalNotes, setGeneralNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -43,8 +43,8 @@ export const ChecklistExecutionReview: React.FC<ChecklistExecutionReviewProps> =
   };
 
   return (
-    <div className="glass-card bg-surface-container-highest/60 border border-white/10 rounded-2xl p-6 space-y-6 shadow-xl animate-fade-in max-w-2xl mx-auto">
-      <div className="flex items-center gap-3 pb-3 border-b border-white/10">
+    <div className="glass-card bg-surface-container-highest/60 border border-default rounded-2xl p-6 space-y-6 shadow-xl animate-fade-in max-w-2xl mx-auto">
+      <div className="flex items-center gap-3 pb-3 border-b border-default">
         <div className="p-2.5 rounded-xl bg-secondary/20 text-secondary">
           <FileSignature size={26} />
         </div>
@@ -67,17 +67,17 @@ export const ChecklistExecutionReview: React.FC<ChecklistExecutionReviewProps> =
       )}
 
       <div className="grid grid-cols-3 gap-3 text-center font-mono-label">
-        <div className="p-3 rounded-xl bg-surface-container/70 border border-white/5">
+        <div className="p-3 rounded-xl bg-surface-container/70 border border-default">
           <span className="text-[11px] text-on-surface-variant uppercase block">Total Itens</span>
           <strong className="text-[20px] font-bold text-on-surface">{totalItems}</strong>
         </div>
 
-        <div className="p-3 rounded-xl bg-surface-container/70 border border-white/5">
+        <div className="p-3 rounded-xl bg-surface-container/70 border border-default">
           <span className="text-[11px] text-on-surface-variant uppercase block">Respondidos</span>
           <strong className="text-[20px] font-bold text-primary">{answeredCount}</strong>
         </div>
 
-        <div className="p-3 rounded-xl bg-surface-container/70 border border-white/5">
+        <div className="p-3 rounded-xl bg-surface-container/70 border border-default">
           <span className="text-[11px] text-on-surface-variant uppercase block">Falhas / NCs</span>
           <strong className={`text-[20px] font-bold ${nonConformingCount > 0 ? 'text-error' : 'text-success'}`}>
             {nonConformingCount}
@@ -105,7 +105,7 @@ export const ChecklistExecutionReview: React.FC<ChecklistExecutionReviewProps> =
             type="text"
             value={operatorSignature}
             onChange={(e) => setOperatorSignature(e.target.value)}
-            className="w-full bg-surface-container border border-white/10 rounded-lg px-3.5 py-2.5 text-on-surface font-semibold focus:outline-none focus:border-primary"
+            className="w-full bg-surface-container border border-default rounded-lg px-3.5 py-2.5 text-on-surface font-semibold focus:outline-none focus:border-primary"
             required
           />
         </div>
@@ -119,11 +119,11 @@ export const ChecklistExecutionReview: React.FC<ChecklistExecutionReviewProps> =
             onChange={(e) => setGeneralNotes(e.target.value)}
             placeholder="Comentários finais ou recados para a oficina mecânica..."
             rows={3}
-            className="w-full bg-surface-container border border-white/10 rounded-lg p-3 text-on-surface focus:outline-none focus:border-primary"
+            className="w-full bg-surface-container border border-default rounded-lg p-3 text-on-surface focus:outline-none focus:border-primary"
           />
         </div>
 
-        <div className="flex justify-between gap-3 pt-3 border-t border-white/10">
+        <div className="flex justify-between gap-3 pt-3 border-t border-default">
           <Button variant="outline" size="sm" type="button" onClick={onBackToSections}>
             Voltar às Seções
           </Button>

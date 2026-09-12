@@ -42,9 +42,9 @@ export const EquipmentCategoryForm: React.FC<FormProps> = ({ isOpen, onClose, in
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative z-10 w-full max-w-md bg-surface-container-lowest border border-white/10 rounded-xl p-5 shadow-2xl space-y-4">
-        <div className="flex items-center justify-between border-b border-white/10 pb-3">
+      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+      <div className="relative z-10 w-full max-w-md bg-surface-container-lowest border border-default rounded-xl p-5 shadow-2xl space-y-4">
+        <div className="flex items-center justify-between border-b border-default pb-3">
           <div className="flex items-center gap-2">
             <div className="p-2 rounded-lg bg-primary/10 text-primary border border-primary/20">
               <Tag size={18} />
@@ -66,7 +66,7 @@ export const EquipmentCategoryForm: React.FC<FormProps> = ({ isOpen, onClose, in
               value={formData.code || ''}
               onChange={(e) => setFormData((p) => ({ ...p, code: e.target.value }))}
               required
-              className="w-full bg-surface-container-highest border border-white/10 rounded-lg p-2 text-[13px] text-on-surface focus:outline-none focus:border-primary/50"
+              className="w-full bg-surface-container-highest border border-default rounded-lg p-2 text-[13px] text-on-surface focus:outline-none focus:border-primary/50"
             />
           </div>
 
@@ -78,7 +78,7 @@ export const EquipmentCategoryForm: React.FC<FormProps> = ({ isOpen, onClose, in
               onChange={(e) => setFormData((p) => ({ ...p, name: e.target.value }))}
               required
               placeholder="Ex: Tratores Pesados 4x4"
-              className="w-full bg-surface-container-highest border border-white/10 rounded-lg p-2 text-[13px] text-on-surface focus:outline-none focus:border-primary/50"
+              className="w-full bg-surface-container-highest border border-default rounded-lg p-2 text-[13px] text-on-surface focus:outline-none focus:border-primary/50"
             />
           </div>
 
@@ -89,15 +89,15 @@ export const EquipmentCategoryForm: React.FC<FormProps> = ({ isOpen, onClose, in
               onChange={(e) => setFormData((p) => ({ ...p, description: e.target.value }))}
               rows={3}
               placeholder="Descrição das especificações e aplicação operacional..."
-              className="w-full bg-surface-container-highest border border-white/10 rounded-lg p-2 text-[13px] text-on-surface focus:outline-none focus:border-primary/50 resize-none"
+              className="w-full bg-surface-container-highest border border-default rounded-lg p-2 text-[13px] text-on-surface focus:outline-none focus:border-primary/50 resize-none"
             />
           </div>
 
-          <div className="flex justify-end gap-2 pt-3 border-t border-white/10">
+          <div className="flex justify-end gap-2 pt-3 border-t border-default">
             <button
               type="button"
               onClick={onClose}
-              className="px-3 py-1.5 rounded-lg border border-white/10 text-[12px] text-on-surface-variant hover:text-on-surface"
+              className="px-3 py-1.5 rounded-lg border border-default text-[12px] text-on-surface-variant hover:text-on-surface"
             >
               Cancelar
             </button>

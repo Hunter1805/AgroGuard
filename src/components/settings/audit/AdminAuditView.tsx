@@ -13,7 +13,7 @@ export const AdminAuditView: React.FC = () => {
         </p>
       </div>
 
-      <div className="glass-card rounded-xl border border-white/10 overflow-hidden shadow-lg">
+      <div className="glass-card rounded-xl border border-default overflow-hidden shadow-lg">
         {loading ? (
           <div className="p-8 text-center text-[13px] text-on-surface-variant animate-pulse">
             Carregando eventos de auditoria...
@@ -26,7 +26,7 @@ export const AdminAuditView: React.FC = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-[12px]">
               <thead>
-                <tr className="border-b border-white/10 bg-surface-container-high/60 text-[10px] font-semibold text-on-surface-variant/70 uppercase">
+                <tr className="border-b border-default bg-surface-container-high/60 text-[10px] font-semibold text-on-surface-variant/70 uppercase">
                   <th className="py-3 px-4">Data / Hora</th>
                   <th className="py-3 px-4">Usuário</th>
                   <th className="py-3 px-4">Evento</th>

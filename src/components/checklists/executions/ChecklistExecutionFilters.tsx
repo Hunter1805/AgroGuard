@@ -21,7 +21,7 @@ export const ChecklistExecutionFilters: React.FC<ChecklistExecutionFiltersProps>
     filters.onlyBlockedEquipment;
 
   return (
-    <div className="glass-card bg-surface-container-highest/50 border border-white/10 rounded-xl p-4 space-y-3">
+    <div className="glass-card bg-surface-container-highest/50 border border-default rounded-xl p-4 space-y-3">
       <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
         {/* Busca textual */}
         <div className="relative w-full sm:w-80">
@@ -31,7 +31,7 @@ export const ChecklistExecutionFilters: React.FC<ChecklistExecutionFiltersProps>
             placeholder="Buscar por código, placa, operador..."
             value={filters.search}
             onChange={(e) => onFilterChange({ search: e.target.value })}
-            className="w-full bg-surface-container border border-white/10 rounded-lg pl-9 pr-3 py-1.5 text-[13px] text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary"
+            className="w-full bg-surface-container border border-default rounded-lg pl-9 pr-3 py-1.5 text-[13px] text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary"
           />
         </div>
 
@@ -43,7 +43,7 @@ export const ChecklistExecutionFilters: React.FC<ChecklistExecutionFiltersProps>
             <select
               value={filters.type}
               onChange={(e) => onFilterChange({ type: e.target.value })}
-              className="bg-surface-container border border-white/10 rounded-md px-2 py-1.5 text-on-surface focus:outline-none capitalize"
+              className="bg-surface-container border border-default rounded-md px-2 py-1.5 text-on-surface focus:outline-none capitalize"
             >
               <option value="todos">Todos os Tipos</option>
               <option value="diario">Diario</option>
@@ -58,7 +58,7 @@ export const ChecklistExecutionFilters: React.FC<ChecklistExecutionFiltersProps>
             <select
               value={filters.status}
               onChange={(e) => onFilterChange({ status: e.target.value })}
-              className="bg-surface-container border border-white/10 rounded-md px-2 py-1.5 text-on-surface focus:outline-none"
+              className="bg-surface-container border border-default rounded-md px-2 py-1.5 text-on-surface focus:outline-none"
             >
               <option value="todos">Todos os Status</option>
               <option value="em_andamento">Em Andamento (Rascunho)</option>
@@ -72,14 +72,14 @@ export const ChecklistExecutionFilters: React.FC<ChecklistExecutionFiltersProps>
       </div>
 
       {/* Toggles Rápidos de Auditoria */}
-      <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-white/5 text-[11px]">
+      <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-default text-[11px]">
         <div className="flex items-center gap-4">
           <label className="inline-flex items-center gap-2 cursor-pointer select-none">
             <input
               type="checkbox"
               checked={filters.onlyWithNonConformity}
               onChange={(e) => onFilterChange({ onlyWithNonConformity: e.target.checked })}
-              className="rounded border-white/20 bg-surface-container text-error focus:ring-0"
+              className="rounded border-default bg-surface-container text-error focus:ring-0"
             />
             <span className="text-error font-medium inline-flex items-center gap-1">
               <AlertCircle size={13} /> Apenas com Não Conformidade
@@ -91,7 +91,7 @@ export const ChecklistExecutionFilters: React.FC<ChecklistExecutionFiltersProps>
               type="checkbox"
               checked={filters.onlyBlockedEquipment}
               onChange={(e) => onFilterChange({ onlyBlockedEquipment: e.target.checked })}
-              className="rounded border-white/20 bg-surface-container text-error focus:ring-0"
+              className="rounded border-default bg-surface-container text-error focus:ring-0"
             />
             <span className="text-error font-bold inline-flex items-center gap-1">
               <Ban size={13} /> Ativos Bloqueados por Falha

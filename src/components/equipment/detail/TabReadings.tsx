@@ -32,10 +32,10 @@ export const TabReadings: React.FC<TabReadingsProps> = ({ equipment, onNewReadin
         )}
       </div>
 
-      <div className="glass-card rounded-xl border border-white/10 overflow-hidden">
+      <div className="glass-card rounded-xl border border-default overflow-hidden">
         <table className="w-full text-[12px] text-left">
           <thead>
-            <tr className="bg-surface-container-highest/40 text-on-surface-variant/70 font-mono-label text-[10px] uppercase border-b border-white/5">
+            <tr className="bg-surface-container-highest/40 text-on-surface-variant/70 font-mono-label text-[10px] uppercase border-b border-default">
               <th className="px-4 py-2.5 font-medium">Data / Hora</th>
               <th className="px-4 py-2.5 font-medium">Leitura ({unit})</th>
               <th className="px-4 py-2.5 font-medium">Variação (Δ)</th>

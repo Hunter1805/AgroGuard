@@ -70,7 +70,7 @@ const CompactCard: React.FC<CompactCardProps> = ({ icon, label, value, colorClas
   return (
     <button
       onClick={() => navigate(route)}
-      className="flex items-center gap-2.5 px-3 py-2.5 bg-surface-container-highest/40 hover:bg-surface-container-highest/70 rounded-lg border border-white/5 hover:border-white/10 transition-all cursor-pointer active:scale-[0.98] w-full text-left"
+      className="flex items-center gap-2.5 px-3 py-2.5 bg-surface-container-highest/40 hover:bg-surface-container-highest/70 rounded-lg border border-default hover:border-default transition-all cursor-pointer active:scale-[0.98] w-full text-left"
     >
       <span className={`shrink-0 ${colorClass}`}>{icon}</span>
       <span className="flex-1 font-body-sm text-[12px] text-on-surface-variant truncate">{label}</span>
@@ -138,7 +138,7 @@ export const StatsCards: React.FC<StatsCardsProps> = ({ stats, loading }) => {
       </div>
 
       {/* Linha 2 — indicadores complementares */}
-      <div className="glass-card rounded-xl border border-white/5 p-3">
+      <div className="glass-card rounded-xl border border-default p-3">
         <p className="text-[10px] font-mono-label text-on-surface-variant/50 uppercase tracking-wider mb-2 px-1">
           Indicadores complementares
         </p>

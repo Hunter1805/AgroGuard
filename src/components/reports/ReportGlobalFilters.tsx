@@ -25,7 +25,7 @@ export const ReportGlobalFilters: React.FC<ReportGlobalFiltersProps> = ({
   ];
 
   return (
-    <div className="p-4 bg-surface-container-low/50 border-b border-white/10 space-y-3 text-xs">
+    <div className="p-4 bg-surface-container-low/50 border-b border-default space-y-3 text-xs">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div className="flex items-center gap-1.5 font-bold text-on-surface text-[11px] font-mono-label">
           <Filter size={14} className="text-primary" /> Filtros & Período do Relatório
@@ -56,7 +56,7 @@ export const ReportGlobalFilters: React.FC<ReportGlobalFiltersProps> = ({
             placeholder="Buscar nos resultados..."
             value={filters.search || ''}
             onChange={e => onFilterChange({ search: e.target.value })}
-            className="w-full pl-9 pr-3 py-1.5 bg-surface-container/60 rounded-xl border border-white/10 text-xs text-on-surface focus:outline-none focus:border-primary/50"
+            className="w-full pl-9 pr-3 py-1.5 bg-surface-container/60 rounded-xl border border-default text-xs text-on-surface focus:outline-none focus:border-primary/50"
           />
         </div>
 
@@ -64,7 +64,7 @@ export const ReportGlobalFilters: React.FC<ReportGlobalFiltersProps> = ({
           <select
             value={filters.status || ''}
             onChange={e => onFilterChange({ status: e.target.value || undefined })}
-            className="w-full px-3 py-1.5 bg-surface-container/60 rounded-xl border border-white/10 text-xs text-on-surface font-bold"
+            className="w-full px-3 py-1.5 bg-surface-container/60 rounded-xl border border-default text-xs text-on-surface font-bold"
           >
             <option value="">Todos os Status</option>
             <option value="em_operacao">Em Operação</option>
@@ -81,7 +81,7 @@ export const ReportGlobalFilters: React.FC<ReportGlobalFiltersProps> = ({
           <select
             value={filters.groupBy || 'nenhum'}
             onChange={e => onFilterChange({ groupBy: e.target.value as any })}
-            className="w-full px-3 py-1.5 bg-surface-container/60 rounded-xl border border-white/10 text-xs text-on-surface"
+            className="w-full px-3 py-1.5 bg-surface-container/60 rounded-xl border border-default text-xs text-on-surface"
           >
             <option value="nenhum">Sem Agrupamento</option>
             <option value="equipamento">Agrupar por Equipamento</option>

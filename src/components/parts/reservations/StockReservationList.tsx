@@ -24,7 +24,7 @@ export const StockReservationList: React.FC = () => {
 
   return (
     <div className="space-y-4 text-xs">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-surface-container-low/30 p-4 rounded-xl border border-white/10">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-surface-container-low/30 p-4 rounded-xl border border-default">
         <div>
           <h3 className="text-base font-bold text-on-surface flex items-center gap-2">
             <Bookmark className="text-primary" size={18} />
@@ -40,8 +40,8 @@ export const StockReservationList: React.FC = () => {
         </Button>
       </div>
 
-      <div className="glass-card rounded-2xl border border-white/10 overflow-hidden">
-        <div className="p-4 border-b border-white/10 flex items-center justify-between gap-3">
+      <div className="glass-card rounded-2xl border border-default overflow-hidden">
+        <div className="p-4 border-b border-default flex items-center justify-between gap-3">
           <div className="relative flex-1 max-w-md">
             <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/50" />
             <input
@@ -49,7 +49,7 @@ export const StockReservationList: React.FC = () => {
               placeholder="Buscar reserva, item, solicitante ou OS..."
               value={filters.search || ''}
               onChange={e => setFilters({ ...filters, search: e.target.value })}
-              className="w-full pl-9 pr-3 py-1.5 bg-surface-container/60 rounded-xl border border-white/10 text-xs text-on-surface focus:outline-none focus:border-primary/50"
+              className="w-full pl-9 pr-3 py-1.5 bg-surface-container/60 rounded-xl border border-default text-xs text-on-surface focus:outline-none focus:border-primary/50"
             />
           </div>
           <span className="text-xs font-mono-label text-on-surface-variant">{reservations.length} reservas encontradas</span>
@@ -67,7 +67,7 @@ export const StockReservationList: React.FC = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="bg-surface-container-highest/40 text-on-surface-variant/70 font-mono-label uppercase border-b border-white/5">
+                <tr className="bg-surface-container-highest/40 text-on-surface-variant/70 font-mono-label uppercase border-b border-default">
                   <th className="px-4 py-3 font-medium">Cód. Reserva</th>
                   <th className="px-4 py-3 font-medium">Item</th>
                   <th className="px-4 py-3 font-medium">Qtd Reservada</th>

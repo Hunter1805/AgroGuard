@@ -16,8 +16,8 @@ export const TireOverviewTab: React.FC<TireOverviewTabProps> = ({ tire }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
       {/* Dados Técnicos e Desgaste */}
-      <div className="glass-card rounded-2xl p-5 border border-white/10 space-y-4">
-        <h3 className="font-bold text-on-surface text-sm border-b border-white/5 pb-2">Especificações Técnicas</h3>
+      <div className="glass-card rounded-2xl p-5 border border-default space-y-4">
+        <h3 className="font-bold text-on-surface text-sm border-b border-default pb-2">Especificações Técnicas</h3>
 
         <div className="grid grid-cols-2 gap-3 font-mono-label">
           <div>
@@ -38,7 +38,7 @@ export const TireOverviewTab: React.FC<TireOverviewTabProps> = ({ tire }) => {
           </div>
         </div>
 
-        <div className="pt-3 border-t border-white/5 space-y-2">
+        <div className="pt-3 border-t border-default space-y-2">
           <div className="flex items-center justify-between font-mono-label">
             <span className="text-on-surface-variant/70">Profundidade de Sulco</span>
             <span className="font-bold text-on-surface">
@@ -77,8 +77,8 @@ export const TireOverviewTab: React.FC<TireOverviewTabProps> = ({ tire }) => {
       </div>
 
       {/* Dados de Aquisição e Histórico Operacional */}
-      <div className="glass-card rounded-2xl p-5 border border-white/10 space-y-4">
-        <h3 className="font-bold text-on-surface text-sm border-b border-white/5 pb-2">Dados de Aquisição e Ciclo de Vida</h3>
+      <div className="glass-card rounded-2xl p-5 border border-default space-y-4">
+        <h3 className="font-bold text-on-surface text-sm border-b border-default pb-2">Dados de Aquisição e Ciclo de Vida</h3>
 
         <div className="grid grid-cols-2 gap-3 font-mono-label">
           <div>
@@ -107,7 +107,7 @@ export const TireOverviewTab: React.FC<TireOverviewTabProps> = ({ tire }) => {
           </div>
         </div>
 
-        <div className="pt-3 border-t border-white/5 space-y-2 font-mono-label">
+        <div className="pt-3 border-t border-default space-y-2 font-mono-label">
           <div>
             <span className="text-on-surface-variant/70 text-[11px] block">Horas / Odômetro Acumulado</span>
             <span className="font-bold text-on-surface text-sm">
@@ -123,7 +123,7 @@ export const TireOverviewTab: React.FC<TireOverviewTabProps> = ({ tire }) => {
         </div>
 
         {tire.notes && (
-          <div className="pt-3 border-t border-white/5">
+          <div className="pt-3 border-t border-default">
             <span className="text-on-surface-variant/70 text-[11px] block font-mono-label">Observações</span>
             <p className="text-on-surface text-xs mt-1">{tire.notes}</p>
           </div>

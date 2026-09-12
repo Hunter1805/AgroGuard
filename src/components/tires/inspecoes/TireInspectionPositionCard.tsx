@@ -54,8 +54,8 @@ export const TireInspectionPositionCard: React.FC<TireInspectionPositionCardProp
   };
 
   return (
-    <div className="glass-card rounded-xl p-4 border border-white/10 space-y-3 bg-surface-container/40">
-      <div className="flex items-center justify-between border-b border-white/5 pb-2">
+    <div className="glass-card rounded-xl p-4 border border-default space-y-3 bg-surface-container/40">
+      <div className="flex items-center justify-between border-b border-default pb-2">
         <div className="flex items-center gap-2">
           <Disc size={16} className="text-primary" />
           <span className="font-bold text-on-surface text-xs">{item.positionName}</span>
@@ -88,7 +88,7 @@ export const TireInspectionPositionCard: React.FC<TireInspectionPositionCardProp
             type="number"
             value={item.measuredPressure ?? ''}
             onChange={e => onChange({ ...item, measuredPressure: e.target.value === '' ? undefined : Number(e.target.value) })}
-            className="w-full px-2.5 py-1.5 bg-surface-container rounded-lg border border-white/10 text-on-surface font-mono-label"
+            className="w-full px-2.5 py-1.5 bg-surface-container rounded-lg border border-default text-on-surface font-mono-label"
             placeholder="Ex: 32"
           />
         </div>
@@ -100,7 +100,7 @@ export const TireInspectionPositionCard: React.FC<TireInspectionPositionCardProp
             step="0.1"
             value={item.measuredTreadDepth ?? ''}
             onChange={e => onChange({ ...item, measuredTreadDepth: e.target.value === '' ? undefined : Number(e.target.value) })}
-            className="w-full px-2.5 py-1.5 bg-surface-container rounded-lg border border-white/10 text-on-surface font-mono-label"
+            className="w-full px-2.5 py-1.5 bg-surface-container rounded-lg border border-default text-on-surface font-mono-label"
             placeholder="Ex: 14.5"
           />
         </div>
@@ -110,7 +110,7 @@ export const TireInspectionPositionCard: React.FC<TireInspectionPositionCardProp
           <select
             value={item.recommendedAction}
             onChange={e => onChange({ ...item, recommendedAction: e.target.value as any })}
-            className="w-full px-2.5 py-1.5 bg-surface-container rounded-lg border border-white/10 text-on-surface"
+            className="w-full px-2.5 py-1.5 bg-surface-container rounded-lg border border-default text-on-surface"
           >
             <option value="nenhuma">Nenhuma</option>
             <option value="calibrar">Calibrar</option>
@@ -138,7 +138,7 @@ export const TireInspectionPositionCard: React.FC<TireInspectionPositionCardProp
                 className={`px-2 py-0.5 rounded text-[10px] font-medium transition-colors border ${
                   isSelected
                     ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
-                    : 'bg-surface-container text-on-surface-variant/70 border-white/5 hover:bg-surface-container-highest'
+                    : 'bg-surface-container text-on-surface-variant/70 border-default hover:bg-surface-container-highest'
                 }`}
               >
                 {anomaly.label}

@@ -33,7 +33,7 @@ export const WorkOrderTimelineTab: React.FC<{ events: WorkOrderTimelineEvent[] }
     <div className="max-w-3xl mx-auto space-y-6">
       <h3 className="text-lg font-black font-title-md text-on-surface mb-6">Linha do Tempo Auditável</h3>
       
-      <div className="relative border-l-2 border-white/10 dark:border-gray-800 ml-4 space-y-8 pb-12">
+      <div className="relative border-l-2 border-default dark:border-gray-800 ml-4 space-y-8 pb-12">
         {sortedEvents.map((evt) => (
           <div key={evt.id} className="relative pl-8 group">
             {/* Dot */}
@@ -41,7 +41,7 @@ export const WorkOrderTimelineTab: React.FC<{ events: WorkOrderTimelineEvent[] }
               {getIcon(evt.action)}
             </div>
 
-            <div className="glass-card p-4 rounded-2xl border border-white/5 transition-colors hover:bg-surface-container/30">
+            <div className="glass-card p-4 rounded-2xl border border-default transition-colors hover:bg-surface-container/30">
               <div className="flex items-start justify-between mb-2">
                 <h4 className="font-extrabold text-sm text-on-surface">{evt.action}</h4>
                 <span className="text-xs font-bold text-on-surface-variant bg-surface-container-high px-2 py-1 rounded-full whitespace-nowrap">

@@ -66,11 +66,11 @@ export const ChecklistExecutionList: React.FC<ChecklistExecutionListProps> = ({
   }
 
   return (
-    <div className="glass-card bg-surface-container-highest/30 border border-white/10 rounded-xl overflow-hidden shadow-lg animate-fade-in">
+    <div className="glass-card bg-surface-container-highest/30 border border-default rounded-xl overflow-hidden shadow-lg animate-fade-in">
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-surface-container-highest/60 text-on-surface-variant font-mono-label text-[10px] uppercase border-b border-white/10">
+            <tr className="bg-surface-container-highest/60 text-on-surface-variant font-mono-label text-[10px] uppercase border-b border-default">
               <th className="px-4 py-3 font-semibold">Código</th>
               <th className="px-4 py-3 font-semibold">Checklist</th>
               <th className="px-4 py-3 font-semibold">Equipamento</th>
@@ -131,7 +131,7 @@ export const ChecklistExecutionList: React.FC<ChecklistExecutionListProps> = ({
                     <>
                       <button
                         onClick={() => navigate(ROUTE_HELPERS.checklistExecution(ex.id))}
-                        className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-surface-container border border-white/10 hover:text-primary transition-colors text-[11px] cursor-pointer"
+                        className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-surface-container border border-default hover:text-primary transition-colors text-[11px] cursor-pointer"
                         title="Ver ficha do checklist concluído"
                       >
                         <Eye size={13} /> Visualizar

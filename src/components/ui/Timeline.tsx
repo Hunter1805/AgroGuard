@@ -17,7 +17,7 @@ interface TimelineProps {
 }
 
 const colorClasses = {
-  default: 'bg-surface-container-highest border-white/20 text-on-surface-variant',
+  default: 'bg-surface-container-highest border-default text-on-surface-variant',
   primary: 'bg-primary/10 border-primary/30 text-primary',
   success: 'bg-success/10 border-success/30 text-success',
   warning: 'bg-warning/10 border-warning/30 text-warning',

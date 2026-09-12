@@ -36,9 +36,9 @@ export const NonConformityDetailDrawer: React.FC<NonConformityDetailDrawerProps>
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end bg-black/80 backdrop-blur-xs animate-fade-in text-[13px]">
-      <div className="w-full max-w-md bg-surface-container-highest border-l border-white/10 p-6 h-full overflow-y-auto space-y-5 shadow-2xl flex flex-col justify-between">
+      <div className="w-full max-w-md bg-surface-container-highest border-l border-default p-6 h-full overflow-y-auto space-y-5 shadow-2xl flex flex-col justify-between">
         <div className="space-y-5">
-          <div className="flex justify-between items-center pb-3 border-b border-white/10">
+          <div className="flex justify-between items-center pb-3 border-b border-default">
             <div>
               <span className="text-[11px] font-mono-label text-error font-bold uppercase block">{nc.code}</span>
               <h3 className="font-title-md text-[17px] font-bold text-on-surface leading-snug">{nc.title}</h3>
@@ -49,11 +49,11 @@ export const NonConformityDetailDrawer: React.FC<NonConformityDetailDrawerProps>
           </div>
 
           <div className="grid grid-cols-2 gap-2 text-[11px] font-mono-label">
-            <div className="p-2.5 rounded-xl bg-surface-container border border-white/5">
+            <div className="p-2.5 rounded-xl bg-surface-container border border-default">
               <span className="text-on-surface-variant/70 uppercase">Equipamento</span>
               <strong className="text-on-surface block text-[12px] truncate">{nc.equipmentCode}</strong>
             </div>
-            <div className="p-2.5 rounded-xl bg-surface-container border border-white/5">
+            <div className="p-2.5 rounded-xl bg-surface-container border border-default">
               <span className="text-on-surface-variant/70 uppercase">Criticidade</span>
               <strong className="text-error uppercase block text-[12px] flex items-center gap-1">
                 <ShieldAlert size={13} /> {nc.criticality}
@@ -63,7 +63,7 @@ export const NonConformityDetailDrawer: React.FC<NonConformityDetailDrawerProps>
 
           <div className="space-y-2 text-[12px]">
             <h4 className="text-[11px] font-mono-label text-on-surface-variant/80 uppercase">Descrição Apontada</h4>
-            <p className="p-3 rounded-xl bg-surface-container/60 border border-white/5 text-on-surface-variant/90 leading-relaxed">
+            <p className="p-3 rounded-xl bg-surface-container/60 border border-default text-on-surface-variant/90 leading-relaxed">
               {nc.description || 'Sem detalhes informados.'}
             </p>
           </div>
@@ -79,7 +79,7 @@ export const NonConformityDetailDrawer: React.FC<NonConformityDetailDrawerProps>
               <h4 className="text-[11px] font-mono-label text-on-surface-variant/80 uppercase">Foto(s) Anexadas</h4>
               <div className="flex gap-2 overflow-x-auto pb-1">
                 {nc.photoUrls.map((img, idx) => (
-                  <img key={idx} src={img} alt="Avaria na máquina" className="w-28 h-28 object-cover rounded-xl border border-white/10 shadow" />
+                  <img key={idx} src={img} alt="Avaria na máquina" className="w-28 h-28 object-cover rounded-xl border border-default shadow" />
                 ))}
               </div>
             </div>
@@ -101,7 +101,7 @@ export const NonConformityDetailDrawer: React.FC<NonConformityDetailDrawerProps>
                   value={orderIdInput}
                   onChange={(e) => setOrderIdInput(e.target.value)}
                   placeholder="Ex: OS-2026-062"
-                  className="bg-surface-container border border-white/20 rounded-lg px-2.5 py-1 text-[12px] text-on-surface w-full focus:outline-none"
+                  className="bg-surface-container border border-default rounded-lg px-2.5 py-1 text-[12px] text-on-surface w-full focus:outline-none"
                 />
                 <Button variant="outline" size="sm" onClick={handleLink} isLoading={isLinking} className="shrink-0 text-secondary">
                   Vincular OS
@@ -120,7 +120,7 @@ export const NonConformityDetailDrawer: React.FC<NonConformityDetailDrawerProps>
           )}
         </div>
 
-        <div className="pt-4 border-t border-white/10 flex justify-end gap-3">
+        <div className="pt-4 border-t border-default flex justify-end gap-3">
           <Button variant="outline" size="sm" onClick={onClose}>Fechar</Button>
           {nc.status !== 'resolvida' && nc.status !== 'cancelada' && (
             <Button

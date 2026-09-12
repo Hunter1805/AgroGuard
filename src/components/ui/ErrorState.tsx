@@ -26,7 +26,7 @@ export const ErrorState: React.FC<ErrorStateProps> = ({
       {onRetry && (
         <button
           onClick={onRetry}
-          className="flex items-center gap-2 px-4 py-2 rounded-md bg-surface-container-highest border border-white/10 text-[13px] text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all cursor-pointer"
+          className="flex items-center gap-2 px-4 py-2 rounded-md bg-surface-container-highest border border-default text-[13px] text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all cursor-pointer"
         >
           <RefreshCw size={14} />
           Tentar novamente

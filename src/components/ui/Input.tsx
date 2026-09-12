@@ -20,7 +20,7 @@ export const Input: React.FC<InputProps> = ({ label, error, icon, className = ''
           className={`w-full bg-surface-container-highest/60 border rounded-md py-1.5 ${
             icon ? 'pl-9' : 'pl-3'
           } pr-3 text-[13px] text-on-surface focus:outline-none focus:border-primary/50 placeholder:text-on-surface-variant/40 transition-all ${
-            error ? 'border-error' : 'border-white/10'
+            error ? 'border-error' : 'border-default'
           } ${className}`}
           {...props}
         />

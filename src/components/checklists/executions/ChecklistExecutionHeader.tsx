@@ -25,7 +25,7 @@ export const ChecklistExecutionHeader: React.FC<ChecklistExecutionHeaderProps> =
   const progressPercent = totalItems > 0 ? Math.round((answeredItems / totalItems) * 100) : 0;
 
   return (
-    <div className="sticky top-0 z-40 bg-surface-container-highest/95 backdrop-blur-md border-b border-white/10 p-4 shadow-xl">
+    <div className="sticky top-0 z-40 bg-surface-container-highest/95 backdrop-blur-md border-b border-default p-4 shadow-xl">
       <div className="max-w-5xl mx-auto flex flex-col gap-3">
         {/* Linha superior */}
         <div className="flex items-center justify-between gap-3 flex-wrap">
@@ -78,7 +78,7 @@ export const ChecklistExecutionHeader: React.FC<ChecklistExecutionHeaderProps> =
         </div>
 
         {/* Informações da Máquina e Indicadores do Progresso */}
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-2.5 text-[12px] p-2.5 rounded-xl bg-surface-container/60 border border-white/5 font-mono-label">
+        <div className="grid grid-cols-1 sm:grid-cols-4 gap-2.5 text-[12px] p-2.5 rounded-xl bg-surface-container/60 border border-default font-mono-label">
           <div className="flex items-center gap-2 text-on-surface truncate">
             <Tractor size={15} className="text-primary shrink-0" />
             <span className="truncate"><strong>{execution.equipmentCode}</strong> — {execution.equipmentName}</span>

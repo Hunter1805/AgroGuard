@@ -26,7 +26,7 @@ export const ReportTable: React.FC<ReportTableProps> = ({ data, visibleColumns }
     <div className="overflow-x-auto text-xs">
       <table className="w-full text-left">
         <thead>
-          <tr className="bg-surface-container-highest/40 text-on-surface-variant/70 font-mono-label uppercase border-b border-white/5">
+          <tr className="bg-surface-container-highest/40 text-on-surface-variant/70 font-mono-label uppercase border-b border-default">
             {visibleColumns.map(col => (
               <th key={col.id} className={`px-4 py-3 font-medium ${col.align === 'right' ? 'text-right' : ''}`}>
                 {col.label}
@@ -52,7 +52,7 @@ export const ReportTable: React.FC<ReportTableProps> = ({ data, visibleColumns }
         </tbody>
         {data.totals && (
           <tfoot>
-            <tr className="bg-surface-container-highest/60 font-bold text-on-surface border-t-2 border-white/10 font-mono-label">
+            <tr className="bg-surface-container-highest/60 font-bold text-on-surface border-t-2 border-default font-mono-label">
               {visibleColumns.map((col, idx) => (
                 <td key={col.id} className={`px-4 py-3 ${col.align === 'right' ? 'text-right' : ''}`}>
                   {idx === 0 ? 'TOTAL' : data.totals?.[col.id] !== undefined ? formatCellValue(data.totals[col.id], col) : ''}

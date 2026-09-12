@@ -41,9 +41,9 @@ export const FavoriteReportModal: React.FC<FavoriteReportModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 text-xs">
-      <div className="bg-surface-container-highest border border-white/10 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl animate-fade-in">
-        <div className="p-4 border-b border-white/10 flex items-center justify-between">
+    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4 text-xs">
+      <div className="bg-surface-container-highest border border-default rounded-2xl w-full max-w-md overflow-hidden shadow-2xl animate-fade-in">
+        <div className="p-4 border-b border-default flex items-center justify-between">
           <h3 className="font-bold text-on-surface text-sm flex items-center gap-2">
             <Bookmark size={16} className="text-primary" /> Salvar Relatório Favorito
           </h3>
@@ -66,7 +66,7 @@ export const FavoriteReportModal: React.FC<FavoriteReportModalProps> = ({
               type="text"
               value={name}
               onChange={e => setName(e.target.value)}
-              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-bold"
+              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-bold"
               required
             />
           </div>
@@ -76,12 +76,12 @@ export const FavoriteReportModal: React.FC<FavoriteReportModalProps> = ({
               type="checkbox"
               checked={isPrivate}
               onChange={e => setIsPrivate(e.target.checked)}
-              className="rounded bg-surface-container border-white/10 text-primary"
+              className="rounded bg-surface-container border-default text-primary"
             />
             Relatório Privado (Apenas eu poderei visualizar)
           </label>
 
-          <div className="pt-3 border-t border-white/10 flex items-center justify-end gap-2">
+          <div className="pt-3 border-t border-default flex items-center justify-end gap-2">
             <Button type="button" variant="outline" size="sm" onClick={onClose}>
               Cancelar
             </Button>

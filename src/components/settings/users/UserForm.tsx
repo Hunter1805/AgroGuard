@@ -54,9 +54,9 @@ export const UserForm: React.FC<FormProps> = ({ isOpen, onClose, initialData, on
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative z-10 w-full max-w-lg bg-surface-container-lowest border border-white/10 rounded-xl p-5 shadow-2xl space-y-4">
-        <div className="flex items-center justify-between border-b border-white/10 pb-3">
+      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+      <div className="relative z-10 w-full max-w-lg bg-surface-container-lowest border border-default rounded-xl p-5 shadow-2xl space-y-4">
+        <div className="flex items-center justify-between border-b border-default pb-3">
           <div className="flex items-center gap-2">
             <div className="p-2 rounded-lg bg-primary/10 text-primary border border-primary/20">
               <User size={18} />
@@ -95,7 +95,7 @@ export const UserForm: React.FC<FormProps> = ({ isOpen, onClose, initialData, on
                   onChange={(e) => setFormData((p) => ({ ...p, name: e.target.value }))}
                   required
                   placeholder="Ex: João da Silva"
-                  className="w-full bg-surface-container-highest border border-white/10 rounded-lg p-2 text-[13px] text-on-surface focus:outline-none focus:border-primary/50"
+                  className="w-full bg-surface-container-highest border border-default rounded-lg p-2 text-[13px] text-on-surface focus:outline-none focus:border-primary/50"
                 />
               </div>
               <div className="grid grid-cols-2 gap-3">
@@ -107,7 +107,7 @@ export const UserForm: React.FC<FormProps> = ({ isOpen, onClose, initialData, on
                     onChange={(e) => setFormData((p) => ({ ...p, email: e.target.value }))}
                     required
                     placeholder="joao@agroguard.com.br"
-                    className="w-full bg-surface-container-highest border border-white/10 rounded-lg p-2 text-[13px] text-on-surface focus:outline-none focus:border-primary/50"
+                    className="w-full bg-surface-container-highest border border-default rounded-lg p-2 text-[13px] text-on-surface focus:outline-none focus:border-primary/50"
                   />
                 </div>
                 <div>
@@ -117,7 +117,7 @@ export const UserForm: React.FC<FormProps> = ({ isOpen, onClose, initialData, on
                     value={formData.phone || ''}
                     onChange={(e) => setFormData((p) => ({ ...p, phone: e.target.value }))}
                     placeholder="(16) 99999-0000"
-                    className="w-full bg-surface-container-highest border border-white/10 rounded-lg p-2 text-[13px] text-on-surface focus:outline-none focus:border-primary/50"
+                    className="w-full bg-surface-container-highest border border-default rounded-lg p-2 text-[13px] text-on-surface focus:outline-none focus:border-primary/50"
                   />
                 </div>
               </div>
@@ -134,7 +134,7 @@ export const UserForm: React.FC<FormProps> = ({ isOpen, onClose, initialData, on
                     type="text"
                     value={formData.employeeCode || ''}
                     onChange={(e) => setFormData((p) => ({ ...p, employeeCode: e.target.value }))}
-                    className="w-full bg-surface-container-highest border border-white/10 rounded-lg p-2 text-[13px] text-on-surface focus:outline-none focus:border-primary/50 font-mono-label"
+                    className="w-full bg-surface-container-highest border border-default rounded-lg p-2 text-[13px] text-on-surface focus:outline-none focus:border-primary/50 font-mono-label"
                   />
                 </div>
                 <div>
@@ -144,7 +144,7 @@ export const UserForm: React.FC<FormProps> = ({ isOpen, onClose, initialData, on
                     value={formData.jobTitle || ''}
                     onChange={(e) => setFormData((p) => ({ ...p, jobTitle: e.target.value }))}
                     placeholder="Ex: Mecânico Diesel Sênior"
-                    className="w-full bg-surface-container-highest border border-white/10 rounded-lg p-2 text-[13px] text-on-surface focus:outline-none focus:border-primary/50"
+                    className="w-full bg-surface-container-highest border border-default rounded-lg p-2 text-[13px] text-on-surface focus:outline-none focus:border-primary/50"
                   />
                 </div>
               </div>
@@ -159,7 +159,7 @@ export const UserForm: React.FC<FormProps> = ({ isOpen, onClose, initialData, on
                 <select
                   value={formData.primaryRoleId || 'role-mecanico'}
                   onChange={(e) => setFormData((p) => ({ ...p, primaryRoleId: e.target.value, primaryRoleName: e.target.options[e.target.selectedIndex].text }))}
-                  className="w-full bg-surface-container-highest border border-white/10 rounded-lg p-2 text-[13px] text-on-surface focus:outline-none focus:border-primary/50"
+                  className="w-full bg-surface-container-highest border border-default rounded-lg p-2 text-[13px] text-on-surface focus:outline-none focus:border-primary/50"
                 >
                   <option value="role-admin">Administrador do Sistema</option>
                   <option value="role-gestor">Gestor Operacional</option>
@@ -178,7 +178,7 @@ export const UserForm: React.FC<FormProps> = ({ isOpen, onClose, initialData, on
           {step === 4 && (
             <div className="space-y-3">
               <h4 className="text-[12px] font-semibold text-on-surface-variant uppercase tracking-wider">Revisão e Confirmação</h4>
-              <div className="glass-card rounded-xl border border-white/10 p-3 space-y-1.5 text-[12px]">
+              <div className="glass-card rounded-xl border border-default p-3 space-y-1.5 text-[12px]">
                 <p><strong className="text-on-surface-variant">Nome:</strong> <span className="text-on-surface font-semibold">{formData.name}</span></p>
                 <p><strong className="text-on-surface-variant">E-mail:</strong> <span className="text-on-surface">{formData.email}</span></p>
                 <p><strong className="text-on-surface-variant">Cargo:</strong> <span className="text-on-surface">{formData.jobTitle || '—'}</span></p>
@@ -187,11 +187,11 @@ export const UserForm: React.FC<FormProps> = ({ isOpen, onClose, initialData, on
             </div>
           )}
 
-          <div className="flex justify-between gap-2 pt-3 border-t border-white/10">
+          <div className="flex justify-between gap-2 pt-3 border-t border-default">
             <button
               type="button"
               onClick={() => step > 1 ? setStep((s) => (s - 1) as FormStep) : onClose()}
-              className="px-3 py-1.5 rounded-lg border border-white/10 text-[12px] text-on-surface-variant hover:text-on-surface"
+              className="px-3 py-1.5 rounded-lg border border-default text-[12px] text-on-surface-variant hover:text-on-surface"
             >
               {step > 1 ? 'Anterior' : 'Cancelar'}
             </button>

@@ -11,7 +11,7 @@ interface StockFiltersProps {
 
 export const StockFilters: React.FC<StockFiltersProps> = ({ filters, onFilterChange, onReset }) => {
   return (
-    <div className="p-4 bg-surface-container-low/50 border-b border-white/10 space-y-3 text-xs">
+    <div className="p-4 bg-surface-container-low/50 border-b border-default space-y-3 text-xs">
       <div className="flex items-center gap-1.5 font-bold text-on-surface text-[11px] font-mono-label mb-1">
         <Filter size={14} className="text-primary" /> Filtros e Busca no Estoque
       </div>
@@ -23,7 +23,7 @@ export const StockFilters: React.FC<StockFiltersProps> = ({ filters, onFilterCha
             placeholder="Buscar por código, nome, marca ou código de barras..."
             value={filters.search || ''}
             onChange={e => onFilterChange({ search: e.target.value })}
-            className="w-full pl-9 pr-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface focus:outline-none focus:border-primary/50 text-xs"
+            className="w-full pl-9 pr-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface focus:outline-none focus:border-primary/50 text-xs"
           />
         </div>
 
@@ -31,7 +31,7 @@ export const StockFilters: React.FC<StockFiltersProps> = ({ filters, onFilterCha
           <select
             value={filters.type || 'todos'}
             onChange={e => onFilterChange({ type: e.target.value as StockItemType | 'todos' })}
-            className="px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface text-xs"
+            className="px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface text-xs"
           >
             <option value="todos">Todos os Tipos</option>
             <option value="peca">Peça de Reposição</option>
@@ -49,7 +49,7 @@ export const StockFilters: React.FC<StockFiltersProps> = ({ filters, onFilterCha
           <select
             value={filters.status || 'todos'}
             onChange={e => onFilterChange({ status: e.target.value as StockItemStatus | 'todos' })}
-            className="px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface text-xs"
+            className="px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface text-xs"
           >
             <option value="todos">Todos os Status</option>
             <option value="ativo">Ativo</option>
@@ -64,13 +64,13 @@ export const StockFilters: React.FC<StockFiltersProps> = ({ filters, onFilterCha
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-4 text-[11px] font-mono-label pt-1 border-t border-white/5">
+      <div className="flex flex-wrap items-center gap-4 text-[11px] font-mono-label pt-1 border-t border-default">
         <label className="flex items-center gap-1.5 cursor-pointer text-amber-400">
           <input
             type="checkbox"
             checked={Boolean(filters.belowMinimumOnly)}
             onChange={e => onFilterChange({ belowMinimumOnly: e.target.checked })}
-            className="rounded bg-surface-container border-white/10 text-amber-500"
+            className="rounded bg-surface-container border-default text-amber-500"
           />
           Abaixo do Mínimo
         </label>
@@ -80,7 +80,7 @@ export const StockFilters: React.FC<StockFiltersProps> = ({ filters, onFilterCha
             type="checkbox"
             checked={Boolean(filters.outOfStockOnly)}
             onChange={e => onFilterChange({ outOfStockOnly: e.target.checked })}
-            className="rounded bg-surface-container border-white/10 text-rose-500"
+            className="rounded bg-surface-container border-default text-rose-500"
           />
           Sem Estoque
         </label>
@@ -90,7 +90,7 @@ export const StockFilters: React.FC<StockFiltersProps> = ({ filters, onFilterCha
             type="checkbox"
             checked={Boolean(filters.hasReservationsOnly)}
             onChange={e => onFilterChange({ hasReservationsOnly: e.target.checked })}
-            className="rounded bg-surface-container border-white/10 text-blue-500"
+            className="rounded bg-surface-container border-default text-blue-500"
           />
           Com Reserva
         </label>

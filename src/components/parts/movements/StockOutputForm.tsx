@@ -24,10 +24,10 @@ export const StockOutputForm: React.FC<StockOutputFormProps> = ({ initialItemId,
   const [quantity, setQuantity] = useState<number>(2);
   const [type, setType] = useState<'consumo' | 'saida' | 'descarte'>('consumo');
   const [workOrderCode, setWorkOrderCode] = useState(initialWorkOrderCode || 'OS-2026-105');
-  const [equipmentName, setEquipmentName] = useState('Trator Valtra A750 14');
-  const [responsibleName, setResponsibleName] = useState('Carlos Silva (Mecânico)');
-  const [deliveredByName, setDeliveredByName] = useState('Roberto Alves (Almoxarife)');
-  const [notes, setNotes] = useState('Saída para preventiva de 250 horas');
+  const [equipmentName, setEquipmentName] = useState('');
+  const [responsibleName, setResponsibleName] = useState('');
+  const [deliveredByName, setDeliveredByName] = useState('');
+  const [notes, setNotes] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,9 +61,9 @@ export const StockOutputForm: React.FC<StockOutputFormProps> = ({ initialItemId,
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 text-xs">
-      <div className="bg-surface-container-highest border border-white/10 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl animate-fade-in max-h-[90vh] flex flex-col">
-        <div className="p-4 border-b border-white/10 flex items-center justify-between">
+    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4 text-xs">
+      <div className="bg-surface-container-highest border border-default rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl animate-fade-in max-h-[90vh] flex flex-col">
+        <div className="p-4 border-b border-default flex items-center justify-between">
           <h3 className="font-bold text-on-surface text-sm flex items-center gap-2 text-rose-400">
             <ArrowUpRight size={18} />
             Registrar Saída / Consumo de Estoque
@@ -86,7 +86,7 @@ export const StockOutputForm: React.FC<StockOutputFormProps> = ({ initialItemId,
             <select
               value={itemId}
               onChange={e => setItemId(e.target.value)}
-              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-bold"
+              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-bold"
               required
             >
               <option value="">Selecione o item a retirar...</option>
@@ -104,7 +104,7 @@ export const StockOutputForm: React.FC<StockOutputFormProps> = ({ initialItemId,
               <select
                 value={type}
                 onChange={e => setType(e.target.value as any)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-bold"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-bold"
               >
                 <option value="consumo">Consumo por Ordem de Serviço</option>
                 <option value="saida">Saída Geral / Setor</option>
@@ -122,7 +122,7 @@ export const StockOutputForm: React.FC<StockOutputFormProps> = ({ initialItemId,
                 max={selectedItem?.availableQuantity}
                 value={quantity}
                 onChange={e => setQuantity(Number(e.target.value))}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-mono-label font-bold"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-mono-label font-bold"
                 required
               />
             </div>
@@ -136,7 +136,7 @@ export const StockOutputForm: React.FC<StockOutputFormProps> = ({ initialItemId,
                 placeholder="Ex: OS-2026-105"
                 value={workOrderCode}
                 onChange={e => setWorkOrderCode(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-mono-label font-bold"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-mono-label font-bold"
               />
             </div>
             <div>
@@ -145,7 +145,7 @@ export const StockOutputForm: React.FC<StockOutputFormProps> = ({ initialItemId,
                 type="text"
                 value={equipmentName}
                 onChange={e => setEquipmentName(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
               />
             </div>
           </div>
@@ -157,7 +157,7 @@ export const StockOutputForm: React.FC<StockOutputFormProps> = ({ initialItemId,
                 type="text"
                 value={responsibleName}
                 onChange={e => setResponsibleName(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
                 required
               />
             </div>
@@ -167,7 +167,7 @@ export const StockOutputForm: React.FC<StockOutputFormProps> = ({ initialItemId,
                 type="text"
                 value={deliveredByName}
                 onChange={e => setDeliveredByName(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
               />
             </div>
           </div>
@@ -178,11 +178,11 @@ export const StockOutputForm: React.FC<StockOutputFormProps> = ({ initialItemId,
               rows={2}
               value={notes}
               onChange={e => setNotes(e.target.value)}
-              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
             />
           </div>
 
-          <div className="pt-3 border-t border-white/10 flex items-center justify-end gap-2">
+          <div className="pt-3 border-t border-default flex items-center justify-end gap-2">
             <Button type="button" variant="outline" size="sm" onClick={onClose}>
               Cancelar
             </Button>

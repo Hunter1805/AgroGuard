@@ -18,8 +18,8 @@ export const ReportChart: React.FC<ReportChartProps> = ({ title, description, se
   const maxValue = Math.max(...series.map(s => s.value), 1);
 
   return (
-    <div className="glass-card rounded-2xl p-5 border border-white/10 space-y-4 text-xs">
-      <div className="flex items-center justify-between border-b border-white/5 pb-2">
+    <div className="glass-card rounded-2xl p-5 border border-default space-y-4 text-xs">
+      <div className="flex items-center justify-between border-b border-default pb-2">
         <div>
           <h4 className="font-bold text-on-surface text-sm flex items-center gap-2">
             <BarChart3 size={16} className="text-primary" /> {title}
@@ -39,7 +39,7 @@ export const ReportChart: React.FC<ReportChartProps> = ({ title, description, se
                   {item.value} {unit}
                 </span>
               </div>
-              <div className="w-full bg-surface-container rounded-full h-2.5 overflow-hidden border border-white/5">
+              <div className="w-full bg-surface-container rounded-full h-2.5 overflow-hidden border border-default">
                 <div
                   className={`h-full rounded-full transition-all duration-500 ${item.color || 'bg-primary'}`}
                   style={{ width: `${Math.max(5, percentage)}%` }}

@@ -44,8 +44,8 @@ export const MasterDataStatusModal: React.FC<StatusModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative z-10 w-full max-w-md bg-surface-container-lowest border border-white/10 rounded-xl p-5 shadow-2xl space-y-4">
+      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+      <div className="relative z-10 w-full max-w-md bg-surface-container-lowest border border-default rounded-xl p-5 shadow-2xl space-y-4">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-2">
             <div className={`p-2 rounded-lg border ${isActivate ? 'bg-success/10 text-success border-success/20' : 'bg-warning/10 text-warning border-warning/20'}`}>
@@ -74,16 +74,16 @@ export const MasterDataStatusModal: React.FC<StatusModalProps> = ({
                 required
                 rows={3}
                 placeholder="Descreva o motivo da alteração de status..."
-                className="w-full bg-surface-container-highest border border-white/10 rounded-lg p-2.5 text-[13px] text-on-surface focus:outline-none focus:border-primary/50 placeholder:text-on-surface-variant/40 resize-none"
+                className="w-full bg-surface-container-highest border border-default rounded-lg p-2.5 text-[13px] text-on-surface focus:outline-none focus:border-primary/50 placeholder:text-on-surface-variant/40 resize-none"
               />
             </div>
           )}
 
-          <div className="flex justify-end gap-2 pt-2 border-t border-white/10">
+          <div className="flex justify-end gap-2 pt-2 border-t border-default">
             <button
               type="button"
               onClick={onClose}
-              className="px-3 py-1.5 rounded-lg border border-white/10 text-[12px] text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest"
+              className="px-3 py-1.5 rounded-lg border border-default text-[12px] text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest"
             >
               Cancelar
             </button>

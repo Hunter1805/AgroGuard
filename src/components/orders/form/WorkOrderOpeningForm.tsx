@@ -90,7 +90,7 @@ export const WorkOrderOpeningForm: React.FC = () => {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="glass-card p-6 rounded-2xl border border-white/10 space-y-6">
+      <form onSubmit={handleSubmit} className="glass-card p-6 rounded-2xl border border-default space-y-6">
         
         <div className="space-y-4">
           <h3 className="font-title-md font-bold text-primary flex items-center gap-2 border-b border-primary/20 pb-2">

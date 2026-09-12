@@ -113,9 +113,9 @@ export const NextMaintenancePanel: React.FC<NextMaintenancePanelProps> = ({ item
   const urgentCount = items.filter((i) => i.status === 'urgente').length;
 
   return (
-    <div className="glass-card rounded-xl flex flex-col border-white/5">
+    <div className="glass-card rounded-xl flex flex-col border-default">
       {/* Cabeçalho */}
-      <div className="flex justify-between items-center p-4 border-b border-white/5 bg-surface/30 rounded-t-xl">
+      <div className="flex justify-between items-center p-4 border-b border-default bg-surface/30 rounded-t-xl">
         <div className="flex items-center gap-2">
           <Wrench size={16} className="text-on-surface-variant" />
           <h3 className="font-body-sm text-[13px] font-semibold text-on-surface">Próximas Manutenções</h3>

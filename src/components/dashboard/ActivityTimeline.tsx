@@ -28,7 +28,7 @@ const ACTIVITY_CONFIG: Record<ActivityType, {
   },
   reading_recorded: {
     icon: <Gauge size={13} />,
-    colorClass: 'text-on-surface-variant border-white/20 bg-surface-container-highest',
+    colorClass: 'text-on-surface-variant border-default bg-surface-container-highest',
     dotClass: 'bg-on-surface-variant',
   },
   checklist_completed: {
@@ -53,7 +53,7 @@ const ACTIVITY_CONFIG: Record<ActivityType, {
   },
   part_used: {
     icon: <Package size={13} />,
-    colorClass: 'text-on-surface-variant border-white/20 bg-surface-container-highest',
+    colorClass: 'text-on-surface-variant border-default bg-surface-container-highest',
     dotClass: 'bg-on-surface-variant',
   },
   equipment_released: {
@@ -132,8 +132,8 @@ const ActivityItem: React.FC<{ activity: DashboardActivity; isLast: boolean }> =
 
 export const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ activities, loading }) => {
   return (
-    <div className="glass-card rounded-xl flex flex-col border-white/5">
-      <div className="p-4 border-b border-white/5 bg-surface/30 rounded-t-xl">
+    <div className="glass-card rounded-xl flex flex-col border-default">
+      <div className="p-4 border-b border-default bg-surface/30 rounded-t-xl">
         <h3 className="font-body-sm text-[13px] font-semibold text-on-surface">Atividade Recente</h3>
         <p className="text-[11px] text-on-surface-variant/60 mt-0.5">Últimos eventos registrados no sistema</p>
       </div>

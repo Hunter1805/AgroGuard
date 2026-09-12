@@ -58,9 +58,9 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 p-4 bg-black/60 backdrop-blur-sm">
-      <div className="glass-card w-full max-w-xl rounded-xl border border-white/10 overflow-hidden shadow-2xl">
-        <div className="p-3 border-b border-white/10 flex items-center gap-3">
+    <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 p-4 bg-black/50">
+      <div className="glass-card w-full max-w-xl rounded-xl border border-default overflow-hidden shadow-2xl">
+        <div className="p-3 border-b border-default flex items-center gap-3">
           <Search size={20} className="text-primary" />
           <input
             autoFocus
@@ -73,7 +73,7 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
           />
           <button
             onClick={onClose}
-            className="text-xs text-on-surface-variant hover:text-on-surface bg-surface border border-white/10 px-2 py-0.5 rounded cursor-pointer"
+            className="text-xs text-on-surface-variant hover:text-on-surface bg-surface border border-default px-2 py-0.5 rounded cursor-pointer"
           >
             ESC
           </button>
@@ -94,7 +94,7 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
                 <span className="text-[13px] text-on-surface group-hover:text-primary transition-colors font-medium">
                   {item.title}
                 </span>
-                <span className="text-[10px] font-mono-label px-2 py-0.5 rounded bg-surface border border-white/10 text-on-surface-variant">
+                <span className="text-[10px] font-mono-label px-2 py-0.5 rounded bg-surface border border-default text-on-surface-variant">
                   {item.type}
                 </span>
               </button>

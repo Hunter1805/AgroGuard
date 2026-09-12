@@ -44,7 +44,7 @@ export const StepTechnical: React.FC<StepTechnicalProps> = ({ data, onChange }) 
             placeholder="Ex: 75 cv, 360 cv"
             value={data.enginePower || ''}
             onChange={(e) => onChange('enginePower', e.target.value)}
-            className="w-full bg-surface-container-highest border border-white/10 rounded-md px-3 py-2 text-[13px] text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary/50"
+            className="w-full bg-surface-container-highest border border-default rounded-md px-3 py-2 text-[13px] text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary/50"
           />
         </div>
 
@@ -58,7 +58,7 @@ export const StepTechnical: React.FC<StepTechnicalProps> = ({ data, onChange }) 
             placeholder="Ex: 4x2, 4x4, Duplado, Esteira"
             value={data.tireConfig || ''}
             onChange={(e) => onChange('tireConfig', e.target.value)}
-            className="w-full bg-surface-container-highest border border-white/10 rounded-md px-3 py-2 text-[13px] text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary/50"
+            className="w-full bg-surface-container-highest border border-default rounded-md px-3 py-2 text-[13px] text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary/50"
           />
         </div>
 
@@ -72,7 +72,7 @@ export const StepTechnical: React.FC<StepTechnicalProps> = ({ data, onChange }) 
             placeholder="Ex: DD/MM/AAAA"
             value={data.lastMaintenanceDate || ''}
             onChange={(e) => onChange('lastMaintenanceDate', e.target.value)}
-            className="w-full bg-surface-container-highest border border-white/10 rounded-md px-3 py-2 text-[13px] text-on-surface font-mono-label placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary/50"
+            className="w-full bg-surface-container-highest border border-default rounded-md px-3 py-2 text-[13px] text-on-surface font-mono-label placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary/50"
           />
         </div>
 
@@ -86,7 +86,7 @@ export const StepTechnical: React.FC<StepTechnicalProps> = ({ data, onChange }) 
             placeholder="Observações adicionais sobre o estado do equipamento, adaptações ou histórico de uso..."
             value={data.notes || ''}
             onChange={(e) => onChange('notes', e.target.value)}
-            className="w-full bg-surface-container-highest border border-white/10 rounded-md p-3 text-[13px] text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary/50 resize-none"
+            className="w-full bg-surface-container-highest border border-default rounded-md p-3 text-[13px] text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary/50 resize-none"
           />
         </div>
       </div>

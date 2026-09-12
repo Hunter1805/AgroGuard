@@ -52,9 +52,9 @@ export const PriorityForm: React.FC<FormProps> = ({ isOpen, onClose, initialData
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative z-10 w-full max-w-md bg-surface-container-lowest border border-white/10 rounded-xl p-5 shadow-2xl space-y-4">
-        <div className="flex items-center justify-between border-b border-white/10 pb-3">
+      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+      <div className="relative z-10 w-full max-w-md bg-surface-container-lowest border border-default rounded-xl p-5 shadow-2xl space-y-4">
+        <div className="flex items-center justify-between border-b border-default pb-3">
           <div className="flex items-center gap-2">
             <div className="p-2 rounded-lg bg-primary/10 text-primary border border-primary/20">
               <Flame size={18} />
@@ -77,7 +77,7 @@ export const PriorityForm: React.FC<FormProps> = ({ isOpen, onClose, initialData
                 value={formData.code || ''}
                 onChange={(e) => setFormData((p) => ({ ...p, code: e.target.value }))}
                 required
-                className="w-full bg-surface-container-highest border border-white/10 rounded-lg p-2 text-[13px] text-on-surface focus:outline-none focus:border-primary/50"
+                className="w-full bg-surface-container-highest border border-default rounded-lg p-2 text-[13px] text-on-surface focus:outline-none focus:border-primary/50"
               />
             </div>
             <div>
@@ -85,7 +85,7 @@ export const PriorityForm: React.FC<FormProps> = ({ isOpen, onClose, initialData
               <select
                 value={formData.numericLevel || 1}
                 onChange={(e) => setFormData((p) => ({ ...p, numericLevel: Number(e.target.value) as any }))}
-                className="w-full bg-surface-container-highest border border-white/10 rounded-lg p-2 text-[13px] text-on-surface focus:outline-none focus:border-primary/50"
+                className="w-full bg-surface-container-highest border border-default rounded-lg p-2 text-[13px] text-on-surface focus:outline-none focus:border-primary/50"
               >
                 <option value={1}>1 — Baixa</option>
                 <option value={2}>2 — Média</option>
@@ -103,7 +103,7 @@ export const PriorityForm: React.FC<FormProps> = ({ isOpen, onClose, initialData
               onChange={(e) => setFormData((p) => ({ ...p, name: e.target.value }))}
               required
               placeholder="Ex: Baixa, Média, Alta, Crítica / Emergencial"
-              className="w-full bg-surface-container-highest border border-white/10 rounded-lg p-2 text-[13px] text-on-surface focus:outline-none focus:border-primary/50"
+              className="w-full bg-surface-container-highest border border-default rounded-lg p-2 text-[13px] text-on-surface focus:outline-none focus:border-primary/50"
             />
           </div>
 
@@ -115,7 +115,7 @@ export const PriorityForm: React.FC<FormProps> = ({ isOpen, onClose, initialData
                 value={formData.defaultDeadlineValue || ''}
                 onChange={(e) => setFormData((p) => ({ ...p, defaultDeadlineValue: Number(e.target.value) }))}
                 placeholder="24"
-                className="w-full bg-surface-container-highest border border-white/10 rounded-lg p-2 text-[13px] text-on-surface focus:outline-none focus:border-primary/50"
+                className="w-full bg-surface-container-highest border border-default rounded-lg p-2 text-[13px] text-on-surface focus:outline-none focus:border-primary/50"
               />
             </div>
             <div>
@@ -123,7 +123,7 @@ export const PriorityForm: React.FC<FormProps> = ({ isOpen, onClose, initialData
               <select
                 value={formData.defaultDeadlineUnit || 'horas'}
                 onChange={(e) => setFormData((p) => ({ ...p, defaultDeadlineUnit: e.target.value as any }))}
-                className="w-full bg-surface-container-highest border border-white/10 rounded-lg p-2 text-[13px] text-on-surface focus:outline-none focus:border-primary/50"
+                className="w-full bg-surface-container-highest border border-default rounded-lg p-2 text-[13px] text-on-surface focus:outline-none focus:border-primary/50"
               >
                 <option value="horas">Horas</option>
                 <option value="dias">Dias</option>
@@ -131,23 +131,23 @@ export const PriorityForm: React.FC<FormProps> = ({ isOpen, onClose, initialData
             </div>
           </div>
 
-          <div className="space-y-2 pt-2 border-t border-white/5">
+          <div className="space-y-2 pt-2 border-t border-default">
             <label className="flex items-center gap-2 text-[12px] text-on-surface cursor-pointer select-none">
               <input
                 type="checkbox"
                 checked={formData.requiresEquipmentBlock ?? false}
                 onChange={(e) => setFormData((p) => ({ ...p, requiresEquipmentBlock: e.target.checked }))}
-                className="rounded border-white/20 bg-surface-container-highest text-primary"
+                className="rounded border-default bg-surface-container-highest text-primary"
               />
               Bloqueia Equipamento Automaticamente
             </label>
           </div>
 
-          <div className="flex justify-end gap-2 pt-3 border-t border-white/10">
+          <div className="flex justify-end gap-2 pt-3 border-t border-default">
             <button
               type="button"
               onClick={onClose}
-              className="px-3 py-1.5 rounded-lg border border-white/10 text-[12px] text-on-surface-variant hover:text-on-surface"
+              className="px-3 py-1.5 rounded-lg border border-default text-[12px] text-on-surface-variant hover:text-on-surface"
             >
               Cancelar
             </button>

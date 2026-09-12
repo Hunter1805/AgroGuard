@@ -121,7 +121,7 @@ export const Step3StatusMeters: React.FC<StepProps> = ({ data, onChange }) => {
       </div>
 
       {/* Coleção de Medidores */}
-      <div className="space-y-4 pt-2 border-t border-white/5">
+      <div className="space-y-4 pt-2 border-t border-default">
         <div className="flex items-center justify-between">
           <div>
             <h4 className="font-title-md text-[14px] font-semibold text-on-surface flex items-center gap-2">
@@ -144,7 +144,7 @@ export const Step3StatusMeters: React.FC<StepProps> = ({ data, onChange }) => {
         </div>
 
         {meters.length === 0 ? (
-          <div className="p-4 rounded-xl border border-dashed border-white/10 bg-surface-container-highest/20 text-center">
+          <div className="p-4 rounded-xl border border-dashed border-default bg-surface-container-highest/20 text-center">
             <p className="text-[12px] text-on-surface-variant/60 mb-2">
               Nenhum medidor configurado neste ativo (ex: implementos sem medidor).
             </p>
@@ -163,9 +163,9 @@ export const Step3StatusMeters: React.FC<StepProps> = ({ data, onChange }) => {
             {meters.map((meter, idx) => (
               <div
                 key={meter.id}
-                className="glass-card p-4 rounded-xl border border-white/10 bg-surface-container-highest/40 space-y-3"
+                className="glass-card p-4 rounded-xl border border-default bg-surface-container-highest/40 space-y-3"
               >
-                <div className="flex items-center justify-between border-b border-white/5 pb-2">
+                <div className="flex items-center justify-between border-b border-default pb-2">
                   <span className="text-[12px] font-bold text-primary font-mono-label flex items-center gap-1.5">
                     <Clock size={13} /> Medidor #{idx + 1}
                   </span>

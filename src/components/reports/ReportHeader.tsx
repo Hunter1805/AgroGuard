@@ -26,7 +26,7 @@ export const ReportHeader: React.FC<ReportHeaderProps> = ({
   const navigate = useNavigate();
 
   return (
-    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 glass-card p-5 rounded-2xl border border-white/10 text-xs">
+    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 glass-card p-5 rounded-2xl border border-default text-xs">
       <div className="flex items-center gap-3">
         <Button variant="outline" size="sm" onClick={() => navigate(ROUTES.RELATORIOS)}>
           <ArrowLeft size={16} />

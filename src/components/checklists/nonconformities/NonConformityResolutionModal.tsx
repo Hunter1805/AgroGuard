@@ -17,7 +17,7 @@ export const NonConformityResolutionModal: React.FC<NonConformityResolutionModal
   onResolve,
 }) => {
   const [solutionApplied, setSolutionApplied] = useState('');
-  const [resolvedBy, setResolvedBy] = useState('Equipe de Oficina Mecânica');
+  const [resolvedBy, setResolvedBy] = useState('');
   const [photoAfterUrl, setPhotoAfterUrl] = useState('');
   const [unblockEquipment, setUnblockEquipment] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -52,8 +52,8 @@ export const NonConformityResolutionModal: React.FC<NonConformityResolutionModal
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs animate-fade-in">
-      <div className="relative max-w-lg w-full glass-card bg-surface-container-highest border border-white/10 rounded-2xl p-6 space-y-4 shadow-2xl text-[12px]">
-        <div className="flex justify-between items-center pb-2 border-b border-white/10 text-primary">
+      <div className="relative max-w-lg w-full glass-card bg-surface-container-highest border border-default rounded-2xl p-6 space-y-4 shadow-2xl text-[12px]">
+        <div className="flex justify-between items-center pb-2 border-b border-default text-primary">
           <div className="flex items-center gap-2">
             <Wrench size={20} />
             <h3 className="font-title-md text-[16px] font-bold text-on-surface">Tratar & Resolver Falha</h3>
@@ -63,7 +63,7 @@ export const NonConformityResolutionModal: React.FC<NonConformityResolutionModal
           </button>
         </div>
 
-        <div className="p-3 rounded-xl bg-surface-container/60 border border-white/5 space-y-1 font-mono-label text-[11px]">
+        <div className="p-3 rounded-xl bg-surface-container/60 border border-default space-y-1 font-mono-label text-[11px]">
           <p>Pendência: <strong>{nonConformity.code} — {nonConformity.title}</strong></p>
           <p>Equipamento: <strong className="text-secondary">{nonConformity.equipmentCode} ({nonConformity.equipmentName})</strong></p>
           <p>Criticidade: <strong className="uppercase text-error">{nonConformity.criticality}</strong></p>
@@ -80,7 +80,7 @@ export const NonConformityResolutionModal: React.FC<NonConformityResolutionModal
               type="text"
               value={resolvedBy}
               onChange={(e) => setResolvedBy(e.target.value)}
-              className="w-full bg-surface-container border border-white/10 rounded-lg px-3 py-2 text-on-surface focus:outline-none"
+              className="w-full bg-surface-container border border-default rounded-lg px-3 py-2 text-on-surface focus:outline-none"
               required
             />
           </div>
@@ -94,7 +94,7 @@ export const NonConformityResolutionModal: React.FC<NonConformityResolutionModal
               onChange={(e) => setSolutionApplied(e.target.value)}
               placeholder="Ex: Substituída a mangueira hidráulica e completado o nível de óleo..."
               rows={3}
-              className="w-full bg-surface-container border border-white/10 rounded-lg p-2.5 text-on-surface focus:outline-none"
+              className="w-full bg-surface-container border border-default rounded-lg p-2.5 text-on-surface focus:outline-none"
               required
             />
           </div>
@@ -108,7 +108,7 @@ export const NonConformityResolutionModal: React.FC<NonConformityResolutionModal
               value={photoAfterUrl}
               onChange={(e) => setPhotoAfterUrl(e.target.value)}
               placeholder="https://exemplo.com/foto-reparo-pronto.jpg"
-              className="w-full bg-surface-container border border-white/10 rounded-lg px-3 py-2 text-on-surface focus:outline-none"
+              className="w-full bg-surface-container border border-default rounded-lg px-3 py-2 text-on-surface focus:outline-none"
             />
           </div>
 
@@ -122,14 +122,14 @@ export const NonConformityResolutionModal: React.FC<NonConformityResolutionModal
                   type="checkbox"
                   checked={unblockEquipment}
                   onChange={(e) => setUnblockEquipment(e.target.checked)}
-                  className="rounded border-white/20 bg-surface-container text-success focus:ring-0"
+                  className="rounded border-default bg-surface-container text-success focus:ring-0"
                 />
                 <span className="text-success">Liberar imediatamente a operação da máquina ao concluir reparo</span>
               </label>
             </div>
           )}
 
-          <div className="flex justify-end gap-2 pt-3 border-t border-white/10">
+          <div className="flex justify-end gap-2 pt-3 border-t border-default">
             <Button variant="outline" size="sm" type="button" onClick={onClose}>Cancelar</Button>
             <Button variant="primary" size="sm" type="submit" isLoading={isSubmitting} icon={<Wrench size={14} />}>
               Confirmar Resolução

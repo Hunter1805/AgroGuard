@@ -57,7 +57,7 @@ export const OperationalIndicatorsView: React.FC = () => {
 
   return (
     <div className="space-y-4 text-xs animate-fade-in">
-      <div className="glass-card p-5 rounded-2xl border border-white/10 flex items-center justify-between">
+      <div className="glass-card p-5 rounded-2xl border border-default flex items-center justify-between">
         <div>
           <h2 className="text-xl font-bold text-on-surface flex items-center gap-2">
             <BarChart2 className="text-primary" size={20} /> Painel de Indicadores Operacionais Gerenciais
@@ -68,7 +68,7 @@ export const OperationalIndicatorsView: React.FC = () => {
         </div>
       </div>
 
-      <div className="glass-card rounded-2xl border border-white/10 overflow-hidden">
+      <div className="glass-card rounded-2xl border border-default overflow-hidden">
         <ReportGlobalFilters filters={filters} onFilterChange={updateFilters} onReset={resetFilters} />
 
         <div className="p-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -76,7 +76,7 @@ export const OperationalIndicatorsView: React.FC = () => {
             const Icon = c.icon;
             const isInsufficient = c.metric?.insufficientData;
             return (
-              <div key={idx} className="glass-card rounded-2xl p-5 border border-white/10 space-y-3 flex flex-col justify-between">
+              <div key={idx} className="glass-card rounded-2xl p-5 border border-default space-y-3 flex flex-col justify-between">
                 <div>
                   <div className="flex items-center justify-between">
                     <span className="font-bold text-on-surface text-sm">{c.title}</span>
@@ -95,7 +95,7 @@ export const OperationalIndicatorsView: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="pt-3 border-t border-white/5 space-y-1">
+                <div className="pt-3 border-t border-default space-y-1">
                   <span className="text-[10px] font-mono-label text-on-surface-variant/70 block">Fórmula: {c.formula}</span>
                   {c.metric?.tooltipExplanation && (
                     <p className="text-[10px] text-on-surface-variant/60 italic">{c.metric.tooltipExplanation}</p>

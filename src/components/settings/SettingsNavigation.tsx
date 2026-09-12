@@ -25,7 +25,7 @@ const SECTIONS = [
 
 export const SettingsNavigation: React.FC<NavProps> = ({ activeSection, onSelectSection }) => {
   return (
-    <div className="flex flex-wrap gap-1.5 p-1.5 glass-card rounded-xl border border-white/10">
+    <div className="flex flex-wrap gap-1.5 p-1.5 glass-card rounded-xl border border-default">
       {SECTIONS.map((sec) => {
         const Icon = sec.icon;
         const isActive = activeSection === sec.id;

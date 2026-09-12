@@ -16,7 +16,7 @@ export const UserFilters: React.FC<UserFiltersProps> = ({
   onStatusChange,
 }) => {
   return (
-    <div className="flex flex-col sm:flex-row gap-3 items-center justify-between glass-card p-3 rounded-xl border border-white/10">
+    <div className="flex flex-col sm:flex-row gap-3 items-center justify-between glass-card p-3 rounded-xl border border-default">
       <div className="relative flex-1 w-full">
         <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/50" />
         <input
@@ -24,7 +24,7 @@ export const UserFilters: React.FC<UserFiltersProps> = ({
           value={query}
           onChange={(e) => onQueryChange(e.target.value)}
           placeholder="Buscar por nome, e-mail ou matrícula..."
-          className="w-full bg-surface-container-highest/60 border border-white/10 rounded-lg py-1.5 pl-9 pr-8 text-[13px] text-on-surface focus:outline-none focus:border-primary/50 placeholder:text-on-surface-variant/40"
+          className="w-full bg-surface-container-highest/60 border border-default rounded-lg py-1.5 pl-9 pr-8 text-[13px] text-on-surface focus:outline-none focus:border-primary/50 placeholder:text-on-surface-variant/40"
         />
         {query && (
           <button onClick={() => onQueryChange('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant/50 hover:text-on-surface">
@@ -38,7 +38,7 @@ export const UserFilters: React.FC<UserFiltersProps> = ({
         <select
           value={statusFilter}
           onChange={(e) => onStatusChange(e.target.value as any)}
-          className="bg-surface-container-highest/60 border border-white/10 rounded-lg py-1.5 px-3 text-[12px] text-on-surface focus:outline-none focus:border-primary/50"
+          className="bg-surface-container-highest/60 border border-default rounded-lg py-1.5 px-3 text-[12px] text-on-surface focus:outline-none focus:border-primary/50"
         >
           <option value="todos">Todos os Status</option>
           <option value="ativo">Ativos</option>

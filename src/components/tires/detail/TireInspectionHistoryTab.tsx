@@ -11,7 +11,7 @@ export const TireInspectionHistoryTab: React.FC<TireInspectionHistoryTabProps> =
   return (
     <div className="space-y-6">
       {/* Calibragens */}
-      <div className="glass-card rounded-2xl p-5 border border-white/10 space-y-3">
+      <div className="glass-card rounded-2xl p-5 border border-default space-y-3">
         <h3 className="font-bold text-on-surface text-sm flex items-center gap-2">
           <Gauge size={16} className="text-primary" /> Histórico de Calibragens
         </h3>
@@ -22,7 +22,7 @@ export const TireInspectionHistoryTab: React.FC<TireInspectionHistoryTabProps> =
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="bg-surface-container-highest/40 text-on-surface-variant/70 font-mono-label uppercase border-b border-white/5">
+                <tr className="bg-surface-container-highest/40 text-on-surface-variant/70 font-mono-label uppercase border-b border-default">
                   <th className="px-3.5 py-2 font-medium">Data</th>
                   <th className="px-3.5 py-2 font-medium">Pressão Anterior</th>
                   <th className="px-3.5 py-2 font-medium">Pressão Ajustada</th>
@@ -49,7 +49,7 @@ export const TireInspectionHistoryTab: React.FC<TireInspectionHistoryTabProps> =
       </div>
 
       {/* Inspeções Completas */}
-      <div className="glass-card rounded-2xl p-5 border border-white/10 space-y-3">
+      <div className="glass-card rounded-2xl p-5 border border-default space-y-3">
         <h3 className="font-bold text-on-surface text-sm flex items-center gap-2">
           <ClipboardCheck size={16} className="text-primary" /> Inspeções com Avaliação de Sulco e Anomalias
         </h3>
@@ -61,7 +61,7 @@ export const TireInspectionHistoryTab: React.FC<TireInspectionHistoryTabProps> =
             {inspections.map(insp => {
               const item = insp.items.find(i => i.tireId);
               return (
-                <div key={insp.id} className="p-3.5 bg-surface-container/40 rounded-xl border border-white/5 text-xs space-y-2">
+                <div key={insp.id} className="p-3.5 bg-surface-container/40 rounded-xl border border-default text-xs space-y-2">
                   <div className="flex items-center justify-between font-mono-label">
                     <span className="font-bold text-primary">{insp.id} ({new Date(insp.date).toLocaleDateString('pt-BR')})</span>
                     <span className="capitalize text-on-surface-variant">Inspetor: {insp.responsibleName}</span>

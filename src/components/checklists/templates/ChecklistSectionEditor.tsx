@@ -39,8 +39,8 @@ export const ChecklistSectionEditor: React.FC<ChecklistSectionEditorProps> = ({
   };
 
   return (
-    <div className="glass-card bg-surface-container-highest/40 border border-white/10 rounded-2xl p-5 space-y-4 shadow-md">
-      <div className="flex items-center justify-between gap-3 pb-3 border-b border-white/10">
+    <div className="glass-card bg-surface-container-highest/40 border border-default rounded-2xl p-5 space-y-4 shadow-md">
+      <div className="flex items-center justify-between gap-3 pb-3 border-b border-default">
         <div className="flex items-center gap-2 w-full max-w-lg">
           <Layers size={18} className="text-primary shrink-0" />
           <input
@@ -48,7 +48,7 @@ export const ChecklistSectionEditor: React.FC<ChecklistSectionEditorProps> = ({
             value={section.title}
             onChange={(e) => onUpdateTitle(e.target.value)}
             placeholder="Nome da Seção (Ex: 1. Níveis de Fluidos)"
-            className="bg-transparent border-b border-white/20 px-1.5 py-1 text-[15px] font-title-md font-bold text-on-surface w-full focus:outline-none focus:border-primary"
+            className="bg-transparent border-b border-default px-1.5 py-1 text-[15px] font-title-md font-bold text-on-surface w-full focus:outline-none focus:border-primary"
           />
         </div>
         

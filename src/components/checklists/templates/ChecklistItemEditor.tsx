@@ -22,8 +22,8 @@ export const ChecklistItemEditor: React.FC<ChecklistItemEditorProps> = ({
   isLast,
 }) => {
   return (
-    <div className="p-4 rounded-xl bg-surface-container border border-white/10 space-y-3 relative group transition-all text-[12px]">
-      <div className="flex items-center justify-between gap-2 pb-2 border-b border-white/5 font-mono-label text-[11px]">
+    <div className="p-4 rounded-xl bg-surface-container border border-default space-y-3 relative group transition-all text-[12px]">
+      <div className="flex items-center justify-between gap-2 pb-2 border-b border-default font-mono-label text-[11px]">
         <div className="flex items-center gap-2">
           <span className="w-5 h-5 rounded-full bg-primary/20 text-primary font-bold flex items-center justify-center text-[10px]">
             {item.order}
@@ -73,7 +73,7 @@ export const ChecklistItemEditor: React.FC<ChecklistItemEditorProps> = ({
             value={item.title}
             onChange={(e) => onChange({ title: e.target.value })}
             placeholder="Ex: Nível de óleo entre mínimo e máximo"
-            className="w-full bg-surface border border-white/10 rounded-lg px-2.5 py-1.5 text-on-surface focus:outline-none focus:border-primary"
+            className="w-full bg-surface border border-default rounded-lg px-2.5 py-1.5 text-on-surface focus:outline-none focus:border-primary"
             required
           />
         </div>
@@ -85,7 +85,7 @@ export const ChecklistItemEditor: React.FC<ChecklistItemEditorProps> = ({
           <select
             value={item.responseType}
             onChange={(e) => onChange({ responseType: e.target.value as ChecklistItemResponseType })}
-            className="w-full bg-surface border border-white/10 rounded-lg px-2 py-1.5 text-on-surface focus:outline-none capitalize"
+            className="w-full bg-surface border border-default rounded-lg px-2 py-1.5 text-on-surface focus:outline-none capitalize"
           >
             <option value="conformidade">Conforme / Não Conforme</option>
             <option value="sim_nao">Sim / Não</option>
@@ -103,7 +103,7 @@ export const ChecklistItemEditor: React.FC<ChecklistItemEditorProps> = ({
           <select
             value={item.criticality}
             onChange={(e) => onChange({ criticality: e.target.value as ChecklistCriticality })}
-            className="w-full bg-surface border border-white/10 rounded-lg px-2 py-1.5 text-on-surface focus:outline-none capitalize"
+            className="w-full bg-surface border border-default rounded-lg px-2 py-1.5 text-on-surface focus:outline-none capitalize"
           >
             <option value="baixa">Baixa</option>
             <option value="media">Média</option>
@@ -122,17 +122,17 @@ export const ChecklistItemEditor: React.FC<ChecklistItemEditorProps> = ({
           value={item.correctionGuidance || ''}
           onChange={(e) => onChange({ correctionGuidance: e.target.value })}
           placeholder="Ex: Em caso de nível baixo, complete apenas com óleo 15W40 do almoxarifado."
-          className="w-full bg-surface border border-white/10 rounded-lg px-2.5 py-1.5 text-on-surface text-[11px] focus:outline-none"
+          className="w-full bg-surface border border-default rounded-lg px-2.5 py-1.5 text-on-surface text-[11px] focus:outline-none"
         />
       </div>
 
-      <div className="flex flex-wrap items-center gap-4 pt-1 border-t border-white/5 text-[11px] font-mono-label">
+      <div className="flex flex-wrap items-center gap-4 pt-1 border-t border-default text-[11px] font-mono-label">
         <label className="inline-flex items-center gap-1.5 cursor-pointer">
           <input
             type="checkbox"
             checked={item.required}
             onChange={(e) => onChange({ required: e.target.checked })}
-            className="rounded border-white/20 bg-surface text-primary focus:ring-0"
+            className="rounded border-default bg-surface text-primary focus:ring-0"
           />
           <span className="text-on-surface">Obrigatório</span>
         </label>
@@ -142,7 +142,7 @@ export const ChecklistItemEditor: React.FC<ChecklistItemEditorProps> = ({
             type="checkbox"
             checked={item.requirePhotoOnNonConformity}
             onChange={(e) => onChange({ requirePhotoOnNonConformity: e.target.checked })}
-            className="rounded border-white/20 bg-surface text-warning focus:ring-0"
+            className="rounded border-default bg-surface text-warning focus:ring-0"
           />
           <span className="text-warning">Foto na Não Conformidade</span>
         </label>
@@ -152,7 +152,7 @@ export const ChecklistItemEditor: React.FC<ChecklistItemEditorProps> = ({
             type="checkbox"
             checked={item.blockEquipment}
             onChange={(e) => onChange({ blockEquipment: e.target.checked })}
-            className="rounded border-white/20 bg-surface text-error focus:ring-0"
+            className="rounded border-default bg-surface text-error focus:ring-0"
           />
           <span className="text-error font-bold inline-flex items-center gap-1">
             <Ban size={12} /> Bloquear Máquina na Falha
@@ -164,7 +164,7 @@ export const ChecklistItemEditor: React.FC<ChecklistItemEditorProps> = ({
             type="checkbox"
             checked={item.createOrderAutomatically}
             onChange={(e) => onChange({ createOrderAutomatically: e.target.checked })}
-            className="rounded border-white/20 bg-surface text-secondary focus:ring-0"
+            className="rounded border-default bg-surface text-secondary focus:ring-0"
           />
           <span className="text-secondary font-bold inline-flex items-center gap-1">
             <Wrench size={12} /> Gerar Ordem de Serviço Automática

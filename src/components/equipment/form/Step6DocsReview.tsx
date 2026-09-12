@@ -75,7 +75,7 @@ export const Step6DocsReview: React.FC<StepProps> = ({ data, onChange }) => {
           {images.map((img) => (
             <div
               key={img.id}
-              className="relative aspect-square rounded-lg border border-white/10 overflow-hidden bg-surface-container-highest group"
+              className="relative aspect-square rounded-lg border border-default overflow-hidden bg-surface-container-highest group"
             >
               <img src={img.url} alt={img.name} className="w-full h-full object-cover" />
               <button
@@ -89,7 +89,7 @@ export const Step6DocsReview: React.FC<StepProps> = ({ data, onChange }) => {
             </div>
           ))}
 
-          <label className="aspect-square rounded-lg border border-dashed border-white/20 hover:border-primary/50 bg-surface-container-highest/30 flex flex-col items-center justify-center p-2 text-center cursor-pointer transition-all">
+          <label className="aspect-square rounded-lg border border-dashed border-default hover:border-primary/50 bg-surface-container-highest/30 flex flex-col items-center justify-center p-2 text-center cursor-pointer transition-all">
             <Upload size={20} className="text-on-surface-variant/60 mb-1" />
             <span className="text-[10px] text-on-surface-variant font-medium">Adicionar Foto</span>
             <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
@@ -98,13 +98,13 @@ export const Step6DocsReview: React.FC<StepProps> = ({ data, onChange }) => {
       </div>
 
       {/* Seção 2: Documentos em Anexo */}
-      <div className="space-y-3 pt-2 border-t border-white/5">
+      <div className="space-y-3 pt-2 border-t border-default">
         <div className="flex items-center justify-between">
           <h4 className="font-title-md text-[13px] font-semibold text-on-surface flex items-center gap-2">
             <FileText size={15} className="text-primary" /> Documentos e Manuais (PDF / Laudos)
           </h4>
           <label className="cursor-pointer">
-            <span className="px-3 py-1.5 rounded-md bg-surface-container-highest border border-white/10 text-[11px] font-medium text-on-surface hover:text-primary transition-all flex items-center gap-1.5">
+            <span className="px-3 py-1.5 rounded-md bg-surface-container-highest border border-default text-[11px] font-medium text-on-surface hover:text-primary transition-all flex items-center gap-1.5">
               <Upload size={13} /> Anexar Documento
             </span>
             <input
@@ -125,7 +125,7 @@ export const Step6DocsReview: React.FC<StepProps> = ({ data, onChange }) => {
             {documents.map((doc) => (
               <div
                 key={doc.id}
-                className="flex items-center justify-between p-2.5 rounded-lg border border-white/5 bg-surface-container-highest/30 text-[12px]"
+                className="flex items-center justify-between p-2.5 rounded-lg border border-default bg-surface-container-highest/30 text-[12px]"
               >
                 <div className="flex items-center gap-2 min-w-0">
                   <FileText size={16} className="text-primary shrink-0" />

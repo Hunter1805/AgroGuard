@@ -27,7 +27,7 @@ export const ChecklistSectionsBuilder: React.FC<ChecklistSectionsBuilderProps> =
 }) => {
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex justify-between items-center pb-2 border-b border-white/10">
+      <div className="flex justify-between items-center pb-2 border-b border-default">
         <div>
           <h3 className="font-title-md text-[16px] font-bold text-on-surface">Estrutura de Seções e Itens</h3>
           <p className="text-[12px] text-on-surface-variant/70">
@@ -47,7 +47,7 @@ export const ChecklistSectionsBuilder: React.FC<ChecklistSectionsBuilderProps> =
       </div>
 
       {sections.length === 0 ? (
-        <div className="text-center py-10 glass-card bg-surface-container/30 rounded-2xl border border-white/5 text-on-surface-variant/70 text-[13px]">
+        <div className="text-center py-10 glass-card bg-surface-container/30 rounded-2xl border border-default text-on-surface-variant/70 text-[13px]">
           <Layers size={28} className="mx-auto text-primary/50 mb-2" />
           <p>Seu modelo não possui nenhuma seção. Clique em "Nova Seção" acima para começar.</p>
         </div>

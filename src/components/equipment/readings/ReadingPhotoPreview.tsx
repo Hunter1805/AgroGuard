@@ -30,7 +30,7 @@ export const ReadingPhotoPreview: React.FC<ReadingPhotoPreviewProps> = ({
       </label>
 
       {photoUrl ? (
-        <div className="relative aspect-video rounded-xl overflow-hidden border border-white/10 group bg-black">
+        <div className="relative aspect-video rounded-xl overflow-hidden border border-default group bg-black">
           <img src={photoUrl} alt="Foto do Painel" className="w-full h-full object-cover" />
           <button
             type="button"
@@ -44,7 +44,7 @@ export const ReadingPhotoPreview: React.FC<ReadingPhotoPreviewProps> = ({
       ) : (
         <div
           onClick={handleSimulatePhoto}
-          className="border-2 border-dashed border-white/10 hover:border-primary/50 rounded-xl p-4 text-center cursor-pointer transition-colors space-y-2 bg-surface-container/40"
+          className="border-2 border-dashed border-default hover:border-primary/50 rounded-xl p-4 text-center cursor-pointer transition-colors space-y-2 bg-surface-container/40"
         >
           <div className="w-9 h-9 rounded-full bg-primary/10 text-primary mx-auto flex items-center justify-center">
             <Camera size={18} />

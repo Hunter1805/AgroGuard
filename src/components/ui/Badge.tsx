@@ -12,7 +12,7 @@ export const Badge: React.FC<BadgeProps> = ({ variant = 'primary', children, cla
     secondary: 'bg-secondary/10 text-secondary border-secondary/20',
     tertiary: 'bg-tertiary/10 text-tertiary border-tertiary/20',
     error: 'bg-error/10 text-error border-error/20',
-    neutral: 'bg-surface-container-highest text-on-surface-variant border-white/10',
+    neutral: 'bg-surface-container-highest text-on-surface-variant border-default',
   };
 
   return (

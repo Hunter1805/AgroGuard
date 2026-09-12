@@ -14,9 +14,9 @@ export const ToolDamageModal: React.FC<ToolDamageModalProps> = ({ tool, onClose,
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [description, setDescription] = useState('Trinca no corpo principal durante esforço elevado');
-  const [requiresMaintenance, setRequiresMaintenance] = useState(true);
-  const [responsibleName, setResponsibleName] = useState('Carlos Silva');
+  const [description, setDescription] = useState('');
+  const [requiresMaintenance, setRequiresMaintenance] = useState(false);
+  const [responsibleName, setResponsibleName] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,9 +40,9 @@ export const ToolDamageModal: React.FC<ToolDamageModalProps> = ({ tool, onClose,
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-surface-container-highest border border-white/10 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl animate-fade-in text-xs">
-        <div className="p-4 border-b border-white/10 flex items-center justify-between">
+    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+      <div className="bg-surface-container-highest border border-default rounded-2xl w-full max-w-md overflow-hidden shadow-2xl animate-fade-in text-xs">
+        <div className="p-4 border-b border-default flex items-center justify-between">
           <h3 className="font-bold text-on-surface text-sm flex items-center gap-2 text-amber-400">
             <AlertTriangle size={16} />
             Registrar Dano na Ferramenta {tool.code}
@@ -65,7 +65,7 @@ export const ToolDamageModal: React.FC<ToolDamageModalProps> = ({ tool, onClose,
               rows={3}
               value={description}
               onChange={e => setDescription(e.target.value)}
-              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
               required
             />
           </div>
@@ -76,7 +76,7 @@ export const ToolDamageModal: React.FC<ToolDamageModalProps> = ({ tool, onClose,
               id="reqMnt"
               checked={requiresMaintenance}
               onChange={e => setRequiresMaintenance(e.target.checked)}
-              className="rounded bg-surface-container border-white/10 text-amber-500"
+              className="rounded bg-surface-container border-default text-amber-500"
             />
             <label htmlFor="reqMnt" className="text-on-surface font-semibold cursor-pointer">
               Enviar imediatamente para Oficina de Manutenção
@@ -89,12 +89,12 @@ export const ToolDamageModal: React.FC<ToolDamageModalProps> = ({ tool, onClose,
               type="text"
               value={responsibleName}
               onChange={e => setResponsibleName(e.target.value)}
-              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
               required
             />
           </div>
 
-          <div className="pt-3 border-t border-white/10 flex items-center justify-end gap-2">
+          <div className="pt-3 border-t border-default flex items-center justify-end gap-2">
             <Button type="button" variant="outline" size="sm" onClick={onClose}>
               Cancelar
             </Button>

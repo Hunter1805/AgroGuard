@@ -31,7 +31,7 @@ export const FormStepIndicator: React.FC<FormStepIndicatorProps> = ({
                   ? 'bg-primary/10 border-primary/50 text-primary shadow-sm'
                   : isCompleted
                   ? 'bg-surface-container-highest/60 border-success/30 text-on-surface'
-                  : 'bg-surface-container-highest/20 border-white/5 text-on-surface-variant/60 hover:border-white/15'
+                  : 'bg-surface-container-highest/20 border-default text-on-surface-variant/60 hover:border-white/15'
               }`}
             >
               <div
@@ -40,7 +40,7 @@ export const FormStepIndicator: React.FC<FormStepIndicatorProps> = ({
                     ? 'bg-primary text-on-primary'
                     : isCompleted
                     ? 'bg-success text-on-primary'
-                    : 'bg-surface-container-highest text-on-surface-variant/70 border border-white/10'
+                    : 'bg-surface-container-highest text-on-surface-variant/70 border border-default'
                 }`}
               >
                 {isCompleted ? <Check size={12} /> : step.number}

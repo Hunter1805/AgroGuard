@@ -33,7 +33,7 @@ export const NumberingSettingsView: React.FC = () => {
         </p>
       </div>
 
-      <div className="glass-card rounded-xl border border-white/10 overflow-hidden shadow-lg">
+      <div className="glass-card rounded-xl border border-default overflow-hidden shadow-lg">
         {loading ? (
           <div className="p-8 text-center text-[13px] text-on-surface-variant animate-pulse">
             Carregando sequências numéricas...
@@ -42,7 +42,7 @@ export const NumberingSettingsView: React.FC = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-[13px]">
               <thead>
-                <tr className="border-b border-white/10 bg-surface-container-high/60 text-[11px] font-semibold text-on-surface-variant/70 uppercase">
+                <tr className="border-b border-default bg-surface-container-high/60 text-[11px] font-semibold text-on-surface-variant/70 uppercase">
                   <th className="py-3 px-4">Entidade</th>
                   <th className="py-3 px-4">Prefixo</th>
                   <th className="py-3 px-4">Próximo Número</th>
@@ -63,7 +63,7 @@ export const NumberingSettingsView: React.FC = () => {
                     <td className="py-3 px-4 text-right">
                       <button
                         onClick={() => handleGenerateSample(r.id)}
-                        className="px-3 py-1 rounded-lg bg-surface-container-highest border border-white/10 text-[11px] text-on-surface hover:text-primary flex items-center gap-1 ml-auto"
+                        className="px-3 py-1 rounded-lg bg-surface-container-highest border border-default text-[11px] text-on-surface hover:text-primary flex items-center gap-1 ml-auto"
                       >
                         <Play size={12} />
                         Testar Gerador

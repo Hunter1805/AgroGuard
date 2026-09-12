@@ -20,7 +20,7 @@ export const MasterDataFilters: React.FC<MasterDataFiltersProps> = ({
   onHasLinksChange,
 }) => {
   return (
-    <div className="flex flex-col md:flex-row gap-3 items-center justify-between glass-card p-3 rounded-xl border border-white/10">
+    <div className="flex flex-col md:flex-row gap-3 items-center justify-between glass-card p-3 rounded-xl border border-default">
       {/* Input de Busca */}
       <div className="relative flex-1 w-full">
         <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/50" />
@@ -29,7 +29,7 @@ export const MasterDataFilters: React.FC<MasterDataFiltersProps> = ({
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder="Buscar por código, nome ou descrição..."
-          className="w-full bg-surface-container-highest/60 border border-white/10 rounded-lg py-1.5 pl-9 pr-8 text-[13px] text-on-surface focus:outline-none focus:border-primary/50 placeholder:text-on-surface-variant/40"
+          className="w-full bg-surface-container-highest/60 border border-default rounded-lg py-1.5 pl-9 pr-8 text-[13px] text-on-surface focus:outline-none focus:border-primary/50 placeholder:text-on-surface-variant/40"
         />
         {searchQuery && (
           <button
@@ -48,7 +48,7 @@ export const MasterDataFilters: React.FC<MasterDataFiltersProps> = ({
           <select
             value={statusFilter}
             onChange={(e) => onStatusChange(e.target.value as MasterDataStatus | 'todos')}
-            className="bg-surface-container-highest/60 border border-white/10 rounded-lg py-1.5 px-2.5 text-[12px] text-on-surface focus:outline-none focus:border-primary/50"
+            className="bg-surface-container-highest/60 border border-default rounded-lg py-1.5 px-2.5 text-[12px] text-on-surface focus:outline-none focus:border-primary/50"
           >
             <option value="todos">Todos os Status</option>
             <option value="ativo">Ativos</option>
@@ -60,7 +60,7 @@ export const MasterDataFilters: React.FC<MasterDataFiltersProps> = ({
         <select
           value={hasLinksFilter}
           onChange={(e) => onHasLinksChange(e.target.value as any)}
-          className="bg-surface-container-highest/60 border border-white/10 rounded-lg py-1.5 px-2.5 text-[12px] text-on-surface focus:outline-none focus:border-primary/50"
+          className="bg-surface-container-highest/60 border border-default rounded-lg py-1.5 px-2.5 text-[12px] text-on-surface focus:outline-none focus:border-primary/50"
         >
           <option value="todos">Todos os Vínculos</option>
           <option value="com_vinculos">Com Vínculos</option>

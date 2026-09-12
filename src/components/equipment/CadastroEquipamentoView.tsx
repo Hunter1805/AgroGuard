@@ -194,7 +194,7 @@ export const CadastroEquipamentoView: React.FC = () => {
 
       <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6">
         <div className="max-w-5xl mx-auto space-y-6 pb-6">
-          <div className="glass-card rounded-xl border border-white/5 p-4">
+          <div className="glass-card rounded-xl border border-default p-4">
             <FormStepIndicator
               currentStep={currentStep}
               onStepClick={(step: FormStep) => {
@@ -209,7 +209,7 @@ export const CadastroEquipamentoView: React.FC = () => {
             </div>
           )}
 
-          <div className="glass-card rounded-xl border border-white/5 p-6 shadow-xl">
+          <div className="glass-card rounded-xl border border-default p-6 shadow-xl">
             {currentStep === 1 && <Step1Identification data={formData} onChange={handleFieldChange} />}
             {currentStep === 2 && <Step2Location data={formData} onChange={handleFieldChange} />}
             {currentStep === 3 && <Step3StatusMeters data={formData} onChange={handleFieldChange} />}

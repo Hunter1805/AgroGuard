@@ -14,14 +14,14 @@ export const ReportColumnSelector: React.FC<ReportColumnSelectorProps> = ({ colu
     <div className="relative">
       <button
         onClick={() => setOpen(!open)}
-        className="px-3 py-1.5 bg-surface-container hover:bg-surface-container-high border border-white/10 rounded-xl text-xs font-bold text-on-surface flex items-center gap-1.5 transition-colors"
+        className="px-3 py-1.5 bg-surface-container hover:bg-surface-container-high border border-default rounded-xl text-xs font-bold text-on-surface flex items-center gap-1.5 transition-colors"
       >
         <Columns size={14} /> Colunas ({columns.filter(c => c.visible).length}/{columns.length})
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-56 bg-surface-container-highest border border-white/10 rounded-xl shadow-2xl p-2 z-50 animate-fade-in text-xs">
-          <div className="font-bold text-on-surface p-2 border-b border-white/10 font-mono-label text-[11px]">
+        <div className="absolute right-0 mt-2 w-56 bg-surface-container-highest border border-default rounded-xl shadow-2xl p-2 z-50 animate-fade-in text-xs">
+          <div className="font-bold text-on-surface p-2 border-b border-default font-mono-label text-[11px]">
             Exibir/Ocultar Colunas
           </div>
           <div className="max-h-60 overflow-y-auto py-1 space-y-1">

@@ -27,7 +27,7 @@ export const StepLocation: React.FC<StepLocationProps> = ({ data, onChange }) =>
             placeholder="Ex: Fazenda São João"
             value={data.farm}
             onChange={(e) => onChange('farm', e.target.value)}
-            className="w-full bg-surface-container-highest border border-white/10 rounded-md px-3 py-2 text-[13px] text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary/50"
+            className="w-full bg-surface-container-highest border border-default rounded-md px-3 py-2 text-[13px] text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary/50"
           />
         </div>
 
@@ -42,7 +42,7 @@ export const StepLocation: React.FC<StepLocationProps> = ({ data, onChange }) =>
             placeholder="Ex: Café, Grãos, Logística, Oficina"
             value={data.sector}
             onChange={(e) => onChange('sector', e.target.value)}
-            className="w-full bg-surface-container-highest border border-white/10 rounded-md px-3 py-2 text-[13px] text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary/50"
+            className="w-full bg-surface-container-highest border border-default rounded-md px-3 py-2 text-[13px] text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary/50"
           />
         </div>
 
@@ -57,7 +57,7 @@ export const StepLocation: React.FC<StepLocationProps> = ({ data, onChange }) =>
             placeholder="Ex: Talhão 1, Galpão de Máquinas, Oficina Central"
             value={data.location}
             onChange={(e) => onChange('location', e.target.value)}
-            className="w-full bg-surface-container-highest border border-white/10 rounded-md px-3 py-2 text-[13px] text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary/50"
+            className="w-full bg-surface-container-highest border border-default rounded-md px-3 py-2 text-[13px] text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary/50"
           />
         </div>
 
@@ -71,7 +71,7 @@ export const StepLocation: React.FC<StepLocationProps> = ({ data, onChange }) =>
             placeholder="Ex: Carlos Silva (deixe em branco se não houver um exclusivo)"
             value={data.operatorName || ''}
             onChange={(e) => onChange('operatorName', e.target.value)}
-            className="w-full bg-surface-container-highest border border-white/10 rounded-md px-3 py-2 text-[13px] text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary/50"
+            className="w-full bg-surface-container-highest border border-default rounded-md px-3 py-2 text-[13px] text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary/50"
           />
         </div>
       </div>

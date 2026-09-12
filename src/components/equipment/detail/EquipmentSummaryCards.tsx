@@ -38,7 +38,7 @@ export const EquipmentSummaryCards: React.FC<EquipmentSummaryCardsProps> = ({
       subtext: 'Em andamento na oficina',
       icon: <ClipboardList size={18} />,
       colorClass: 'text-on-surface',
-      bgClass: 'bg-surface-container-highest/30 border-white/10',
+      bgClass: 'bg-surface-container-highest/30 border-default',
     },
     {
       label: 'Alertas Pendentes',
@@ -62,7 +62,7 @@ export const EquipmentSummaryCards: React.FC<EquipmentSummaryCardsProps> = ({
       subtext: 'Acumulado nos últimos 30 dias',
       icon: <Activity size={18} />,
       colorClass: (summary?.availabilityPercent ?? 94) > 80 ? 'text-success' : 'text-warning',
-      bgClass: 'bg-surface-container-highest/30 border-white/10',
+      bgClass: 'bg-surface-container-highest/30 border-default',
     },
   ];
 

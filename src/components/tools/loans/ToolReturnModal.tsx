@@ -15,7 +15,7 @@ export const ToolReturnModal: React.FC<ToolReturnModalProps> = ({ loan, onClose,
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [responsibleReturnName, setResponsibleReturnName] = useState('Roberto Alves (Almoxarife)');
+  const [responsibleReturnName, setResponsibleReturnName] = useState('');
   const [returns, setReturns] = useState(
     loan.items.map(item => ({
       itemId: item.id,
@@ -58,9 +58,9 @@ export const ToolReturnModal: React.FC<ToolReturnModalProps> = ({ loan, onClose,
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-surface-container-highest border border-white/10 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl animate-fade-in">
-        <div className="p-4 border-b border-white/10 flex items-center justify-between">
+    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+      <div className="bg-surface-container-highest border border-default rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl animate-fade-in">
+        <div className="p-4 border-b border-default flex items-center justify-between">
           <div>
             <h3 className="font-bold text-on-surface text-sm flex items-center gap-2">
               <CheckCircle2 size={16} className="text-emerald-400" />
@@ -83,7 +83,7 @@ export const ToolReturnModal: React.FC<ToolReturnModalProps> = ({ loan, onClose,
 
           <div className="space-y-3 max-h-60 overflow-y-auto pr-1">
             {returns.map((ret, idx) => (
-              <div key={ret.itemId} className="p-3 bg-surface-container rounded-xl border border-white/10 space-y-2">
+              <div key={ret.itemId} className="p-3 bg-surface-container rounded-xl border border-default space-y-2">
                 <span className="font-bold text-on-surface block text-xs">{ret.toolName}</span>
 
                 <div className="grid grid-cols-2 gap-3">
@@ -102,7 +102,7 @@ export const ToolReturnModal: React.FC<ToolReturnModalProps> = ({ loan, onClose,
                           return copy;
                         });
                       }}
-                      className="w-full px-2.5 py-1 bg-surface-container-high rounded-lg border border-white/10 text-on-surface font-mono-label font-bold"
+                      className="w-full px-2.5 py-1 bg-surface-container-high rounded-lg border border-default text-on-surface font-mono-label font-bold"
                     />
                   </div>
 
@@ -118,7 +118,7 @@ export const ToolReturnModal: React.FC<ToolReturnModalProps> = ({ loan, onClose,
                           return copy;
                         });
                       }}
-                      className="w-full px-2.5 py-1 bg-surface-container-high rounded-lg border border-white/10 text-on-surface"
+                      className="w-full px-2.5 py-1 bg-surface-container-high rounded-lg border border-default text-on-surface"
                     >
                       <option value="excelente">Excelente</option>
                       <option value="boa">Boa</option>
@@ -142,7 +142,7 @@ export const ToolReturnModal: React.FC<ToolReturnModalProps> = ({ loan, onClose,
                           return copy;
                         });
                       }}
-                      className="rounded bg-surface-container border-white/10 text-amber-500"
+                      className="rounded bg-surface-container border-default text-amber-500"
                     />
                     Apresenta Dano / Defeito
                   </label>
@@ -159,7 +159,7 @@ export const ToolReturnModal: React.FC<ToolReturnModalProps> = ({ loan, onClose,
                           return copy;
                         });
                       }}
-                      className="rounded bg-surface-container border-white/10 text-rose-500"
+                      className="rounded bg-surface-container border-default text-rose-500"
                     />
                     Houve Perda / Extravio
                   </label>
@@ -174,12 +174,12 @@ export const ToolReturnModal: React.FC<ToolReturnModalProps> = ({ loan, onClose,
               type="text"
               value={responsibleReturnName}
               onChange={e => setResponsibleReturnName(e.target.value)}
-              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
               required
             />
           </div>
 
-          <div className="pt-3 border-t border-white/10 flex items-center justify-end gap-2">
+          <div className="pt-3 border-t border-default flex items-center justify-end gap-2">
             <Button type="button" variant="outline" size="sm" onClick={onClose}>
               Cancelar
             </Button>

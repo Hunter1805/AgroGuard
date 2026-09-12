@@ -44,26 +44,26 @@ export const DocumentsTab: React.FC<DocumentsTabProps> = ({
 
       {/* Cards Indicadores */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="glass-card rounded-xl p-3.5 border border-white/10">
+        <div className="glass-card rounded-xl p-3.5 border border-default">
           <span className="text-[11px] font-mono-label text-on-surface-variant/70 block">Total de Documentos</span>
           <p className="text-[20px] font-bold text-on-surface mt-1">{documents.length}</p>
         </div>
-        <div className="glass-card rounded-xl p-3.5 border border-white/10">
+        <div className="glass-card rounded-xl p-3.5 border border-default">
           <span className="text-[11px] font-mono-label text-on-surface-variant/70 block">Válidos</span>
           <p className="text-[20px] font-bold text-success mt-1">{validCount}</p>
         </div>
-        <div className="glass-card rounded-xl p-3.5 border border-white/10">
+        <div className="glass-card rounded-xl p-3.5 border border-default">
           <span className="text-[11px] font-mono-label text-on-surface-variant/70 block">Próximos Vencimento</span>
           <p className="text-[20px] font-bold text-warning mt-1">{warningCount}</p>
         </div>
-        <div className="glass-card rounded-xl p-3.5 border border-white/10">
+        <div className="glass-card rounded-xl p-3.5 border border-default">
           <span className="text-[11px] font-mono-label text-on-surface-variant/70 block">Vencidos</span>
           <p className="text-[20px] font-bold text-error mt-1">{expiredCount}</p>
         </div>
       </div>
 
       {/* Listagem de Documentos */}
-      <div className="glass-card rounded-xl border border-white/10 p-5 space-y-4">
+      <div className="glass-card rounded-xl border border-default p-5 space-y-4">
         <h4 className="text-[13px] font-semibold text-on-surface flex items-center gap-2">
           <FileText size={15} className="text-primary" /> Relação de Arquivos Cadastrados
         </h4>
@@ -82,7 +82,7 @@ export const DocumentsTab: React.FC<DocumentsTabProps> = ({
           <div className="overflow-x-auto">
             <table className="w-full text-[12px] text-left">
               <thead>
-                <tr className="bg-surface-container-highest/40 text-on-surface-variant/70 font-mono-label text-[10px] uppercase border-b border-white/5">
+                <tr className="bg-surface-container-highest/40 text-on-surface-variant/70 font-mono-label text-[10px] uppercase border-b border-default">
                   <th className="px-3.5 py-2.5 font-medium">Tipo / Categoria</th>
                   <th className="px-3.5 py-2.5 font-medium">Nome do Arquivo</th>
                   <th className="px-3.5 py-2.5 font-medium">Número do Registro</th>

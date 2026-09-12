@@ -14,13 +14,13 @@ interface RecentOrdersPanelProps {
 }
 
 const STATUS_CLASSES: Record<OrderStatusDash, string> = {
-  'Aberta': 'bg-surface-container-highest text-on-surface-variant border-white/10',
+  'Aberta': 'bg-surface-container-highest text-on-surface-variant border-default',
   'Em execução': 'bg-warning/10 text-warning border-warning/20',
   'Aguardando peças': 'bg-error/10 text-error border-error/20',
-  'Pausada': 'bg-surface-container-highest text-on-surface-variant/70 border-white/10',
+  'Pausada': 'bg-surface-container-highest text-on-surface-variant/70 border-default',
   'Em teste': 'bg-primary/10 text-primary border-primary/20',
   'Finalizada': 'bg-success/10 text-success border-success/20',
-  'Cancelada': 'bg-surface-container-highest text-on-surface-variant/50 border-white/5',
+  'Cancelada': 'bg-surface-container-highest text-on-surface-variant/50 border-default',
 };
 
 const PRIORITY_CLASSES: Record<OrderPriorityDash, string> = {
@@ -42,9 +42,9 @@ export const RecentOrdersPanel: React.FC<RecentOrdersPanelProps> = ({ orders, lo
   const navigate = useNavigate();
 
   return (
-    <div className="glass-card rounded-xl flex flex-col border-white/5">
+    <div className="glass-card rounded-xl flex flex-col border-default">
       {/* Cabeçalho */}
-      <div className="flex justify-between items-center p-4 border-b border-white/5 bg-surface/30 rounded-t-xl">
+      <div className="flex justify-between items-center p-4 border-b border-default bg-surface/30 rounded-t-xl">
         <div className="flex items-center gap-2">
           <ClipboardList size={16} className="text-on-surface-variant" />
           <h3 className="font-body-sm text-[13px] font-semibold text-on-surface">OS Recentes</h3>
@@ -75,7 +75,7 @@ export const RecentOrdersPanel: React.FC<RecentOrdersPanelProps> = ({ orders, lo
         ) : (
           <table className="w-full text-[12px] text-left">
             <thead>
-              <tr className="text-on-surface-variant/50 font-mono-label text-[10px] uppercase bg-surface-container-highest/20 border-b border-white/5">
+              <tr className="text-on-surface-variant/50 font-mono-label text-[10px] uppercase bg-surface-container-highest/20 border-b border-default">
                 <th className="px-4 py-2 font-medium">OS #</th>
                 <th className="px-4 py-2 font-medium">Equipamento</th>
                 <th className="px-4 py-2 font-medium hidden sm:table-cell">Tipo</th>

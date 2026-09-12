@@ -85,7 +85,7 @@ export const ReadingsTab: React.FC<ReadingsTabProps> = ({
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {meters.length > 0 ? (
           meters.map((m) => (
-            <div key={m.id} className="glass-card rounded-xl p-4 border border-white/10 space-y-2">
+            <div key={m.id} className="glass-card rounded-xl p-4 border border-default space-y-2">
               <div className="flex justify-between items-start">
                 <span className="text-[11px] font-mono-label text-primary font-semibold uppercase">
                   {m.label}
@@ -95,14 +95,14 @@ export const ReadingsTab: React.FC<ReadingsTabProps> = ({
               <p className="font-title-md text-[22px] font-bold text-on-surface font-mono-label">
                 {m.currentValue.toLocaleString('pt-BR')} {m.unit}
               </p>
-              <div className="text-[11px] text-on-surface-variant/70 space-y-0.5 border-t border-white/5 pt-2 font-mono-label">
+              <div className="text-[11px] text-on-surface-variant/70 space-y-0.5 border-t border-default pt-2 font-mono-label">
                 <p>Acumulado Histórico: <strong>{((m.currentValue || 0) + 4000).toLocaleString('pt-BR')} {m.unit}</strong></p>
                 <p>Última leitura: {m.lastReadingDate || 'Hoje'}</p>
               </div>
             </div>
           ))
         ) : (
-          <div className="glass-card rounded-xl p-4 border border-white/10 space-y-2">
+          <div className="glass-card rounded-xl p-4 border border-default space-y-2">
             <span className="text-[11px] font-mono-label text-primary uppercase">Medidor Principal</span>
             <p className="font-title-md text-[22px] font-bold text-on-surface font-mono-label">
               {equipment.currentHours.toLocaleString('pt-BR')} {unit}
@@ -115,7 +115,7 @@ export const ReadingsTab: React.FC<ReadingsTabProps> = ({
       </div>
 
       {/* Filtros e Tabela de Histórico Auditável */}
-      <div className="glass-card rounded-xl border border-white/10 p-5 space-y-4">
+      <div className="glass-card rounded-xl border border-default p-5 space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h4 className="text-[13px] font-semibold text-on-surface flex items-center gap-2">
             <Search size={14} className="text-primary" /> Registros de Apontamento ({filteredReadings.length})
@@ -125,7 +125,7 @@ export const ReadingsTab: React.FC<ReadingsTabProps> = ({
             <select
               value={filterMeter}
               onChange={(e) => setFilterMeter(e.target.value)}
-              className="bg-surface-container border border-white/10 rounded-md px-2.5 py-1.5 text-on-surface focus:outline-none"
+              className="bg-surface-container border border-default rounded-md px-2.5 py-1.5 text-on-surface focus:outline-none"
             >
               <option value="todos">Todos os Medidores</option>
               {meters.map((m) => (
@@ -149,7 +149,7 @@ export const ReadingsTab: React.FC<ReadingsTabProps> = ({
           <div className="overflow-x-auto">
             <table className="w-full text-[12px] text-left">
               <thead>
-                <tr className="bg-surface-container-highest/40 text-on-surface-variant/70 font-mono-label text-[10px] uppercase border-b border-white/5">
+                <tr className="bg-surface-container-highest/40 text-on-surface-variant/70 font-mono-label text-[10px] uppercase border-b border-default">
                   <th className="px-3.5 py-2.5 font-medium">Data e Hora</th>
                   <th className="px-3.5 py-2.5 font-medium">Medidor</th>
                   <th className="px-3.5 py-2.5 font-medium">Anterior</th>

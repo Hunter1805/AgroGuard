@@ -21,7 +21,7 @@ export const FormFooter: React.FC<FormFooterProps> = ({
   onSubmit,
 }) => {
   return (
-    <footer className="bg-surface-container/95 backdrop-blur-md border-t border-white/10 px-6 py-3.5 sticky bottom-0 z-30 flex items-center justify-between gap-4">
+    <footer className="bg-surface-container/95 backdrop-blur-md border-t border-default px-6 py-3.5 sticky bottom-0 z-30 flex items-center justify-between gap-4">
       <Button
         type="button"
         variant="outline"

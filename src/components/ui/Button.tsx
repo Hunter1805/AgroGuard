@@ -26,7 +26,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       primary: 'bg-primary hover:bg-primary/90 text-on-primary font-semibold shadow-md glow-success',
       secondary: 'bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 font-medium',
       ghost: 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest',
-      outline: 'border border-white/10 hover:border-white/20 text-on-surface-variant hover:text-on-surface bg-transparent',
+      outline: 'border border-default hover:border-default text-on-surface-variant hover:text-on-surface bg-transparent',
       danger: 'bg-error/10 hover:bg-error/20 text-error border border-error/20 font-medium',
     };
 

@@ -83,7 +83,7 @@ export const HistoryTab: React.FC<HistoryTabProps> = ({ history }) => {
           <select
             value={filterType}
             onChange={(e) => setFilterType(e.target.value)}
-            className="bg-surface-container border border-white/10 rounded-md px-3 py-1.5 text-on-surface focus:outline-none"
+            className="bg-surface-container border border-default rounded-md px-3 py-1.5 text-on-surface focus:outline-none"
           >
             <option value="todos">Todos os Eventos</option>
             <option value="leitura">Leituras</option>
@@ -97,8 +97,8 @@ export const HistoryTab: React.FC<HistoryTabProps> = ({ history }) => {
       </div>
 
       {/* Linha do Tempo Completa */}
-      <div className="glass-card rounded-xl border border-white/10 p-6 space-y-4">
-        <h4 className="text-[13px] font-semibold text-on-surface flex items-center gap-2 border-b border-white/10 pb-3">
+      <div className="glass-card rounded-xl border border-default p-6 space-y-4">
+        <h4 className="text-[13px] font-semibold text-on-surface flex items-center gap-2 border-b border-default pb-3">
           <History size={16} className="text-primary" /> Eventos Registrados ({timelineEvents.length})
         </h4>
 

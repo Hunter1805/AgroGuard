@@ -19,7 +19,7 @@ export const UnsavedChangesModal: React.FC<UnsavedChangesModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs animate-fade-in">
-      <div className="glass-card bg-surface-container-highest border border-white/10 rounded-xl max-w-md w-full p-6 shadow-2xl space-y-5">
+      <div className="glass-card bg-surface-container-highest border border-default rounded-xl max-w-md w-full p-6 shadow-2xl space-y-5">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
             <div className="p-2.5 rounded-lg bg-warning/10 text-warning border border-warning/20">

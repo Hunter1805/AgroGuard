@@ -55,7 +55,7 @@ export const PhotosTab: React.FC<PhotosTabProps> = ({
           {photos.map((p) => (
             <div
               key={p.id}
-              className="glass-card rounded-xl border border-white/10 overflow-hidden group flex flex-col justify-between"
+              className="glass-card rounded-xl border border-default overflow-hidden group flex flex-col justify-between"
             >
               <div className="relative aspect-video bg-surface-container-highest overflow-hidden">
                 <img
@@ -95,8 +95,8 @@ export const PhotosTab: React.FC<PhotosTabProps> = ({
       {/* Modal de foto ampliada */}
       {selectedPhoto && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-xs animate-fade-in">
-          <div className="relative max-w-4xl w-full glass-card bg-surface-container-highest border border-white/10 rounded-2xl overflow-hidden p-4 space-y-3">
-            <div className="flex justify-between items-center pb-2 border-b border-white/10">
+          <div className="relative max-w-4xl w-full glass-card bg-surface-container-highest border border-default rounded-2xl overflow-hidden p-4 space-y-3">
+            <div className="flex justify-between items-center pb-2 border-b border-default">
               <div>
                 <h4 className="font-bold text-[15px] text-on-surface">{selectedPhoto.name}</h4>
                 <span className="text-[11px] text-primary font-mono-label uppercase">{selectedPhoto.category}</span>

@@ -7,7 +7,7 @@ export const AccessDeniedPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col justify-center items-center p-4 bg-pattern">
-      <div className="w-full max-w-md glass-card p-8 rounded-2xl shadow-2xl border border-white/10 text-center">
+      <div className="w-full max-w-md glass-card p-8 rounded-2xl shadow-2xl border border-default text-center">
         <div className="w-16 h-16 bg-error/10 text-error rounded-full flex items-center justify-center mx-auto mb-4 border border-error/20">
           <Lock size={32} />
         </div>

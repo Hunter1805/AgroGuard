@@ -51,8 +51,8 @@ export const RecentActivitySection: React.FC<Props> = ({ history, onViewFullHist
   }));
 
   return (
-    <div className="glass-card rounded-xl p-5 border border-white/10 space-y-4">
-      <div className="flex items-center justify-between border-b border-white/10 pb-2">
+    <div className="glass-card rounded-xl p-5 border border-default space-y-4">
+      <div className="flex items-center justify-between border-b border-default pb-2">
         <h4 className="text-[14px] font-semibold text-on-surface flex items-center gap-2">
           <History size={16} className="text-primary" /> Atividade Recente
         </h4>

@@ -112,7 +112,7 @@ export const CentralAlertas: React.FC = () => {
             { label: 'Críticos', value: stats.criticos, color: 'text-error', bg: 'bg-error/10 border-error/20' },
             { label: 'Altos', value: stats.altos, color: 'text-error', bg: 'bg-error/5 border-error/10' },
             { label: 'Médios', value: stats.medios, color: 'text-warning', bg: 'bg-warning/10 border-warning/20' },
-            { label: 'Total Abertos', value: stats.total, color: 'text-on-surface', bg: 'bg-surface-container-highest border-white/10' },
+            { label: 'Total Abertos', value: stats.total, color: 'text-on-surface', bg: 'bg-surface-container-highest border-default' },
           ].map((kpi) => (
             <div key={kpi.label} className={`glass-card rounded-xl border p-4 ${kpi.bg}`}>
               <p className={`text-[24px] font-bold font-mono-label ${kpi.color}`}>{kpi.value}</p>
@@ -136,7 +136,7 @@ export const CentralAlertas: React.FC = () => {
             filtered.map((alert) => (
               <div
                 key={alert.id}
-                className="glass-card rounded-xl border border-white/10 p-4 hover:border-white/20 transition-all group"
+                className="glass-card rounded-xl border border-default p-4 hover:border-default transition-all group"
               >
                 <div className="flex items-start gap-3">
                   <div className="shrink-0 mt-0.5">

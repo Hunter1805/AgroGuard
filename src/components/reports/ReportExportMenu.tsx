@@ -24,7 +24,7 @@ export const ReportExportMenu: React.FC<ReportExportMenuProps> = ({ onExport }) 
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-48 bg-surface-container-highest border border-white/10 rounded-xl shadow-2xl p-1.5 z-50 animate-fade-in text-xs space-y-1">
+        <div className="absolute right-0 mt-2 w-48 bg-surface-container-highest border border-default rounded-xl shadow-2xl p-1.5 z-50 animate-fade-in text-xs space-y-1">
           <button
             onClick={() => handleExport('csv')}
             className="w-full px-3 py-2 rounded-lg flex items-center gap-2 hover:bg-surface-container text-on-surface font-bold text-left"

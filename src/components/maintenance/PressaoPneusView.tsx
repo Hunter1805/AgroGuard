@@ -50,7 +50,7 @@ export const PressaoPneusView: React.FC = () => {
             placeholder="Buscar tipo de veículo..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="bg-surface-container-highest border border-white/10 rounded-md py-1.5 pl-8 pr-3 text-[13px] text-on-surface focus:outline-none focus:border-primary/50 w-52"
+            className="bg-surface-container-highest border border-default rounded-md py-1.5 pl-8 pr-3 text-[13px] text-on-surface focus:outline-none focus:border-primary/50 w-52"
           />
         </div>
       </div>

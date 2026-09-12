@@ -78,7 +78,7 @@ export const ChecklistExecutionView: React.FC = () => {
 
       <div className="max-w-5xl mx-auto px-4 mt-6 space-y-6">
         {isDone ? (
-          <div className="glass-card bg-surface-container-highest/80 border border-white/10 rounded-3xl p-8 text-center space-y-4 max-w-xl mx-auto animate-fade-in shadow-2xl">
+          <div className="glass-card bg-surface-container-highest/80 border border-default rounded-3xl p-8 text-center space-y-4 max-w-xl mx-auto animate-fade-in shadow-2xl">
             <div className="w-16 h-16 rounded-full bg-success/20 text-success flex items-center justify-center mx-auto shadow-inner">
               <CheckCircle2 size={36} />
             </div>

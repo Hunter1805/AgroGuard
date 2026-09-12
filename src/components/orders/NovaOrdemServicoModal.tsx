@@ -10,7 +10,7 @@ interface Props {
   onAddOS: (os: ServiceOrder) => void;
 }
 
-const inputCls = 'w-full bg-surface-container-highest border border-white/10 rounded-md py-1.5 px-3 text-[13px] text-on-surface focus:outline-none focus:border-primary/50 placeholder:text-on-surface-variant/40';
+const inputCls = 'w-full bg-surface-container-highest border border-default rounded-md py-1.5 px-3 text-[13px] text-on-surface focus:outline-none focus:border-primary/50 placeholder:text-on-surface-variant/40';
 const labelCls = 'block text-[11px] font-medium text-on-surface-variant/70 uppercase tracking-wide mb-1';
 const sectionCls = 'space-y-3 border border-white/8 rounded-xl p-4 bg-surface-container-high/30';
 
@@ -94,8 +94,8 @@ export const NovaOrdemServicoModal: React.FC<Props> = ({ isOpen, onClose, onAddO
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative z-10 w-full max-w-2xl bg-surface-container-lowest rounded-2xl shadow-2xl border border-white/10 flex flex-col max-h-[90vh]">
+      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+      <div className="relative z-10 w-full max-w-2xl bg-surface-container-lowest rounded-2xl shadow-2xl border border-default flex flex-col max-h-[90vh]">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/8 flex-shrink-0">
           <div className="flex items-center gap-3">
@@ -280,7 +280,7 @@ export const NovaOrdemServicoModal: React.FC<Props> = ({ isOpen, onClose, onAddO
                   ['Sistema', affectedSystem || '—'],
                   ['Subsistema', affectedSubsystem || '—'],
                 ].map(([key, val]) => (
-                  <div key={key} className="flex justify-between text-[12px] py-1 border-b border-white/5">
+                  <div key={key} className="flex justify-between text-[12px] py-1 border-b border-default">
                     <span className="text-on-surface-variant/70">{key}:</span>
                     <span className="font-medium text-on-surface">{val}</span>
                   </div>
@@ -300,7 +300,7 @@ export const NovaOrdemServicoModal: React.FC<Props> = ({ isOpen, onClose, onAddO
         <div className="flex justify-between gap-3 px-6 py-4 border-t border-white/8 flex-shrink-0">
           <button
             onClick={() => step > 1 ? setStep((s) => (s - 1) as Step) : onClose()}
-            className="px-4 py-2 rounded-md bg-surface-container-highest border border-white/10 text-on-surface-variant hover:text-on-surface text-[13px] transition-all"
+            className="px-4 py-2 rounded-md bg-surface-container-highest border border-default text-on-surface-variant hover:text-on-surface text-[13px] transition-all"
           >
             {step > 1 ? '← Voltar' : 'Cancelar'}
           </button>

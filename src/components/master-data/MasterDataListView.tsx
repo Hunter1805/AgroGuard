@@ -113,7 +113,7 @@ export const MasterDataListView: React.FC<MasterDataListViewProps> = ({
           <div className="flex gap-2 w-full sm:w-auto">
             <button
               onClick={() => alert('Exportação simulada em CSV/XLSX.')}
-              className="px-3 py-2 rounded-lg border border-white/10 glass-card text-[13px] font-medium text-on-surface-variant hover:text-on-surface flex items-center gap-1.5 transition-all"
+              className="px-3 py-2 rounded-lg border border-default glass-card text-[13px] font-medium text-on-surface-variant hover:text-on-surface flex items-center gap-1.5 transition-all"
             >
               <Download size={15} />
               Exportar
@@ -135,19 +135,19 @@ export const MasterDataListView: React.FC<MasterDataListViewProps> = ({
 
         {/* Mini Indicadores */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div className="glass-card rounded-xl p-3 border border-white/10">
+          <div className="glass-card rounded-xl p-3 border border-default">
             <span className="text-[10px] text-on-surface-variant uppercase tracking-wider">Total</span>
             <p className="text-[18px] font-bold text-on-surface font-mono-label">{totalCount}</p>
           </div>
-          <div className="glass-card rounded-xl p-3 border border-white/10">
+          <div className="glass-card rounded-xl p-3 border border-default">
             <span className="text-[10px] text-success uppercase tracking-wider">Ativos</span>
             <p className="text-[18px] font-bold text-success font-mono-label">{activeCount}</p>
           </div>
-          <div className="glass-card rounded-xl p-3 border border-white/10">
+          <div className="glass-card rounded-xl p-3 border border-default">
             <span className="text-[10px] text-error uppercase tracking-wider">Inativos</span>
             <p className="text-[18px] font-bold text-error font-mono-label">{inactiveCount}</p>
           </div>
-          <div className="glass-card rounded-xl p-3 border border-white/10">
+          <div className="glass-card rounded-xl p-3 border border-default">
             <span className="text-[10px] text-tertiary uppercase tracking-wider">Com Vínculos</span>
             <p className="text-[18px] font-bold text-tertiary font-mono-label">{linkedCount}</p>
           </div>

@@ -26,7 +26,7 @@ export const TireInstallationModal: React.FC<TireInstallationModalProps> = ({ ti
   const [positions, setPositions] = useState<any[]>([]);
   const [selectedPositionId, setSelectedPositionId] = useState('');
   const [reading, setReading] = useState<number | ''>('');
-  const [responsibleName, setResponsibleName] = useState('Carlos Silva');
+  const [responsibleName, setResponsibleName] = useState('');
   const [notes, setNotes] = useState('');
 
   useEffect(() => {
@@ -107,9 +107,9 @@ export const TireInstallationModal: React.FC<TireInstallationModalProps> = ({ ti
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-surface-container-highest border border-white/10 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl animate-fade-in">
-        <div className="p-4 border-b border-white/10 flex items-center justify-between">
+    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+      <div className="bg-surface-container-highest border border-default rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl animate-fade-in">
+        <div className="p-4 border-b border-default flex items-center justify-between">
           <h3 className="font-bold text-on-surface text-sm">Instalar Pneu em Equipamento</h3>
           <button onClick={onClose} className="p-1 rounded-lg text-on-surface-variant hover:text-on-surface">
             <X size={18} />
@@ -129,7 +129,7 @@ export const TireInstallationModal: React.FC<TireInstallationModalProps> = ({ ti
             <select
               value={selectedTireId}
               onChange={e => setSelectedTireId(e.target.value)}
-              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
               required
             >
               <option value="">Selecione um pneu disponível...</option>
@@ -146,7 +146,7 @@ export const TireInstallationModal: React.FC<TireInstallationModalProps> = ({ ti
             <select
               value={selectedEquipmentId}
               onChange={e => setSelectedEquipmentId(e.target.value)}
-              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
               required
             >
               <option value="">Selecione o equipamento...</option>
@@ -164,7 +164,7 @@ export const TireInstallationModal: React.FC<TireInstallationModalProps> = ({ ti
               <select
                 value={selectedPositionId}
                 onChange={e => setSelectedPositionId(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
                 required
                 disabled={!selectedEquipmentId}
               >
@@ -184,7 +184,7 @@ export const TireInstallationModal: React.FC<TireInstallationModalProps> = ({ ti
                 placeholder="Ex: 7800"
                 value={reading}
                 onChange={e => setReading(e.target.value === '' ? '' : Number(e.target.value))}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-mono-label"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-mono-label"
               />
             </div>
           </div>
@@ -195,7 +195,7 @@ export const TireInstallationModal: React.FC<TireInstallationModalProps> = ({ ti
               type="text"
               value={responsibleName}
               onChange={e => setResponsibleName(e.target.value)}
-              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
               required
             />
           </div>
@@ -206,12 +206,12 @@ export const TireInstallationModal: React.FC<TireInstallationModalProps> = ({ ti
               rows={2}
               value={notes}
               onChange={e => setNotes(e.target.value)}
-              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
               placeholder="Instruções ou motivo da instalação..."
             />
           </div>
 
-          <div className="pt-3 border-t border-white/10 flex items-center justify-end gap-2">
+          <div className="pt-3 border-t border-default flex items-center justify-end gap-2">
             <Button type="button" variant="outline" size="sm" onClick={onClose}>
               Cancelar
             </Button>

@@ -174,7 +174,7 @@ const ExpandableGroup: React.FC<{
       </button>
 
       {open && (
-        <ul className="mt-0.5 ml-7 pl-2 space-y-0.5 border-l border-white/10">
+        <ul className="mt-0.5 ml-7 pl-2 space-y-0.5 border-l border-default">
           {children}
         </ul>
       )}
@@ -216,7 +216,7 @@ export const SidebarCorp: React.FC<SidebarCorpProps> = ({
       {/* ── Cabeçalho: logo + toggle ── */}
       <div
         className={[
-          'flex items-center shrink-0 h-16 border-b border-white/10',
+          'flex items-center shrink-0 h-16 border-b border-default',
           collapsed ? 'justify-center' : 'justify-between px-4',
         ].join(' ')}
       >
@@ -285,7 +285,7 @@ export const SidebarCorp: React.FC<SidebarCorpProps> = ({
       </div>
 
       {/* ── Rodapé: alertas ── */}
-      <div className="shrink-0 border-t border-white/10 px-2 py-2">
+      <div className="shrink-0 border-t border-default px-2 py-2">
         <NavItem
           to={ROUTES.ALERTAS}
           icon={<Bell size={16} />}

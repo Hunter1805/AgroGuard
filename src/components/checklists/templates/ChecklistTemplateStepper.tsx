@@ -19,7 +19,7 @@ export const ChecklistTemplateStepper: React.FC<ChecklistTemplateStepperProps> =
   ];
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-2 py-3 px-4 glass-card bg-surface-container-highest/60 border border-white/10 rounded-2xl mb-6 shadow-md font-mono-label text-[11px]">
+    <div className="flex flex-wrap items-center justify-between gap-2 py-3 px-4 glass-card bg-surface-container-highest/60 border border-default rounded-2xl mb-6 shadow-md font-mono-label text-[11px]">
       {steps.map((st) => {
         const isCurrent = st.num === currentStep;
         const isCompleted = st.num < currentStep;
@@ -34,7 +34,7 @@ export const ChecklistTemplateStepper: React.FC<ChecklistTemplateStepperProps> =
                 ? 'bg-primary text-on-primary font-bold shadow-md shadow-primary/20 scale-105'
                 : isCompleted
                 ? 'bg-success/20 text-success border border-success/30 font-semibold'
-                : 'bg-surface-container text-on-surface-variant/60 border border-white/5'
+                : 'bg-surface-container text-on-surface-variant/60 border border-default'
             }`}
           >
             {st.icon}

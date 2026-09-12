@@ -26,10 +26,10 @@ export const MasterDataDependenciesDrawer: React.FC<DependenciesDrawerProps> = (
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end">
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative z-10 w-full max-w-md bg-surface-container-lowest border-l border-white/10 flex flex-col h-full shadow-2xl overflow-hidden">
+      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+      <div className="relative z-10 w-full max-w-md bg-surface-container-lowest border-l border-default flex flex-col h-full shadow-2xl overflow-hidden">
         {/* Cabeçalho */}
-        <div className="p-5 border-b border-white/10 flex items-center justify-between">
+        <div className="p-5 border-b border-default flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="p-2 rounded-lg bg-primary/10 text-primary border border-primary/20">
               <Link2 size={18} />
@@ -76,7 +76,7 @@ export const MasterDataDependenciesDrawer: React.FC<DependenciesDrawerProps> = (
                   Módulos e Registros Vinculados
                 </h4>
 
-                <div className="divide-y divide-white/5 border border-white/10 rounded-xl overflow-hidden glass-card">
+                <div className="divide-y divide-white/5 border border-default rounded-xl overflow-hidden glass-card">
                   {result.dependencies.map((dep, idx) => (
                     <div key={idx} className="p-3 flex items-center justify-between hover:bg-surface-container-highest/40 transition-colors">
                       <div>
@@ -111,10 +111,10 @@ export const MasterDataDependenciesDrawer: React.FC<DependenciesDrawerProps> = (
         </div>
 
         {/* Rodapé */}
-        <div className="p-4 border-t border-white/10 bg-surface-container-high/40 flex justify-end">
+        <div className="p-4 border-t border-default bg-surface-container-high/40 flex justify-end">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-lg bg-surface-container-highest border border-white/10 text-[12px] font-medium text-on-surface"
+            className="px-4 py-2 rounded-lg bg-surface-container-highest border border-default text-[12px] font-medium text-on-surface"
           >
             Fechar
           </button>

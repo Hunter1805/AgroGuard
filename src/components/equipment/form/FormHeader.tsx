@@ -15,7 +15,7 @@ export const FormHeader: React.FC<FormHeaderProps> = ({
   onClose,
 }) => {
   return (
-    <header className="bg-surface-container/90 backdrop-blur-md border-b border-white/10 px-6 py-4 flex items-center justify-between sticky top-0 z-30">
+    <header className="bg-surface-container/90 backdrop-blur-md border-b border-default px-6 py-4 flex items-center justify-between sticky top-0 z-30">
       <div className="flex items-center gap-3">
         <div className="p-2.5 rounded-xl bg-primary/10 text-primary border border-primary/20">
           <Tractor size={22} />
@@ -51,7 +51,7 @@ export const FormHeader: React.FC<FormHeaderProps> = ({
         <button
           onClick={onClose}
           title="Fechar formulário"
-          className="p-2 rounded-lg bg-surface-container-highest border border-white/10 text-on-surface-variant hover:text-on-surface hover:bg-white/10 transition-all cursor-pointer flex items-center gap-1.5 text-[12px]"
+          className="p-2 rounded-lg bg-surface-container-highest border border-default text-on-surface-variant hover:text-on-surface hover:bg-white/10 transition-all cursor-pointer flex items-center gap-1.5 text-[12px]"
         >
           <span className="hidden sm:inline">Fechar</span>
           <X size={16} />

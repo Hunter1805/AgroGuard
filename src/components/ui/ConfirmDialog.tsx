@@ -59,7 +59,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
       aria-modal="true"
       aria-labelledby="confirm-dialog-title"
     >
-      <div className="glass-card w-full max-w-sm rounded-xl border border-white/10 p-6 shadow-2xl space-y-4">
+      <div className="glass-card w-full max-w-sm rounded-xl border border-default p-6 shadow-2xl space-y-4">
         {/* Header */}
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-3">

@@ -19,7 +19,7 @@ export const ReportsOverview: React.FC = () => {
     <div className="space-y-6 text-xs animate-fade-in">
       {/* Cards de Indicadores Operacionais Gerais */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-        <div className="glass-card rounded-2xl p-4 border border-white/10 space-y-1">
+        <div className="glass-card rounded-2xl p-4 border border-default space-y-1">
           <div className="flex items-center justify-between text-on-surface-variant/70">
             <span className="font-mono-label text-[11px]">Disponibilidade</span>
             <Tractor size={15} className="text-blue-400" />
@@ -28,7 +28,7 @@ export const ReportsOverview: React.FC = () => {
           <span className="text-[10px] text-on-surface-variant/60 block">{ind?.totalEquipmentCount || 0} equipamentos na frota</span>
         </div>
 
-        <div className="glass-card rounded-2xl p-4 border border-white/10 space-y-1">
+        <div className="glass-card rounded-2xl p-4 border border-default space-y-1">
           <div className="flex items-center justify-between text-on-surface-variant/70">
             <span className="font-mono-label text-[11px]">MTTR Médio</span>
             <Clock size={15} className="text-amber-400" />
@@ -37,7 +37,7 @@ export const ReportsOverview: React.FC = () => {
           <span className="text-[10px] text-on-surface-variant/60 block">Tempo de reparo por OS</span>
         </div>
 
-        <div className="glass-card rounded-2xl p-4 border border-white/10 space-y-1">
+        <div className="glass-card rounded-2xl p-4 border border-default space-y-1">
           <div className="flex items-center justify-between text-on-surface-variant/70">
             <span className="font-mono-label text-[11px]">MTBF Médio</span>
             <Clock size={15} className="text-emerald-400" />
@@ -46,7 +46,7 @@ export const ReportsOverview: React.FC = () => {
           <span className="text-[10px] text-on-surface-variant/60 block">Tempo entre falhas</span>
         </div>
 
-        <div className="glass-card rounded-2xl p-4 border border-white/10 space-y-1">
+        <div className="glass-card rounded-2xl p-4 border border-default space-y-1">
           <div className="flex items-center justify-between text-on-surface-variant/70">
             <span className="font-mono-label text-[11px]">Cumprimento Prev.</span>
             <Wrench size={15} className="text-indigo-400" />
@@ -55,7 +55,7 @@ export const ReportsOverview: React.FC = () => {
           <span className="text-[10px] text-on-surface-variant/60 block">Revisões no prazo</span>
         </div>
 
-        <div className="glass-card rounded-2xl p-4 border border-white/10 space-y-1">
+        <div className="glass-card rounded-2xl p-4 border border-default space-y-1">
           <div className="flex items-center justify-between text-on-surface-variant/70">
             <span className="font-mono-label text-[11px]">Taxa Conformidade</span>
             <CheckCircleIcon size={15} className="text-teal-400" />
@@ -64,7 +64,7 @@ export const ReportsOverview: React.FC = () => {
           <span className="text-[10px] text-on-surface-variant/60 block">Checklists sem falhas</span>
         </div>
 
-        <div className="glass-card rounded-2xl p-4 border border-white/10 space-y-1">
+        <div className="glass-card rounded-2xl p-4 border border-default space-y-1">
           <div className="flex items-center justify-between text-on-surface-variant/70">
             <span className="font-mono-label text-[11px]">Horas de Parada</span>
             <AlertTriangle size={15} className="text-rose-400" />
@@ -76,13 +76,13 @@ export const ReportsOverview: React.FC = () => {
 
       {/* Relatórios Favoritos Salvos */}
       {favorites.length > 0 && (
-        <div className="glass-card rounded-2xl p-5 border border-white/10 space-y-3">
+        <div className="glass-card rounded-2xl p-5 border border-default space-y-3">
           <h3 className="font-bold text-on-surface text-sm flex items-center gap-2">
             <Bookmark className="text-primary" size={16} /> Relatórios Favoritos & Filtros Salvos
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {favorites.map(fav => (
-              <div key={fav.id} className="p-3 bg-surface-container rounded-xl border border-white/10 flex items-center justify-between gap-2">
+              <div key={fav.id} className="p-3 bg-surface-container rounded-xl border border-default flex items-center justify-between gap-2">
                 <div>
                   <h4 className="font-bold text-on-surface text-xs">{fav.name}</h4>
                   <span className="text-[10px] font-mono-label text-on-surface-variant/70 capitalize block">

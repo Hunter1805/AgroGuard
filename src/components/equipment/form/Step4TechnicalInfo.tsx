@@ -80,7 +80,7 @@ export const Step4TechnicalInfo: React.FC<StepProps> = ({ data, onChange }) => {
             value={data.notes || ''}
             onChange={(e) => onChange('notes', e.target.value)}
             placeholder="Adicione observações, restrições operacionais ou particularidades deste ativo..."
-            className="w-full bg-surface-container border border-white/10 rounded-lg p-3 text-[12px] text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary/50 transition-all"
+            className="w-full bg-surface-container border border-default rounded-lg p-3 text-[12px] text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary/50 transition-all"
           />
         </div>
       </div>

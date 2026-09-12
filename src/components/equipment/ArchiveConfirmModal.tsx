@@ -33,7 +33,7 @@ export const ArchiveConfirmModal: React.FC<ArchiveConfirmModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-fade-in">
-      <div className="glass-card bg-surface-container-highest border border-white/10 rounded-xl max-w-md w-full p-6 shadow-2xl space-y-5">
+      <div className="glass-card bg-surface-container-highest border border-default rounded-xl max-w-md w-full p-6 shadow-2xl space-y-5">
         {/* Cabeçalho */}
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
@@ -57,7 +57,7 @@ export const ArchiveConfirmModal: React.FC<ArchiveConfirmModalProps> = ({
           </button>
         </div>
 
-        <div className="bg-surface-container-highest/40 rounded-lg p-3.5 border border-white/5 text-[12px] text-on-surface-variant/80">
+        <div className="bg-surface-container-highest/40 rounded-lg p-3.5 border border-default text-[12px] text-on-surface-variant/80">
           Você está prestes a arquivar o equipamento <strong className="text-on-surface">{equipmentName}</strong>. Ele será movido para o registro histórico e deixará de figurar nos indicadores operacionais ativos.
         </div>
 
@@ -76,7 +76,7 @@ export const ArchiveConfirmModal: React.FC<ArchiveConfirmModalProps> = ({
               }}
               placeholder="Descreva o motivo (ex: Venda de ativo, perda total, substituição de frota...)"
               className={`w-full bg-surface-container border rounded-lg p-3 text-[12px] text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary/50 transition-all ${
-                error ? 'border-error' : 'border-white/10'
+                error ? 'border-error' : 'border-default'
               }`}
             />
             {error && (

@@ -81,7 +81,7 @@ export const CadastrosView: React.FC = () => {
         <MasterDataOverviewStats stats={stats} loading={false} />
 
         {/* Busca e Filtros */}
-        <div className="glass-card rounded-xl border border-white/10 p-4">
+        <div className="glass-card rounded-xl border border-default p-4">
           <MasterDataSearch
             query={searchQuery}
             onQueryChange={setSearchQuery}
@@ -92,7 +92,7 @@ export const CadastrosView: React.FC = () => {
 
         {/* Agrupamento por Categorias */}
         {groupedCards.length === 0 ? (
-          <div className="glass-card rounded-xl border border-white/10 p-12 text-center">
+          <div className="glass-card rounded-xl border border-default p-12 text-center">
             <p className="text-[14px] font-medium text-on-surface">Nenhum cadastro encontrado</p>
             <p className="text-[12px] text-on-surface-variant/60 mt-1">
               Não existem registros de cadastro para os termos digitados ou filtros selecionados.
@@ -101,7 +101,7 @@ export const CadastrosView: React.FC = () => {
         ) : (
           groupedCards.map((group) => (
             <div key={group.key} className="space-y-3">
-              <div className="border-b border-white/10 pb-2">
+              <div className="border-b border-default pb-2">
                 <h3 className="text-[16px] font-bold text-on-surface">{group.groupInfo.title}</h3>
                 <p className="text-[12px] text-on-surface-variant/70">{group.groupInfo.subtitle}</p>
               </div>

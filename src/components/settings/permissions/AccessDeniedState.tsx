@@ -36,7 +36,7 @@ export const AccessDeniedState: React.FC<AccessDeniedProps> = ({
         <div className="pt-4 flex justify-center gap-3">
           <button
             onClick={() => navigate('/dashboard')}
-            className="px-4 py-2 rounded-lg bg-surface-container-highest border border-white/10 text-[13px] font-medium text-on-surface hover:bg-surface-container-high transition-all flex items-center gap-2"
+            className="px-4 py-2 rounded-lg bg-surface-container-highest border border-default text-[13px] font-medium text-on-surface hover:bg-surface-container-high transition-all flex items-center gap-2"
           >
             <ArrowLeft size={16} />
             Voltar ao Dashboard

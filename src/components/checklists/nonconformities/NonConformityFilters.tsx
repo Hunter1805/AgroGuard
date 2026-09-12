@@ -16,7 +16,7 @@ export const NonConformityFilters: React.FC<NonConformityFiltersProps> = ({
   const isFiltered = filters.search || filters.status !== 'todos' || filters.criticality !== 'todas' || filters.onlyBlocked;
 
   return (
-    <div className="glass-card bg-surface-container-highest/50 border border-white/10 rounded-xl p-4 space-y-3 animate-fade-in text-[12px]">
+    <div className="glass-card bg-surface-container-highest/50 border border-default rounded-xl p-4 space-y-3 animate-fade-in text-[12px]">
       <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
         <div className="relative w-full sm:w-80">
           <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/60" />
@@ -25,7 +25,7 @@ export const NonConformityFilters: React.FC<NonConformityFiltersProps> = ({
             placeholder="Buscar por código, falha ou ativo..."
             value={filters.search}
             onChange={(e) => onFilterChange({ search: e.target.value })}
-            className="w-full bg-surface-container border border-white/10 rounded-lg pl-9 pr-3 py-1.5 text-[13px] text-on-surface focus:outline-none focus:border-primary"
+            className="w-full bg-surface-container border border-default rounded-lg pl-9 pr-3 py-1.5 text-[13px] text-on-surface focus:outline-none focus:border-primary"
           />
         </div>
 
@@ -36,7 +36,7 @@ export const NonConformityFilters: React.FC<NonConformityFiltersProps> = ({
             <select
               value={filters.status}
               onChange={(e) => onFilterChange({ status: e.target.value })}
-              className="bg-surface-container border border-white/10 rounded px-2 py-1 text-on-surface focus:outline-none"
+              className="bg-surface-container border border-default rounded px-2 py-1 text-on-surface focus:outline-none"
             >
               <option value="todos">Todos os Status</option>
               <option value="aberta">Aberta</option>
@@ -52,7 +52,7 @@ export const NonConformityFilters: React.FC<NonConformityFiltersProps> = ({
             <select
               value={filters.criticality}
               onChange={(e) => onFilterChange({ criticality: e.target.value })}
-              className="bg-surface-container border border-white/10 rounded px-2 py-1 text-on-surface focus:outline-none capitalize"
+              className="bg-surface-container border border-default rounded px-2 py-1 text-on-surface focus:outline-none capitalize"
             >
               <option value="todas">Todas</option>
               <option value="critica">Crítica</option>
@@ -64,13 +64,13 @@ export const NonConformityFilters: React.FC<NonConformityFiltersProps> = ({
         </div>
       </div>
 
-      <div className="flex items-center justify-between gap-3 pt-2 border-t border-white/5 font-mono-label text-[11px]">
+      <div className="flex items-center justify-between gap-3 pt-2 border-t border-default font-mono-label text-[11px]">
         <label className="inline-flex items-center gap-2 cursor-pointer select-none">
           <input
             type="checkbox"
             checked={filters.onlyBlocked}
             onChange={(e) => onFilterChange({ onlyBlocked: e.target.checked })}
-            className="rounded border-white/20 bg-surface-container text-error focus:ring-0"
+            className="rounded border-default bg-surface-container text-error focus:ring-0"
           />
           <span className="text-error font-bold inline-flex items-center gap-1">
             <Ban size={13} /> Mostrar apenas que provocaram bloqueio da máquina

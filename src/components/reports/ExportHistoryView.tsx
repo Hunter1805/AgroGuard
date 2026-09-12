@@ -7,7 +7,7 @@ export const ExportHistoryView: React.FC = () => {
 
   return (
     <div className="space-y-4 text-xs">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-surface-container-low/30 p-4 rounded-xl border border-white/10">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-surface-container-low/30 p-4 rounded-xl border border-default">
         <div>
           <h3 className="text-base font-bold text-on-surface flex items-center gap-2">
             <History className="text-primary" size={18} />
@@ -19,7 +19,7 @@ export const ExportHistoryView: React.FC = () => {
         </div>
       </div>
 
-      <div className="glass-card rounded-2xl border border-white/10 overflow-hidden">
+      <div className="glass-card rounded-2xl border border-default overflow-hidden">
         {loading ? (
           <div className="p-8 text-center text-xs text-on-surface-variant">Carregando histórico de exportações...</div>
         ) : logs.length === 0 ? (
@@ -32,7 +32,7 @@ export const ExportHistoryView: React.FC = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="bg-surface-container-highest/40 text-on-surface-variant/70 font-mono-label uppercase border-b border-white/5">
+                <tr className="bg-surface-container-highest/40 text-on-surface-variant/70 font-mono-label uppercase border-b border-default">
                   <th className="px-4 py-3 font-medium">Relatório</th>
                   <th className="px-4 py-3 font-medium">Categoria</th>
                   <th className="px-4 py-3 font-medium">Formato</th>

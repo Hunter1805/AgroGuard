@@ -46,7 +46,7 @@ export const UserList: React.FC = () => {
       />
 
       {/* Tabela */}
-      <div className="glass-card rounded-xl border border-white/10 overflow-hidden shadow-lg">
+      <div className="glass-card rounded-xl border border-default overflow-hidden shadow-lg">
         {loading ? (
           <div className="p-12 text-center text-[13px] text-on-surface-variant animate-pulse">
             Carregando lista de usuários...
@@ -60,7 +60,7 @@ export const UserList: React.FC = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-[13px]">
               <thead>
-                <tr className="border-b border-white/10 bg-surface-container-high/60 text-[11px] font-semibold text-on-surface-variant/70 uppercase tracking-wider">
+                <tr className="border-b border-default bg-surface-container-high/60 text-[11px] font-semibold text-on-surface-variant/70 uppercase tracking-wider">
                   <th className="py-3 px-4">Usuário</th>
                   <th className="py-3 px-4">Perfil Principal</th>
                   <th className="py-3 px-4">Cargo / Matrícula</th>

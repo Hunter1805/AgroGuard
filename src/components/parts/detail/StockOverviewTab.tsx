@@ -8,8 +8,8 @@ interface StockOverviewTabProps {
 export const StockOverviewTab: React.FC<StockOverviewTabProps> = ({ item }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-      <div className="glass-card rounded-2xl p-5 border border-white/10 space-y-4">
-        <h3 className="font-bold text-on-surface text-sm border-b border-white/5 pb-2">Identificação & Especificações</h3>
+      <div className="glass-card rounded-2xl p-5 border border-default space-y-4">
+        <h3 className="font-bold text-on-surface text-sm border-b border-default pb-2">Identificação & Especificações</h3>
 
         <div className="grid grid-cols-2 gap-3 font-mono-label">
           <div>
@@ -30,7 +30,7 @@ export const StockOverviewTab: React.FC<StockOverviewTabProps> = ({ item }) => {
           </div>
         </div>
 
-        <div className="pt-3 border-t border-white/5 space-y-2 font-mono-label">
+        <div className="pt-3 border-t border-default space-y-2 font-mono-label">
           <div className="flex items-center justify-between">
             <span className="text-on-surface-variant/70">Unidade de Controle</span>
             <span className="font-bold text-on-surface">{item.controlUnit} ({item.allowsFractionalQuantity ? 'Fracionável' : 'Inteiro'})</span>
@@ -44,15 +44,15 @@ export const StockOverviewTab: React.FC<StockOverviewTabProps> = ({ item }) => {
         </div>
 
         {item.description && (
-          <div className="pt-3 border-t border-white/5">
+          <div className="pt-3 border-t border-default">
             <span className="text-on-surface-variant/70 text-[11px] block font-mono-label">Descrição</span>
             <p className="text-on-surface text-xs mt-1">{item.description}</p>
           </div>
         )}
       </div>
 
-      <div className="glass-card rounded-2xl p-5 border border-white/10 space-y-4">
-        <h3 className="font-bold text-on-surface text-sm border-b border-white/5 pb-2">Controle de Estoque & Custos</h3>
+      <div className="glass-card rounded-2xl p-5 border border-default space-y-4">
+        <h3 className="font-bold text-on-surface text-sm border-b border-default pb-2">Controle de Estoque & Custos</h3>
 
         <div className="grid grid-cols-3 gap-3 font-mono-label">
           <div>
@@ -69,7 +69,7 @@ export const StockOverviewTab: React.FC<StockOverviewTabProps> = ({ item }) => {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 font-mono-label pt-3 border-t border-white/5">
+        <div className="grid grid-cols-2 gap-3 font-mono-label pt-3 border-t border-default">
           <div>
             <span className="text-on-surface-variant/70 text-[11px] block">Estoque Mínimo</span>
             <span className="font-bold text-on-surface text-xs">{item.minimumQuantity} {item.controlUnit}</span>

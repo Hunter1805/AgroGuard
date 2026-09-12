@@ -41,7 +41,7 @@ export const ChecklistScheduleList: React.FC = () => {
           <div
             key={sch.id}
             className={`glass-card rounded-2xl p-4 border transition-all flex flex-col justify-between shadow-lg ${
-              sch.active ? 'bg-surface-container-highest/40 border-white/10 hover:border-secondary/40' : 'bg-surface-container-highest/20 border-white/5 opacity-60'
+              sch.active ? 'bg-surface-container-highest/40 border-default hover:border-secondary/40' : 'bg-surface-container-highest/20 border-default opacity-60'
             }`}
           >
             <div className="space-y-2">
@@ -69,13 +69,13 @@ export const ChecklistScheduleList: React.FC = () => {
               </div>
             </div>
 
-            <div className="mt-4 pt-3 border-t border-white/10 flex justify-between items-center">
+            <div className="mt-4 pt-3 border-t border-default flex justify-between items-center">
               <span className="text-[11px] font-mono-label text-primary">
                 Próxima: <strong>{sch.nextExecutionDate || 'Amanhã'}</strong>
               </span>
               <button
                 onClick={() => toggleSchedule(sch.id)}
-                className="px-2.5 py-1 rounded-md bg-surface-container border border-white/10 text-on-surface-variant hover:text-on-surface transition-colors font-mono-label text-[10px] uppercase cursor-pointer"
+                className="px-2.5 py-1 rounded-md bg-surface-container border border-default text-on-surface-variant hover:text-on-surface transition-colors font-mono-label text-[10px] uppercase cursor-pointer"
               >
                 {sch.active ? 'Inativar' : 'Reativar'}
               </button>

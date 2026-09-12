@@ -33,7 +33,7 @@ export const MasterDataSearch: React.FC<SearchProps> = ({
           value={query}
           onChange={(e) => onQueryChange(e.target.value)}
           placeholder="Buscar cadastro por nome, código, descrição..."
-          className="w-full bg-surface-container-highest/60 border border-white/10 rounded-xl py-2 pl-9 pr-9 text-[13px] text-on-surface focus:outline-none focus:border-primary/50 transition-all placeholder:text-on-surface-variant/40"
+          className="w-full bg-surface-container-highest/60 border border-default rounded-xl py-2 pl-9 pr-9 text-[13px] text-on-surface focus:outline-none focus:border-primary/50 transition-all placeholder:text-on-surface-variant/40"
         />
         {query && (
           <button
@@ -55,7 +55,7 @@ export const MasterDataSearch: React.FC<SearchProps> = ({
             className={`px-3 py-1.5 rounded-lg text-[12px] font-medium whitespace-nowrap transition-all ${
               selectedGroup === g.key
                 ? 'bg-primary/20 text-primary border border-primary/40'
-                : 'bg-surface-container-highest/40 text-on-surface-variant border border-white/5 hover:bg-surface-container-highest hover:text-on-surface'
+                : 'bg-surface-container-highest/40 text-on-surface-variant border border-default hover:bg-surface-container-highest hover:text-on-surface'
             }`}
           >
             {g.label}

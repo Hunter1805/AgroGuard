@@ -21,18 +21,18 @@ export const ToolLoanForm: React.FC<ToolLoanFormProps> = ({ initialTool, workOrd
 
   const [selectedToolId, setSelectedToolId] = useState(initialTool?.id || '');
   const [quantity, setQuantity] = useState<number>(1);
-  const [borrowerName, setBorrowerName] = useState('Carlos Silva (Mecânico)');
-  const [borrowerTeam, setBorrowerTeam] = useState('Equipe Manutenção Central');
+  const [borrowerName, setBorrowerName] = useState('');
+  const [borrowerTeam, setBorrowerTeam] = useState('');
   const [workOrderId, setWorkOrderId] = useState(initialWorkOrderId || '');
   const [workOrderCode, setWorkOrderCode] = useState(initialWorkOrderId ? `OS-${initialWorkOrderId}` : '');
-  const [equipmentName, setEquipmentName] = useState('TRATOR MASSEY FERGUSON 265 01');
-  const [locationOfUse, setLocationOfUse] = useState('Oficina Central — Campo');
+  const [equipmentName, setEquipmentName] = useState('');
+  const [locationOfUse, setLocationOfUse] = useState('');
   const [expectedReturnDate, setExpectedReturnDate] = useState(() => {
     const d = new Date();
     d.setDate(d.getDate() + 2);
     return d.toISOString().split('T')[0];
   });
-  const [responsibleCheckoutName, setResponsibleCheckoutName] = useState('Roberto Alves');
+  const [responsibleCheckoutName, setResponsibleCheckoutName] = useState('');
   const [notes, setNotes] = useState('');
 
   const selectedTool = tools.find(t => t.id === selectedToolId);
@@ -70,9 +70,9 @@ export const ToolLoanForm: React.FC<ToolLoanFormProps> = ({ initialTool, workOrd
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-surface-container-highest border border-white/10 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl animate-fade-in">
-        <div className="p-4 border-b border-white/10 flex items-center justify-between">
+    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+      <div className="bg-surface-container-highest border border-default rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl animate-fade-in">
+        <div className="p-4 border-b border-default flex items-center justify-between">
           <h3 className="font-bold text-on-surface text-sm flex items-center gap-2">
             <ArrowRightLeft size={16} className="text-primary" />
             Registrar Empréstimo de Ferramenta
@@ -95,7 +95,7 @@ export const ToolLoanForm: React.FC<ToolLoanFormProps> = ({ initialTool, workOrd
             <select
               value={selectedToolId}
               onChange={e => setSelectedToolId(e.target.value)}
-              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
               required
             >
               <option value="">Selecione uma ferramenta disponível...</option>
@@ -108,7 +108,7 @@ export const ToolLoanForm: React.FC<ToolLoanFormProps> = ({ initialTool, workOrd
           </div>
 
           {selectedTool && (
-            <div className="p-3 bg-surface-container rounded-xl border border-white/10 flex justify-between font-mono-label">
+            <div className="p-3 bg-surface-container rounded-xl border border-default flex justify-between font-mono-label">
               <div>
                 <span className="text-[10px] text-on-surface-variant/70 block">Controle</span>
                 <span className="font-bold text-on-surface uppercase">{selectedTool.controlType}</span>
@@ -133,7 +133,7 @@ export const ToolLoanForm: React.FC<ToolLoanFormProps> = ({ initialTool, workOrd
                 max={selectedTool ? selectedTool.availableQuantity : 99}
                 value={quantity}
                 onChange={e => setQuantity(Number(e.target.value))}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-mono-label"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-mono-label"
                 required
               />
             </div>
@@ -143,7 +143,7 @@ export const ToolLoanForm: React.FC<ToolLoanFormProps> = ({ initialTool, workOrd
                 type="date"
                 value={expectedReturnDate}
                 onChange={e => setExpectedReturnDate(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-mono-label"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-mono-label"
                 required
               />
             </div>
@@ -156,7 +156,7 @@ export const ToolLoanForm: React.FC<ToolLoanFormProps> = ({ initialTool, workOrd
                 type="text"
                 value={borrowerName}
                 onChange={e => setBorrowerName(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
                 required
               />
             </div>
@@ -166,7 +166,7 @@ export const ToolLoanForm: React.FC<ToolLoanFormProps> = ({ initialTool, workOrd
                 type="text"
                 value={borrowerTeam}
                 onChange={e => setBorrowerTeam(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
               />
             </div>
           </div>
@@ -182,7 +182,7 @@ export const ToolLoanForm: React.FC<ToolLoanFormProps> = ({ initialTool, workOrd
                   setWorkOrderCode(e.target.value);
                   setWorkOrderId(e.target.value.replace(/[^0-9]/g, ''));
                 }}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-mono-label"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-mono-label"
               />
             </div>
             <div>
@@ -191,7 +191,7 @@ export const ToolLoanForm: React.FC<ToolLoanFormProps> = ({ initialTool, workOrd
                 type="text"
                 value={equipmentName}
                 onChange={e => setEquipmentName(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
               />
             </div>
           </div>
@@ -203,7 +203,7 @@ export const ToolLoanForm: React.FC<ToolLoanFormProps> = ({ initialTool, workOrd
                 type="text"
                 value={locationOfUse}
                 onChange={e => setLocationOfUse(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
               />
             </div>
             <div>
@@ -212,7 +212,7 @@ export const ToolLoanForm: React.FC<ToolLoanFormProps> = ({ initialTool, workOrd
                 type="text"
                 value={responsibleCheckoutName}
                 onChange={e => setResponsibleCheckoutName(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
                 required
               />
             </div>
@@ -224,12 +224,12 @@ export const ToolLoanForm: React.FC<ToolLoanFormProps> = ({ initialTool, workOrd
               rows={2}
               value={notes}
               onChange={e => setNotes(e.target.value)}
-              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
               placeholder="Descreva detalhes adicionais ou estado inicial..."
             />
           </div>
 
-          <div className="pt-3 border-t border-white/10 flex items-center justify-end gap-2">
+          <div className="pt-3 border-t border-default flex items-center justify-end gap-2">
             <Button type="button" variant="outline" size="sm" onClick={onClose}>
               Cancelar
             </Button>

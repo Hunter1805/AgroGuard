@@ -52,9 +52,9 @@ export const ModelForm: React.FC<FormProps> = ({ isOpen, onClose, initialData, o
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative z-10 w-full max-w-lg bg-surface-container-lowest border border-white/10 rounded-xl p-5 shadow-2xl space-y-4">
-        <div className="flex items-center justify-between border-b border-white/10 pb-3">
+      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+      <div className="relative z-10 w-full max-w-lg bg-surface-container-lowest border border-default rounded-xl p-5 shadow-2xl space-y-4">
+        <div className="flex items-center justify-between border-b border-default pb-3">
           <div className="flex items-center gap-2">
             <div className="p-2 rounded-lg bg-primary/10 text-primary border border-primary/20">
               <Cpu size={18} />
@@ -77,7 +77,7 @@ export const ModelForm: React.FC<FormProps> = ({ isOpen, onClose, initialData, o
                 value={formData.code || ''}
                 onChange={(e) => setFormData((p) => ({ ...p, code: e.target.value }))}
                 required
-                className="w-full bg-surface-container-highest border border-white/10 rounded-lg p-2 text-[13px] text-on-surface focus:outline-none focus:border-primary/50"
+                className="w-full bg-surface-container-highest border border-default rounded-lg p-2 text-[13px] text-on-surface focus:outline-none focus:border-primary/50"
               />
             </div>
             <div>
@@ -87,7 +87,7 @@ export const ModelForm: React.FC<FormProps> = ({ isOpen, onClose, initialData, o
                 value={formData.powerHp || ''}
                 onChange={(e) => setFormData((p) => ({ ...p, powerHp: Number(e.target.value) }))}
                 placeholder="Ex: 210"
-                className="w-full bg-surface-container-highest border border-white/10 rounded-lg p-2 text-[13px] text-on-surface focus:outline-none focus:border-primary/50"
+                className="w-full bg-surface-container-highest border border-default rounded-lg p-2 text-[13px] text-on-surface focus:outline-none focus:border-primary/50"
               />
             </div>
           </div>
@@ -100,7 +100,7 @@ export const ModelForm: React.FC<FormProps> = ({ isOpen, onClose, initialData, o
               onChange={(e) => setFormData((p) => ({ ...p, name: e.target.value }))}
               required
               placeholder="Ex: 7225J, MF 7720, Magnum 340"
-              className="w-full bg-surface-container-highest border border-white/10 rounded-lg p-2 text-[13px] text-on-surface focus:outline-none focus:border-primary/50"
+              className="w-full bg-surface-container-highest border border-default rounded-lg p-2 text-[13px] text-on-surface focus:outline-none focus:border-primary/50"
             />
           </div>
 
@@ -112,7 +112,7 @@ export const ModelForm: React.FC<FormProps> = ({ isOpen, onClose, initialData, o
                 value={formData.startYear || ''}
                 onChange={(e) => setFormData((p) => ({ ...p, startYear: Number(e.target.value) }))}
                 placeholder="2015"
-                className="w-full bg-surface-container-highest border border-white/10 rounded-lg p-2 text-[13px] text-on-surface focus:outline-none focus:border-primary/50"
+                className="w-full bg-surface-container-highest border border-default rounded-lg p-2 text-[13px] text-on-surface focus:outline-none focus:border-primary/50"
               />
             </div>
             <div>
@@ -122,7 +122,7 @@ export const ModelForm: React.FC<FormProps> = ({ isOpen, onClose, initialData, o
                 value={formData.endYear || ''}
                 onChange={(e) => setFormData((p) => ({ ...p, endYear: Number(e.target.value) }))}
                 placeholder="2025"
-                className="w-full bg-surface-container-highest border border-white/10 rounded-lg p-2 text-[13px] text-on-surface focus:outline-none focus:border-primary/50"
+                className="w-full bg-surface-container-highest border border-default rounded-lg p-2 text-[13px] text-on-surface focus:outline-none focus:border-primary/50"
               />
             </div>
           </div>
@@ -135,7 +135,7 @@ export const ModelForm: React.FC<FormProps> = ({ isOpen, onClose, initialData, o
                 value={formData.defaultFuelType || ''}
                 onChange={(e) => setFormData((p) => ({ ...p, defaultFuelType: e.target.value }))}
                 placeholder="Diesel S10"
-                className="w-full bg-surface-container-highest border border-white/10 rounded-lg p-2 text-[13px] text-on-surface focus:outline-none focus:border-primary/50"
+                className="w-full bg-surface-container-highest border border-default rounded-lg p-2 text-[13px] text-on-surface focus:outline-none focus:border-primary/50"
               />
             </div>
             <div>
@@ -143,7 +143,7 @@ export const ModelForm: React.FC<FormProps> = ({ isOpen, onClose, initialData, o
               <select
                 value={formData.defaultMeterType || 'horimetro'}
                 onChange={(e) => setFormData((p) => ({ ...p, defaultMeterType: e.target.value as any }))}
-                className="w-full bg-surface-container-highest border border-white/10 rounded-lg p-2 text-[13px] text-on-surface focus:outline-none focus:border-primary/50"
+                className="w-full bg-surface-container-highest border border-default rounded-lg p-2 text-[13px] text-on-surface focus:outline-none focus:border-primary/50"
               >
                 <option value="horimetro">Horímetro</option>
                 <option value="odometro">Odômetro (KM)</option>
@@ -159,15 +159,15 @@ export const ModelForm: React.FC<FormProps> = ({ isOpen, onClose, initialData, o
               value={formData.defaultTireConfig || ''}
               onChange={(e) => setFormData((p) => ({ ...p, defaultTireConfig: e.target.value }))}
               placeholder="Ex: Dianteiros 600/65R28, Traseiros 710/70R38"
-              className="w-full bg-surface-container-highest border border-white/10 rounded-lg p-2 text-[13px] text-on-surface focus:outline-none focus:border-primary/50"
+              className="w-full bg-surface-container-highest border border-default rounded-lg p-2 text-[13px] text-on-surface focus:outline-none focus:border-primary/50"
             />
           </div>
 
-          <div className="flex justify-end gap-2 pt-3 border-t border-white/10">
+          <div className="flex justify-end gap-2 pt-3 border-t border-default">
             <button
               type="button"
               onClick={onClose}
-              className="px-3 py-1.5 rounded-lg border border-white/10 text-[12px] text-on-surface-variant hover:text-on-surface"
+              className="px-3 py-1.5 rounded-lg border border-default text-[12px] text-on-surface-variant hover:text-on-surface"
             >
               Cancelar
             </button>

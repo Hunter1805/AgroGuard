@@ -8,7 +8,7 @@ interface ToolLoansTabProps {
 
 export const ToolLoansTab: React.FC<ToolLoansTabProps> = ({ loans }) => {
   return (
-    <div className="glass-card rounded-2xl p-5 border border-white/10 space-y-4 text-xs">
+    <div className="glass-card rounded-2xl p-5 border border-default space-y-4 text-xs">
       <h3 className="font-bold text-on-surface text-sm flex items-center gap-2">
         <ArrowRightLeft size={16} className="text-primary" /> Histórico de Empréstimos e Devoluções
       </h3>
@@ -19,7 +19,7 @@ export const ToolLoansTab: React.FC<ToolLoansTabProps> = ({ loans }) => {
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead>
-              <tr className="bg-surface-container-highest/40 text-on-surface-variant/70 font-mono-label uppercase border-b border-white/5">
+              <tr className="bg-surface-container-highest/40 text-on-surface-variant/70 font-mono-label uppercase border-b border-default">
                 <th className="px-3.5 py-2 font-medium">Cód. Empréstimo</th>
                 <th className="px-3.5 py-2 font-medium">Responsável</th>
                 <th className="px-3.5 py-2 font-medium">OS / Ativo</th>

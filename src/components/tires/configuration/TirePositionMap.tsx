@@ -23,7 +23,7 @@ export const TirePositionMap: React.FC<TirePositionMapProps> = ({
 }) => {
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between border-b border-white/10 pb-3">
+      <div className="flex items-center justify-between border-b border-default pb-3">
         <div>
           <h4 className="text-sm font-bold text-on-surface">Mapa de Eixos e Posições do Equipamento</h4>
           <p className="text-xs text-on-surface-variant/70">
@@ -40,8 +40,8 @@ export const TirePositionMap: React.FC<TirePositionMapProps> = ({
 
       <div className="space-y-6">
         {config.axles.map(axle => (
-          <div key={axle.id} className="glass-card rounded-2xl p-4 border border-white/10 space-y-3 bg-surface-container-low/20">
-            <div className="flex items-center justify-between border-b border-white/5 pb-2">
+          <div key={axle.id} className="glass-card rounded-2xl p-4 border border-default space-y-3 bg-surface-container-low/20">
+            <div className="flex items-center justify-between border-b border-default pb-2">
               <span className="font-bold text-xs text-on-surface uppercase font-mono-label tracking-wider">
                 {axle.name} — Rodado {axle.sideConfiguration}
               </span>

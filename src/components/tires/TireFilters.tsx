@@ -11,7 +11,7 @@ interface TireFiltersProps {
 
 export const TireFilters: React.FC<TireFiltersProps> = ({ filters, onFilterChange, onReset }) => {
   return (
-    <div className="p-4 border-b border-white/10 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 bg-surface-container-low/30">
+    <div className="p-4 border-b border-default flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 bg-surface-container-low/30">
       <div className="flex-1 flex items-center gap-2">
         <div className="relative flex-1">
           <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/50" />
@@ -20,7 +20,7 @@ export const TireFilters: React.FC<TireFiltersProps> = ({ filters, onFilterChang
             placeholder="Buscar por código interno, série, marca, modelo ou medida..."
             value={filters.search}
             onChange={e => onFilterChange({ search: e.target.value })}
-            className="w-full pl-9 pr-3 py-2 bg-surface-container/60 rounded-xl border border-white/10 text-xs text-on-surface focus:outline-none focus:border-primary/50"
+            className="w-full pl-9 pr-3 py-2 bg-surface-container/60 rounded-xl border border-default text-xs text-on-surface focus:outline-none focus:border-primary/50"
           />
         </div>
       </div>
@@ -30,7 +30,7 @@ export const TireFilters: React.FC<TireFiltersProps> = ({ filters, onFilterChang
         <select
           value={filters.status || ''}
           onChange={e => onFilterChange({ status: (e.target.value as TireStatus) || undefined })}
-          className="bg-surface-container/60 rounded-xl border border-white/10 text-xs px-3 py-2 text-on-surface focus:outline-none focus:border-primary/50"
+          className="bg-surface-container/60 rounded-xl border border-default text-xs px-3 py-2 text-on-surface focus:outline-none focus:border-primary/50"
         >
           <option value="">Todos os Status</option>
           <option value="instalado">Instalado</option>
@@ -46,7 +46,7 @@ export const TireFilters: React.FC<TireFiltersProps> = ({ filters, onFilterChang
         <select
           value={filters.condition || ''}
           onChange={e => onFilterChange({ condition: (e.target.value as TireCondition) || undefined })}
-          className="bg-surface-container/60 rounded-xl border border-white/10 text-xs px-3 py-2 text-on-surface focus:outline-none focus:border-primary/50"
+          className="bg-surface-container/60 rounded-xl border border-default text-xs px-3 py-2 text-on-surface focus:outline-none focus:border-primary/50"
         >
           <option value="">Todas as Condições</option>
           <option value="novo">Novo</option>
@@ -62,7 +62,7 @@ export const TireFilters: React.FC<TireFiltersProps> = ({ filters, onFilterChang
           className={`px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors border ${
             filters.hasAnomaly
               ? 'bg-amber-500/20 text-amber-400 border-amber-500/40'
-              : 'bg-surface-container/60 text-on-surface-variant border-white/10 hover:bg-surface-container'
+              : 'bg-surface-container/60 text-on-surface-variant border-default hover:bg-surface-container'
           }`}
         >
           <Filter size={13} />

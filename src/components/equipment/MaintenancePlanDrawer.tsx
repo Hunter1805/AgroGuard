@@ -110,7 +110,7 @@ export const MaintenancePlanDrawer: React.FC<Props> = ({ equipment, plan, loadin
 
                   {/* Accordion Body */}
                   {isOpen && (
-                    <div className="px-4 pb-4 space-y-3 border-t border-white/5 pt-3">
+                    <div className="px-4 pb-4 space-y-3 border-t border-default pt-3">
                       {block.tasks.map((task, tIdx) => (
                         <div key={tIdx} className="space-y-1.5">
                           <div className="flex gap-2">
@@ -134,7 +134,7 @@ export const MaintenancePlanDrawer: React.FC<Props> = ({ equipment, plan, loadin
                               )
                             ))}
                           </div>
-                          {tIdx < block.tasks.length - 1 && <div className="border-b border-white/5 ml-4" />}
+                          {tIdx < block.tasks.length - 1 && <div className="border-b border-default ml-4" />}
                         </div>
                       ))}
                     </div>

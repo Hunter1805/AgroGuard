@@ -45,11 +45,11 @@ export const EquipmentTable: React.FC<EquipmentTableProps> = ({
   const navigate = useNavigate();
 
   return (
-    <div className="glass-card rounded-xl border border-white/5 overflow-hidden">
+    <div className="glass-card rounded-xl border border-default overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full text-[12px] text-left border-collapse">
           <thead>
-            <tr className="text-on-surface-variant/60 font-mono-label text-[10px] uppercase bg-surface-container-highest/30 border-b border-white/5">
+            <tr className="text-on-surface-variant/60 font-mono-label text-[10px] uppercase bg-surface-container-highest/30 border-b border-default">
               <th className="px-3.5 py-3 font-medium">Código / Placa</th>
               <th className="px-3.5 py-3 font-medium">Equipamento</th>
               <th className="px-3.5 py-3 font-medium hidden sm:table-cell">Tipo</th>
@@ -91,7 +91,7 @@ export const EquipmentTable: React.FC<EquipmentTableProps> = ({
 
                 {/* Tipo de ativo */}
                 <td className="px-3.5 py-3 hidden sm:table-cell">
-                  <span className="text-[11px] font-mono-label text-on-surface-variant/80 bg-surface-container-highest px-2 py-0.5 rounded border border-white/5">
+                  <span className="text-[11px] font-mono-label text-on-surface-variant/80 bg-surface-container-highest px-2 py-0.5 rounded border border-default">
                     {item.assetType}
                   </span>
                 </td>

@@ -99,7 +99,7 @@ export const PneusView: React.FC<PneusViewProps> = ({ initialTab = 'visao_geral'
         <div className="space-y-6">
           <TireStats stats={stats} />
 
-          <div className="glass-card rounded-2xl border border-white/10 overflow-hidden flex flex-col">
+          <div className="glass-card rounded-2xl border border-default overflow-hidden flex flex-col">
             <TireFilters filters={filters} onFilterChange={updateFilters} onReset={resetFilters} />
 
             {loading ? (
@@ -120,7 +120,7 @@ export const PneusView: React.FC<PneusViewProps> = ({ initialTab = 'visao_geral'
       )}
 
       {activeTab === 'instalados' && (
-        <div className="glass-card rounded-2xl border border-white/10 overflow-hidden flex flex-col">
+        <div className="glass-card rounded-2xl border border-default overflow-hidden flex flex-col">
           <TireTable tires={tires.filter(t => t.status === 'instalado')} onOpenAction={handleOpenAction} />
         </div>
       )}

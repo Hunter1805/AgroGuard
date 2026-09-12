@@ -23,7 +23,7 @@ export const ToolCalibrationList: React.FC = () => {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-surface-container-low/30 p-4 rounded-xl border border-white/10">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-surface-container-low/30 p-4 rounded-xl border border-default">
         <div>
           <h3 className="text-base font-bold text-on-surface flex items-center gap-2">
             <CalendarCheck className="text-primary" size={18} />
@@ -39,8 +39,8 @@ export const ToolCalibrationList: React.FC = () => {
         </Button>
       </div>
 
-      <div className="glass-card rounded-2xl border border-white/10 overflow-hidden">
-        <div className="p-4 border-b border-white/10 flex items-center justify-between gap-3">
+      <div className="glass-card rounded-2xl border border-default overflow-hidden">
+        <div className="p-4 border-b border-default flex items-center justify-between gap-3">
           <div className="relative flex-1 max-w-md">
             <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/50" />
             <input
@@ -48,7 +48,7 @@ export const ToolCalibrationList: React.FC = () => {
               placeholder="Buscar por ferramenta, certificado ou laboratório..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full pl-9 pr-3 py-1.5 bg-surface-container/60 rounded-xl border border-white/10 text-xs text-on-surface focus:outline-none focus:border-primary/50"
+              className="w-full pl-9 pr-3 py-1.5 bg-surface-container/60 rounded-xl border border-default text-xs text-on-surface focus:outline-none focus:border-primary/50"
             />
           </div>
           <span className="text-xs font-mono-label text-on-surface-variant">{calibrations.length} calibrações registradas</span>
@@ -66,7 +66,7 @@ export const ToolCalibrationList: React.FC = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="bg-surface-container-highest/40 text-on-surface-variant/70 font-mono-label uppercase border-b border-white/5">
+                <tr className="bg-surface-container-highest/40 text-on-surface-variant/70 font-mono-label uppercase border-b border-default">
                   <th className="px-4 py-3 font-medium">Ferramenta</th>
                   <th className="px-4 py-3 font-medium">Tipo de Calibração</th>
                   <th className="px-4 py-3 font-medium">Certificado</th>

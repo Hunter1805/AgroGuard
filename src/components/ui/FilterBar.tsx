@@ -37,7 +37,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
               value={searchValue ?? ''}
               onChange={(e) => onSearchChange(e.target.value)}
               placeholder={searchPlaceholder}
-              className="w-full bg-surface-container-highest border border-white/10 rounded-md pl-8 pr-8 py-2 text-[13px] text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary/50 transition-all"
+              className="w-full bg-surface-container-highest border border-default rounded-md pl-8 pr-8 py-2 text-[13px] text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary/50 transition-all"
             />
             {searchValue && searchValue.length > 0 && (
               <button
@@ -52,7 +52,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
 
         {/* Ícone de filtros avançados */}
         {showFilterIcon && (
-          <button className="p-2 rounded-md border border-white/10 bg-surface-container-highest text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all cursor-pointer">
+          <button className="p-2 rounded-md border border-default bg-surface-container-highest text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all cursor-pointer">
             <SlidersHorizontal size={15} />
           </button>
         )}

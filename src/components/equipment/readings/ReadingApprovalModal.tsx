@@ -49,8 +49,8 @@ export const ReadingApprovalModal: React.FC<ReadingApprovalModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs animate-fade-in">
-      <div className="relative max-w-md w-full glass-card bg-surface-container-highest border border-white/10 rounded-2xl p-6 space-y-4 shadow-2xl">
-        <div className="flex justify-between items-center pb-2 border-b border-white/10">
+      <div className="relative max-w-md w-full glass-card bg-surface-container-highest border border-default rounded-2xl p-6 space-y-4 shadow-2xl">
+        <div className="flex justify-between items-center pb-2 border-b border-default">
           <h3 className="font-title-md text-[16px] font-bold text-on-surface">
             Aprovação de Leitura Pendente
           </h3>
@@ -59,7 +59,7 @@ export const ReadingApprovalModal: React.FC<ReadingApprovalModalProps> = ({
           </button>
         </div>
 
-        <div className="space-y-2 text-[12px] p-3 bg-surface-container/50 rounded-xl border border-white/5 font-mono-label">
+        <div className="space-y-2 text-[12px] p-3 bg-surface-container/50 rounded-xl border border-default font-mono-label">
           <p>Equipamento: <strong>{reading.equipmentName} ({reading.equipmentCode})</strong></p>
           <p>Leitura Anterior: <strong>{reading.previousValue} {reading.unit}</strong></p>
           <p>Nova Leitura: <strong className="text-primary">{reading.value} {reading.unit}</strong></p>

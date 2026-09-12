@@ -12,7 +12,7 @@ export const ConfiguracoesView: React.FC = () => {
         <p className="font-body-sm text-[13px] text-on-surface-variant/70 mt-0.5">Parâmetros de alerta, notificações e limites operacionais.</p>
       </div>
 
-      <div className="glass-card rounded-xl p-6 border border-white/5 space-y-6">
+      <div className="glass-card rounded-xl p-6 border border-default space-y-6">
         <div>
           <h3 className="font-title-md text-[16px] font-semibold text-on-surface mb-4">Notificações e Alertas</h3>
           <div className="space-y-4">
@@ -44,7 +44,7 @@ export const ConfiguracoesView: React.FC = () => {
           </div>
         </div>
 
-        <div className="border-t border-white/10 pt-6">
+        <div className="border-t border-default pt-6">
           <h3 className="font-title-md text-[16px] font-semibold text-on-surface mb-4">Parâmetros de Manutenção Preventiva</h3>
           <div className="space-y-3">
             <label className="block text-[12px] font-medium text-on-surface-variant">Intervalo Padrão de Revisão Preventiva (Horas de Uso)</label>
@@ -52,7 +52,7 @@ export const ConfiguracoesView: React.FC = () => {
               type="number"
               value={maintenanceInterval}
               onChange={(e) => setMaintenanceInterval(e.target.value)}
-              className="w-64 bg-surface-container-highest border border-white/10 rounded-md py-2 px-3 text-[13px] text-on-surface focus:outline-none focus:border-primary/50"
+              className="w-64 bg-surface-container-highest border border-default rounded-md py-2 px-3 text-[13px] text-on-surface focus:outline-none focus:border-primary/50"
             />
             <p className="text-[11px] text-on-surface-variant/60">Define após quantas horas de operação o sistema emitirá aviso preventivo automático.</p>
           </div>

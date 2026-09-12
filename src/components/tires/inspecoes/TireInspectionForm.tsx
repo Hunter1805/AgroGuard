@@ -23,7 +23,7 @@ export const TireInspectionForm: React.FC = () => {
   const [horimeterReading, setHorimeterReading] = useState<number | ''>('');
   const [odometerReading, setOdometerReading] = useState<number | ''>('');
   const [location, setLocation] = useState('Oficina Central — Fazenda Primavera');
-  const [responsibleName, setResponsibleName] = useState('Carlos Silva');
+  const [responsibleName, setResponsibleName] = useState('');
   const [notes, setNotes] = useState('');
 
   const [items, setItems] = useState<any[]>([]);
@@ -156,8 +156,8 @@ export const TireInspectionForm: React.FC = () => {
           </div>
         )}
 
-        <div className="glass-card rounded-2xl p-5 border border-white/10 space-y-4">
-          <h3 className="font-bold text-on-surface text-sm flex items-center gap-2 border-b border-white/5 pb-3">
+        <div className="glass-card rounded-2xl p-5 border border-default space-y-4">
+          <h3 className="font-bold text-on-surface text-sm flex items-center gap-2 border-b border-default pb-3">
             <ClipboardCheck className="text-primary" size={18} />
             Dados Gerais da Inspeção
           </h3>
@@ -168,7 +168,7 @@ export const TireInspectionForm: React.FC = () => {
               <select
                 value={selectedEquipmentId}
                 onChange={e => setSelectedEquipmentId(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-semibold"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-semibold"
                 required
               >
                 <option value="">Selecione um equipamento...</option>
@@ -185,7 +185,7 @@ export const TireInspectionForm: React.FC = () => {
               <select
                 value={inspectionType}
                 onChange={e => setInspectionType(e.target.value as any)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
               >
                 <option value="rotina">Rotina</option>
                 <option value="pre_operacao">Pré-Operação</option>
@@ -201,7 +201,7 @@ export const TireInspectionForm: React.FC = () => {
                 type="text"
                 value={responsibleName}
                 onChange={e => setResponsibleName(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
                 required
               />
             </div>
@@ -214,7 +214,7 @@ export const TireInspectionForm: React.FC = () => {
                 type="number"
                 value={horimeterReading}
                 onChange={e => setHorimeterReading(e.target.value === '' ? '' : Number(e.target.value))}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-mono-label"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-mono-label"
               />
             </div>
             <div>
@@ -223,7 +223,7 @@ export const TireInspectionForm: React.FC = () => {
                 type="number"
                 value={odometerReading}
                 onChange={e => setOdometerReading(e.target.value === '' ? '' : Number(e.target.value))}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-mono-label"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-mono-label"
               />
             </div>
             <div>
@@ -232,7 +232,7 @@ export const TireInspectionForm: React.FC = () => {
                 type="text"
                 value={location}
                 onChange={e => setLocation(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
               />
             </div>
           </div>
@@ -266,7 +266,7 @@ export const TireInspectionForm: React.FC = () => {
               rows={2}
               value={notes}
               onChange={e => setNotes(e.target.value)}
-              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
               placeholder="Instruções ou observações gerais..."
             />
           </div>

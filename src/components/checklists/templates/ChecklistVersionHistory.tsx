@@ -17,8 +17,8 @@ export const ChecklistVersionHistory: React.FC<ChecklistVersionHistoryProps> = (
   ];
 
   return (
-    <div className="glass-card bg-surface-container-highest/40 border border-white/10 rounded-2xl p-5 space-y-4 shadow-lg text-[12px] animate-fade-in">
-      <div className="flex items-center gap-2.5 pb-2 border-b border-white/10 text-secondary">
+    <div className="glass-card bg-surface-container-highest/40 border border-default rounded-2xl p-5 space-y-4 shadow-lg text-[12px] animate-fade-in">
+      <div className="flex items-center gap-2.5 pb-2 border-b border-default text-secondary">
         <GitBranch size={20} />
         <h3 className="font-title-md text-[15px] font-bold text-on-surface">Histórico de Versões • {templateCode} ({templateName})</h3>
       </div>
@@ -27,7 +27,7 @@ export const ChecklistVersionHistory: React.FC<ChecklistVersionHistoryProps> = (
         As execuções passadas permanecem congeladas na versão em que foram criadas para garantir auditoria perfeita.
       </p>
 
-      <div className="relative pl-6 border-l border-white/10 space-y-5">
+      <div className="relative pl-6 border-l border-default space-y-5">
         {versions.map((v) => (
           <div key={v.ver} className="relative space-y-1">
             <span className={`absolute -left-[31px] top-1.5 w-3.5 h-3.5 rounded-full border-2 border-surface ${v.active ? 'bg-primary' : 'bg-on-surface-variant/50'}`} />
@@ -40,7 +40,7 @@ export const ChecklistVersionHistory: React.FC<ChecklistVersionHistoryProps> = (
               </span>
             </div>
             <p className="text-[12px] font-medium text-on-surface-variant/90">Autor: {v.author}</p>
-            <p className="text-[11px] text-on-surface-variant/70 italic bg-surface-container/50 p-2 rounded-lg border border-white/5">
+            <p className="text-[11px] text-on-surface-variant/70 italic bg-surface-container/50 p-2 rounded-lg border border-default">
               "{v.notes}"
             </p>
           </div>

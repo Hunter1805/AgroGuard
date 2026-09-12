@@ -13,8 +13,8 @@ export const FleetStatus: React.FC<FleetStatusProps> = ({ fleetStatus }) => {
   const inoperantes = fleetStatus?.inoperantes || 18;
 
   return (
-    <div className="glass-card rounded-xl flex flex-col h-64 border-white/5">
-      <div className="flex justify-between items-center p-4 border-b border-white/5 bg-surface/30 rounded-t-xl">
+    <div className="glass-card rounded-xl flex flex-col h-64 border-default">
+      <div className="flex justify-between items-center p-4 border-b border-default bg-surface/30 rounded-t-xl">
         <div className="flex items-center gap-2">
           <Tractor size={16} className="text-on-surface-variant" />
           <h3 className="font-body-sm text-[13px] font-semibold text-on-surface">Status da Frota</h3>

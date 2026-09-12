@@ -67,7 +67,7 @@ const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
   bloqueado: { label: 'Bloqueado', className: 'bg-error/15 text-error border-error/30 font-bold' },
 
   // OS
-  'Rascunho': { label: 'Rascunho', className: 'bg-surface-container-highest text-on-surface-variant border-white/10' },
+  'Rascunho': { label: 'Rascunho', className: 'bg-surface-container-highest text-on-surface-variant border-default' },
   'Aberta': { label: 'Aberta', className: 'bg-primary/10 text-primary border-primary/20' },
   'Em triagem': { label: 'Em triagem', className: 'bg-primary/10 text-primary border-primary/20' },
   'Aguardando aprovação': { label: 'Aguard. aprovação', className: 'bg-warning/10 text-warning border-warning/20' },
@@ -82,10 +82,10 @@ const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
   'Finalizada': { label: 'Finalizada', className: 'bg-success/10 text-success border-success/20' },
   'Aguardando aprovação final': { label: 'Aguard. aprv. final', className: 'bg-warning/10 text-warning border-warning/20' },
   'Encerrada': { label: 'Encerrada', className: 'bg-success/15 text-success border-success/30' },
-  'Cancelada': { label: 'Cancelada', className: 'bg-surface-container-highest text-on-surface-variant/60 border-white/10 line-through' },
+  'Cancelada': { label: 'Cancelada', className: 'bg-surface-container-highest text-on-surface-variant/60 border-default line-through' },
 
   // Checklist
-  'Não iniciado': { label: 'Não iniciado', className: 'bg-surface-container-highest text-on-surface-variant border-white/10' },
+  'Não iniciado': { label: 'Não iniciado', className: 'bg-surface-container-highest text-on-surface-variant border-default' },
   'Em andamento': { label: 'Em andamento', className: 'bg-primary/10 text-primary border-primary/20' },
   'Concluído': { label: 'Concluído', className: 'bg-success/10 text-success border-success/20' },
   'Concluído com não conformidade': { label: 'Com NC', className: 'bg-warning/10 text-warning border-warning/20' },
@@ -98,13 +98,13 @@ const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
   'Em tratamento': { label: 'Em tratamento', className: 'bg-primary/10 text-primary border-primary/20' },
   'Adiado': { label: 'Adiado', className: 'bg-warning/10 text-warning border-warning/20' },
   'Resolvido': { label: 'Resolvido', className: 'bg-success/10 text-success border-success/20' },
-  'Ignorado': { label: 'Ignorado', className: 'bg-surface-container-highest text-on-surface-variant border-white/10' },
+  'Ignorado': { label: 'Ignorado', className: 'bg-surface-container-highest text-on-surface-variant border-default' },
 
   // Legado para compatibilidade
   'Em Progresso': { label: 'Em Progresso', className: 'bg-primary/10 text-primary border-primary/20' },
   'Aguardando Peça': { label: 'Aguard. Peça', className: 'bg-warning/10 text-warning border-warning/20' },
   'Concluída': { label: 'Concluída', className: 'bg-success/10 text-success border-success/20' },
-  'Pendente': { label: 'Pendente', className: 'bg-surface-container-highest text-on-surface-variant border-white/10' },
+  'Pendente': { label: 'Pendente', className: 'bg-surface-container-highest text-on-surface-variant border-default' },
 };
 
 interface StatusBadgeProps {
@@ -115,7 +115,7 @@ interface StatusBadgeProps {
 export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, size = 'sm' }) => {
   const config = STATUS_CONFIG[status] ?? {
     label: String(status),
-    className: 'bg-surface-container-highest text-on-surface-variant border-white/10',
+    className: 'bg-surface-container-highest text-on-surface-variant border-default',
   };
 
   const sizeClass = size === 'sm'

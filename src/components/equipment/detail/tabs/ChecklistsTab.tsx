@@ -48,7 +48,7 @@ export const ChecklistsTab: React.FC<ChecklistsTabProps> = ({
 
   return (
     <div className="space-y-6 animate-fade-in text-[12px]">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-surface-container-highest/40 p-4 rounded-2xl border border-white/10 shadow-lg">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-surface-container-highest/40 p-4 rounded-2xl border border-default shadow-lg">
         <div>
           <h3 className="font-title-md text-[16px] font-bold text-on-surface flex items-center gap-2">
             Inspeções & Checklists da Máquina
@@ -71,26 +71,26 @@ export const ChecklistsTab: React.FC<ChecklistsTabProps> = ({
 
       {/* Cards Indicadores Específicos Deste Equipamento */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 font-mono-label">
-        <div className="glass-card rounded-xl p-3.5 border border-white/10 flex flex-col justify-between">
+        <div className="glass-card rounded-xl p-3.5 border border-default flex flex-col justify-between">
           <span className="text-[11px] text-on-surface-variant/70 uppercase">Total de Inspeções</span>
           <p className="text-[20px] font-bold text-on-surface mt-1">{executions.length}</p>
         </div>
 
-        <div className="glass-card rounded-xl p-3.5 border border-white/10 flex flex-col justify-between">
+        <div className="glass-card rounded-xl p-3.5 border border-default flex flex-col justify-between">
           <span className="text-[11px] text-on-surface-variant/70 uppercase">Condição Operacional</span>
           <p className={`text-[15px] font-bold mt-1 uppercase ${equipment?.status === 'bloqueado' ? 'text-error flex items-center gap-1' : 'text-success'}`}>
             {equipment?.status === 'bloqueado' ? <><Ban size={15} /> Bloqueada</> : 'Liberada'}
           </p>
         </div>
 
-        <div className="glass-card rounded-xl p-3.5 border border-white/10 flex flex-col justify-between">
+        <div className="glass-card rounded-xl p-3.5 border border-default flex flex-col justify-between">
           <span className="text-[11px] text-on-surface-variant/70 uppercase">Falhas / Avarias Abertas</span>
           <p className={`text-[20px] font-bold mt-1 ${pendingNCs.length > 0 ? 'text-error flex items-center gap-1' : 'text-success'}`}>
             {pendingNCs.length > 0 && <AlertTriangle size={17} />} {pendingNCs.length}
           </p>
         </div>
 
-        <div className="glass-card rounded-xl p-3.5 border border-white/10 flex flex-col justify-between">
+        <div className="glass-card rounded-xl p-3.5 border border-default flex flex-col justify-between">
           <span className="text-[11px] text-on-surface-variant/70 uppercase">Último Apontamento</span>
           <p className="text-[14px] font-bold text-primary mt-1">
             {executions[0]?.startedAt?.slice(0, 10) || 'Sem histórico'}
@@ -150,7 +150,7 @@ export const ChecklistsTab: React.FC<ChecklistsTabProps> = ({
           <CheckCircle2 size={15} className="text-primary" /> Execuções Anteriores
         </h4>
         
-        <div className="glass-card rounded-xl border border-white/10 p-5 space-y-4">
+        <div className="glass-card rounded-xl border border-default p-5 space-y-4">
           {execLoading ? (
             <div className="py-8 text-center text-on-surface-variant font-mono-label animate-pulse">Carregando inspeções desta máquina...</div>
           ) : executions.length === 0 ? (
@@ -167,7 +167,7 @@ export const ChecklistsTab: React.FC<ChecklistsTabProps> = ({
             <div className="overflow-x-auto">
               <table className="w-full text-[12px] text-left">
                 <thead>
-                  <tr className="bg-surface-container-highest/40 text-on-surface-variant/70 font-mono-label text-[10px] uppercase border-b border-white/10">
+                  <tr className="bg-surface-container-highest/40 text-on-surface-variant/70 font-mono-label text-[10px] uppercase border-b border-default">
                     <th className="px-3.5 py-2.5 font-medium">Código</th>
                     <th className="px-3.5 py-2.5 font-medium">Modelo / Tipo</th>
                     <th className="px-3.5 py-2.5 font-medium">Data / Horímetro</th>
@@ -198,7 +198,7 @@ export const ChecklistsTab: React.FC<ChecklistsTabProps> = ({
                       <td className="px-3.5 py-3 text-right">
                         <button
                           onClick={() => navigate(ROUTE_HELPERS.checklistExecution(ex.id))}
-                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-surface-container border border-white/10 hover:text-primary transition-colors text-[11px] cursor-pointer"
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-surface-container border border-default hover:text-primary transition-colors text-[11px] cursor-pointer"
                         >
                           <Eye size={13} /> Visualizar
                         </button>

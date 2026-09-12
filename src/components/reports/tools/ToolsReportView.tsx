@@ -37,7 +37,7 @@ export const ToolsReportView: React.FC = () => {
         onExport={fmt => data && exportData('Relatório de Ferramentas', 'ferramentas', fmt, { ...data, columns: colsToDisplay })}
       />
 
-      <div className="glass-card rounded-2xl border border-white/10 overflow-hidden">
+      <div className="glass-card rounded-2xl border border-default overflow-hidden">
         <ReportGlobalFilters filters={filters} onFilterChange={updateFilters} onReset={resetFilters} />
 
         {loading ? (
@@ -47,7 +47,7 @@ export const ToolsReportView: React.FC = () => {
         ) : (
           <div className="p-4 space-y-4">
             <ReportStats totalRows={data.totalRows} totals={data.totals} />
-            <div className="rounded-xl border border-white/10 overflow-hidden">
+            <div className="rounded-xl border border-default overflow-hidden">
               <ReportTable data={data} visibleColumns={colsToDisplay.filter(c => c.visible)} />
             </div>
           </div>

@@ -50,9 +50,9 @@ export const EquipmentTypeForm: React.FC<FormProps> = ({ isOpen, onClose, initia
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative z-10 w-full max-w-md bg-surface-container-lowest border border-white/10 rounded-xl p-5 shadow-2xl space-y-4">
-        <div className="flex items-center justify-between border-b border-white/10 pb-3">
+      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+      <div className="relative z-10 w-full max-w-md bg-surface-container-lowest border border-default rounded-xl p-5 shadow-2xl space-y-4">
+        <div className="flex items-center justify-between border-b border-default pb-3">
           <div className="flex items-center gap-2">
             <div className="p-2 rounded-lg bg-primary/10 text-primary border border-primary/20">
               <Tractor size={18} />
@@ -74,7 +74,7 @@ export const EquipmentTypeForm: React.FC<FormProps> = ({ isOpen, onClose, initia
               value={formData.code || ''}
               onChange={(e) => setFormData((p) => ({ ...p, code: e.target.value }))}
               required
-              className="w-full bg-surface-container-highest border border-white/10 rounded-lg p-2 text-[13px] text-on-surface focus:outline-none focus:border-primary/50"
+              className="w-full bg-surface-container-highest border border-default rounded-lg p-2 text-[13px] text-on-surface focus:outline-none focus:border-primary/50"
             />
           </div>
 
@@ -86,7 +86,7 @@ export const EquipmentTypeForm: React.FC<FormProps> = ({ isOpen, onClose, initia
               onChange={(e) => setFormData((p) => ({ ...p, name: e.target.value }))}
               required
               placeholder="Ex: Trator Agrícola, Pulverizador, Caminhão"
-              className="w-full bg-surface-container-highest border border-white/10 rounded-lg p-2 text-[13px] text-on-surface focus:outline-none focus:border-primary/50"
+              className="w-full bg-surface-container-highest border border-default rounded-lg p-2 text-[13px] text-on-surface focus:outline-none focus:border-primary/50"
             />
           </div>
 
@@ -96,12 +96,12 @@ export const EquipmentTypeForm: React.FC<FormProps> = ({ isOpen, onClose, initia
               value={formData.description || ''}
               onChange={(e) => setFormData((p) => ({ ...p, description: e.target.value }))}
               rows={2}
-              className="w-full bg-surface-container-highest border border-white/10 rounded-lg p-2 text-[13px] text-on-surface focus:outline-none focus:border-primary/50 resize-none"
+              className="w-full bg-surface-container-highest border border-default rounded-lg p-2 text-[13px] text-on-surface focus:outline-none focus:border-primary/50 resize-none"
             />
           </div>
 
           {/* Opções de Funcionalidades */}
-          <div className="space-y-2 pt-1 border-t border-white/5">
+          <div className="space-y-2 pt-1 border-t border-default">
             <label className="block text-[11px] font-medium text-on-surface-variant uppercase mb-1">Regras e Recursos</label>
             
             <div className="grid grid-cols-2 gap-2">
@@ -110,7 +110,7 @@ export const EquipmentTypeForm: React.FC<FormProps> = ({ isOpen, onClose, initia
                   type="checkbox"
                   checked={formData.usesHorimeter ?? true}
                   onChange={(e) => setFormData((p) => ({ ...p, usesHorimeter: e.target.checked }))}
-                  className="rounded border-white/20 bg-surface-container-highest text-primary"
+                  className="rounded border-default bg-surface-container-highest text-primary"
                 />
                 Utiliza Horímetro
               </label>
@@ -120,7 +120,7 @@ export const EquipmentTypeForm: React.FC<FormProps> = ({ isOpen, onClose, initia
                   type="checkbox"
                   checked={formData.usesOdometer ?? false}
                   onChange={(e) => setFormData((p) => ({ ...p, usesOdometer: e.target.checked }))}
-                  className="rounded border-white/20 bg-surface-container-highest text-primary"
+                  className="rounded border-default bg-surface-container-highest text-primary"
                 />
                 Utiliza Odômetro (KM)
               </label>
@@ -130,7 +130,7 @@ export const EquipmentTypeForm: React.FC<FormProps> = ({ isOpen, onClose, initia
                   type="checkbox"
                   checked={formData.canHaveTires ?? true}
                   onChange={(e) => setFormData((p) => ({ ...p, canHaveTires: e.target.checked }))}
-                  className="rounded border-white/20 bg-surface-container-highest text-primary"
+                  className="rounded border-default bg-surface-container-highest text-primary"
                 />
                 Possui Pneus
               </label>
@@ -140,18 +140,18 @@ export const EquipmentTypeForm: React.FC<FormProps> = ({ isOpen, onClose, initia
                   type="checkbox"
                   checked={formData.canHaveImplement ?? true}
                   onChange={(e) => setFormData((p) => ({ ...p, canHaveImplement: e.target.checked }))}
-                  className="rounded border-white/20 bg-surface-container-highest text-primary"
+                  className="rounded border-default bg-surface-container-highest text-primary"
                 />
                 Acopla Implemento
               </label>
             </div>
           </div>
 
-          <div className="flex justify-end gap-2 pt-3 border-t border-white/10">
+          <div className="flex justify-end gap-2 pt-3 border-t border-default">
             <button
               type="button"
               onClick={onClose}
-              className="px-3 py-1.5 rounded-lg border border-white/10 text-[12px] text-on-surface-variant hover:text-on-surface"
+              className="px-3 py-1.5 rounded-lg border border-default text-[12px] text-on-surface-variant hover:text-on-surface"
             >
               Cancelar
             </button>

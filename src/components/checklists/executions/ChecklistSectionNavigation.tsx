@@ -20,7 +20,7 @@ export const ChecklistSectionNavigation: React.FC<ChecklistSectionNavigationProp
   onGoToReview,
 }) => {
   return (
-    <div className="flex flex-wrap gap-2 items-center p-1 overflow-x-auto pb-2 border-b border-white/5 font-mono-label">
+    <div className="flex flex-wrap gap-2 items-center p-1 overflow-x-auto pb-2 border-b border-default font-mono-label">
       {sections.map((sec, idx) => {
         const totalInSec = sec.items.length;
         const answeredInSec = sec.items.filter(
@@ -36,7 +36,7 @@ export const ChecklistSectionNavigation: React.FC<ChecklistSectionNavigationProp
             className={`flex items-center gap-2 px-3.5 py-2 rounded-xl border transition-all text-[12px] whitespace-nowrap cursor-pointer active:scale-95 ${
               isActive
                 ? 'bg-primary/20 text-primary border-primary/50 font-bold shadow-md shadow-primary/10'
-                : 'bg-surface-container-highest/60 hover:bg-surface-container-highest text-on-surface-variant border-white/10'
+                : 'bg-surface-container-highest/60 hover:bg-surface-container-highest text-on-surface-variant border-default'
             }`}
           >
             <span className="w-5 h-5 rounded-full bg-black/30 flex items-center justify-center text-[10px]">

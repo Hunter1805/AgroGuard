@@ -32,10 +32,10 @@ export const RolePermissionMatrix: React.FC<MatrixProps> = ({ permissions, onCha
   };
 
   return (
-    <div className="overflow-x-auto border border-white/10 rounded-xl glass-card">
+    <div className="overflow-x-auto border border-default rounded-xl glass-card">
       <table className="w-full text-left border-collapse text-[12px]">
         <thead>
-          <tr className="border-b border-white/10 bg-surface-container-high/60 text-[10px] font-semibold text-on-surface-variant/70 uppercase">
+          <tr className="border-b border-default bg-surface-container-high/60 text-[10px] font-semibold text-on-surface-variant/70 uppercase">
             <th className="py-2.5 px-3">Módulo</th>
             {ACTIONS_HEADER.map((act) => (
               <th key={act.key} className="py-2.5 px-2 text-center">{act.label}</th>
@@ -59,7 +59,7 @@ export const RolePermissionMatrix: React.FC<MatrixProps> = ({ permissions, onCha
                       className={`p-1 rounded-md transition-all ${
                         isChecked
                           ? 'bg-primary/20 text-primary border border-primary/30'
-                          : 'bg-surface-container-high/40 text-on-surface-variant/30 border border-white/5'
+                          : 'bg-surface-container-high/40 text-on-surface-variant/30 border border-default'
                       }`}
                     >
                       {isChecked ? <Check size={13} /> : <X size={13} />}

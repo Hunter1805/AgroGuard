@@ -36,7 +36,7 @@ export const ReportCategoryCards: React.FC<ReportCategoryCardsProps> = ({ defini
         <div
           key={def.id}
           onClick={() => navigate(def.route)}
-          className="glass-card rounded-2xl p-5 border border-white/10 hover:border-primary/50 transition-all cursor-pointer space-y-3 group flex flex-col justify-between"
+          className="glass-card rounded-2xl p-5 border border-default hover:border-primary/50 transition-all cursor-pointer space-y-3 group flex flex-col justify-between"
         >
           <div>
             <div className="flex items-center justify-between">
@@ -58,7 +58,7 @@ export const ReportCategoryCards: React.FC<ReportCategoryCardsProps> = ({ defini
             </p>
           </div>
 
-          <div className="pt-2 border-t border-white/5 flex items-center justify-between text-[11px] font-mono-label text-primary group-hover:underline">
+          <div className="pt-2 border-t border-default flex items-center justify-between text-[11px] font-mono-label text-primary group-hover:underline">
             <span>Acessar Relatório</span>
             <span>&rarr;</span>
           </div>

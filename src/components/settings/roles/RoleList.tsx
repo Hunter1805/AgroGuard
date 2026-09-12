@@ -37,7 +37,7 @@ export const RoleList: React.FC = () => {
           </div>
         ) : (
           roles.map((r) => (
-            <div key={r.id} className="glass-card rounded-xl border border-white/10 p-4 space-y-3 flex flex-col justify-between hover:border-white/20 transition-all shadow-md">
+            <div key={r.id} className="glass-card rounded-xl border border-default p-4 space-y-3 flex flex-col justify-between hover:border-default transition-all shadow-md">
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -50,7 +50,7 @@ export const RoleList: React.FC = () => {
                     </div>
                   </div>
                   {r.systemRole && (
-                    <span className="px-2 py-0.5 rounded-full text-[9px] font-mono-label bg-surface-container-high text-on-surface-variant border border-white/10 uppercase">
+                    <span className="px-2 py-0.5 rounded-full text-[9px] font-mono-label bg-surface-container-high text-on-surface-variant border border-default uppercase">
                       Sistema
                     </span>
                   )}
@@ -61,7 +61,7 @@ export const RoleList: React.FC = () => {
                 </p>
               </div>
 
-              <div className="pt-3 border-t border-white/10 flex items-center justify-between text-[11px] text-on-surface-variant/60">
+              <div className="pt-3 border-t border-default flex items-center justify-between text-[11px] text-on-surface-variant/60">
                 <span className="inline-flex items-center gap-1">
                   <Users size={13} />
                   {r.userCount} usuário(s)

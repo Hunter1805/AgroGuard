@@ -49,7 +49,7 @@ export const WorkOrdersView: React.FC = () => {
 
       <WorkOrderStats orders={orders} />
 
-      <div className="glass-card rounded-2xl border border-white/10 overflow-hidden flex flex-col">
+      <div className="glass-card rounded-2xl border border-default overflow-hidden flex flex-col">
         <WorkOrderFilters />
         
         {loading ? (

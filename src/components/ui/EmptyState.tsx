@@ -18,7 +18,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
 }) => {
   return (
     <div className={`p-8 text-center flex flex-col items-center justify-center space-y-3 ${className}`}>
-      <div className="w-12 h-12 rounded-full bg-surface-container-highest border border-white/10 flex items-center justify-center text-on-surface-variant/50">
+      <div className="w-12 h-12 rounded-full bg-surface-container-highest border border-default flex items-center justify-center text-on-surface-variant/50">
         {icon ?? <InboxIcon size={22} />}
       </div>
       <div>

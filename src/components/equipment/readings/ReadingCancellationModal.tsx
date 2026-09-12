@@ -36,8 +36,8 @@ export const ReadingCancellationModal: React.FC<ReadingCancellationModalProps> =
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs animate-fade-in">
-      <div className="relative max-w-md w-full glass-card bg-surface-container-highest border border-white/10 rounded-2xl p-6 space-y-4 shadow-2xl">
-        <div className="flex justify-between items-center pb-2 border-b border-white/10">
+      <div className="relative max-w-md w-full glass-card bg-surface-container-highest border border-default rounded-2xl p-6 space-y-4 shadow-2xl">
+        <div className="flex justify-between items-center pb-2 border-b border-default">
           <div className="flex items-center gap-2 text-error">
             <Trash2 size={18} />
             <h3 className="font-title-md text-[16px] font-bold">

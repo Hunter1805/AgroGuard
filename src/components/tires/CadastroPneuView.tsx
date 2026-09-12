@@ -20,7 +20,7 @@ export const CadastroPneuView: React.FC = () => {
   const [model, setModel] = useState('');
   const [size, setSize] = useState('18.4-30');
   const [constructionType, setConstructionType] = useState<'radial' | 'diagonal'>('diagonal');
-  const [application, setApplication] = useState('Trator Traseiro');
+  const [application, setApplication] = useState('');
   const [serialNumber, setSerialNumber] = useState('');
   const [dotCode, setDotCode] = useState('');
   const [manufacturingDate, setManufacturingDate] = useState('');
@@ -135,8 +135,8 @@ export const CadastroPneuView: React.FC = () => {
         )}
 
         {/* 1. Identificação */}
-        <div className="glass-card rounded-2xl p-5 border border-white/10 space-y-4">
-          <h3 className="font-bold text-on-surface text-sm flex items-center gap-2 border-b border-white/5 pb-2">
+        <div className="glass-card rounded-2xl p-5 border border-default space-y-4">
+          <h3 className="font-bold text-on-surface text-sm flex items-center gap-2 border-b border-default pb-2">
             <Disc className="text-primary" size={18} /> 1. Identificação do Pneu
           </h3>
 
@@ -147,7 +147,7 @@ export const CadastroPneuView: React.FC = () => {
                 type="text"
                 value={internalCode}
                 onChange={e => setInternalCode(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-mono-label font-bold text-sm"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-mono-label font-bold text-sm"
                 required
               />
             </div>
@@ -157,7 +157,7 @@ export const CadastroPneuView: React.FC = () => {
                 type="text"
                 value={brand}
                 onChange={e => setBrand(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
                 required
               />
             </div>
@@ -167,7 +167,7 @@ export const CadastroPneuView: React.FC = () => {
                 type="text"
                 value={model}
                 onChange={e => setModel(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
               />
             </div>
           </div>
@@ -180,7 +180,7 @@ export const CadastroPneuView: React.FC = () => {
                 placeholder="Ex: 18.4-30, 295/80 R22.5"
                 value={size}
                 onChange={e => setSize(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-mono-label font-bold"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-mono-label font-bold"
                 required
               />
             </div>
@@ -189,7 +189,7 @@ export const CadastroPneuView: React.FC = () => {
               <select
                 value={constructionType}
                 onChange={e => setConstructionType(e.target.value as any)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
               >
                 <option value="diagonal">Diagonal</option>
                 <option value="radial">Radial</option>
@@ -202,7 +202,7 @@ export const CadastroPneuView: React.FC = () => {
                 placeholder="Ex: Trator Traseiro, Direcional"
                 value={application}
                 onChange={e => setApplication(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
               />
             </div>
           </div>
@@ -214,7 +214,7 @@ export const CadastroPneuView: React.FC = () => {
                 type="text"
                 value={serialNumber}
                 onChange={e => setSerialNumber(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-mono-label"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-mono-label"
               />
             </div>
             <div>
@@ -223,7 +223,7 @@ export const CadastroPneuView: React.FC = () => {
                 type="text"
                 value={dotCode}
                 onChange={e => setDotCode(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-mono-label"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-mono-label"
               />
             </div>
             <div>
@@ -232,15 +232,15 @@ export const CadastroPneuView: React.FC = () => {
                 type="date"
                 value={manufacturingDate}
                 onChange={e => setManufacturingDate(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
               />
             </div>
           </div>
         </div>
 
         {/* 2. Especificações Técnicas e Pressão */}
-        <div className="glass-card rounded-2xl p-5 border border-white/10 space-y-4">
-          <h3 className="font-bold text-on-surface text-sm border-b border-white/5 pb-2">
+        <div className="glass-card rounded-2xl p-5 border border-default space-y-4">
+          <h3 className="font-bold text-on-surface text-sm border-b border-default pb-2">
             2. Profundidade do Sulco e Diretrizes de Pressão
           </h3>
 
@@ -252,7 +252,7 @@ export const CadastroPneuView: React.FC = () => {
                 step="0.1"
                 value={initialTreadDepth}
                 onChange={e => setInitialTreadDepth(e.target.value === '' ? '' : Number(e.target.value))}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-mono-label"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-mono-label"
                 required
               />
             </div>
@@ -263,7 +263,7 @@ export const CadastroPneuView: React.FC = () => {
                 step="0.1"
                 value={currentTreadDepth}
                 onChange={e => setCurrentTreadDepth(e.target.value === '' ? '' : Number(e.target.value))}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-mono-label"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-mono-label"
                 required
               />
             </div>
@@ -274,7 +274,7 @@ export const CadastroPneuView: React.FC = () => {
                 step="0.1"
                 value={minimumTreadDepth}
                 onChange={e => setMinimumTreadDepth(e.target.value === '' ? '' : Number(e.target.value))}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-mono-label"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-mono-label"
                 required
               />
             </div>
@@ -287,7 +287,7 @@ export const CadastroPneuView: React.FC = () => {
                 type="number"
                 value={recommendedMinimumPressure}
                 onChange={e => setRecommendedMinimumPressure(e.target.value === '' ? '' : Number(e.target.value))}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-mono-label"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-mono-label"
               />
             </div>
             <div>
@@ -296,7 +296,7 @@ export const CadastroPneuView: React.FC = () => {
                 type="number"
                 value={recommendedMaximumPressure}
                 onChange={e => setRecommendedMaximumPressure(e.target.value === '' ? '' : Number(e.target.value))}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-mono-label"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-mono-label"
               />
             </div>
             <div>
@@ -304,7 +304,7 @@ export const CadastroPneuView: React.FC = () => {
               <select
                 value={pressureUnit}
                 onChange={e => setPressureUnit(e.target.value as any)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
               >
                 <option value="psi">PSI</option>
                 <option value="bar">BAR</option>
@@ -320,7 +320,7 @@ export const CadastroPneuView: React.FC = () => {
                 id="hasTube"
                 checked={hasTube}
                 onChange={e => setHasTube(e.target.checked)}
-                className="rounded bg-surface-container border-white/10 text-primary"
+                className="rounded bg-surface-container border-default text-primary"
               />
               <label htmlFor="hasTube" className="text-on-surface font-medium cursor-pointer">Possui Câmara de Ar</label>
             </div>
@@ -330,7 +330,7 @@ export const CadastroPneuView: React.FC = () => {
                 id="usesWaterBallast"
                 checked={usesWaterBallast}
                 onChange={e => setUsesWaterBallast(e.target.checked)}
-                className="rounded bg-surface-container border-white/10 text-primary"
+                className="rounded bg-surface-container border-default text-primary"
               />
               <label htmlFor="usesWaterBallast" className="text-on-surface font-medium cursor-pointer">Utiliza Lastro de Água</label>
             </div>
@@ -340,15 +340,15 @@ export const CadastroPneuView: React.FC = () => {
                 type="number"
                 value={maximumRetreads}
                 onChange={e => setMaximumRetreads(e.target.value === '' ? '' : Number(e.target.value))}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-mono-label"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-mono-label"
               />
             </div>
           </div>
         </div>
 
         {/* 3. Dados de Aquisição */}
-        <div className="glass-card rounded-2xl p-5 border border-white/10 space-y-4">
-          <h3 className="font-bold text-on-surface text-sm border-b border-white/5 pb-2">3. Dados de Aquisição e Observações</h3>
+        <div className="glass-card rounded-2xl p-5 border border-default space-y-4">
+          <h3 className="font-bold text-on-surface text-sm border-b border-default pb-2">3. Dados de Aquisição e Observações</h3>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
@@ -357,7 +357,7 @@ export const CadastroPneuView: React.FC = () => {
                 type="date"
                 value={acquisitionDate}
                 onChange={e => setAcquisitionDate(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
               />
             </div>
             <div>
@@ -367,7 +367,7 @@ export const CadastroPneuView: React.FC = () => {
                 step="0.01"
                 value={acquisitionValue}
                 onChange={e => setAcquisitionValue(e.target.value === '' ? '' : Number(e.target.value))}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-mono-label"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-mono-label"
               />
             </div>
             <div>
@@ -376,7 +376,7 @@ export const CadastroPneuView: React.FC = () => {
                 type="date"
                 value={warrantyEndDate}
                 onChange={e => setWarrantyEndDate(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
               />
             </div>
           </div>
@@ -387,7 +387,7 @@ export const CadastroPneuView: React.FC = () => {
               rows={2}
               value={notes}
               onChange={e => setNotes(e.target.value)}
-              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
               placeholder="Informações adicionais sobre o pneu..."
             />
           </div>

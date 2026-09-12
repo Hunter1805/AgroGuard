@@ -10,7 +10,7 @@ const PRIORITY_CONFIG: Record<Priority, {
 }> = {
   Informativo: {
     label: 'Informativo',
-    className: 'bg-surface-container-highest text-on-surface-variant border-white/10',
+    className: 'bg-surface-container-highest text-on-surface-variant border-default',
     icon: <Info size={10} />,
   },
   Baixo: {

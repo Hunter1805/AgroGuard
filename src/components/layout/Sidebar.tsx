@@ -108,7 +108,7 @@ const ExpandableGroup: React.FC<{
       </button>
 
       {isOpen && (
-        <ul className="mt-0.5 space-y-0.5 border-l border-white/5 ml-4">
+        <ul className="mt-0.5 space-y-0.5 border-l border-default ml-4">
           {children}
         </ul>
       )}
@@ -118,9 +118,9 @@ const ExpandableGroup: React.FC<{
 
 export const Sidebar: React.FC<SidebarProps> = ({ onOpenNewOS, pendingAlerts = 3 }) => {
   return (
-    <nav className="hidden md:flex flex-col h-screen fixed left-0 top-0 w-sidebar-width z-50 bg-surface-container/80 backdrop-blur-md border-r border-white/5 selection:bg-primary/20">
+    <nav className="hidden md:flex flex-col h-screen fixed left-0 top-0 w-sidebar-width z-50 bg-surface-container/80 backdrop-blur-md border-r border-default selection:bg-primary/20">
       {/* Logo */}
-      <div className="p-4 border-b border-white/5 flex items-center">
+      <div className="p-4 border-b border-default flex items-center">
         <AgroGuardLogo size="md" showSubtitle={true} />
       </div>
 
@@ -208,7 +208,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onOpenNewOS, pendingAlerts = 3
       </div>
 
       {/* Botão Nova OS */}
-      <div className="p-4 border-t border-white/5">
+      <div className="p-4 border-t border-default">
         <button
           id="sidebar-nova-os-btn"
           onClick={onOpenNewOS}

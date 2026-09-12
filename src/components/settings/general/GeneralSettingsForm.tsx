@@ -20,8 +20,8 @@ export const GeneralSettingsForm: React.FC = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="glass-card rounded-xl border border-white/10 p-5 space-y-4 max-w-2xl">
-      <div className="flex items-center gap-2 border-b border-white/10 pb-3">
+    <form onSubmit={handleSubmit} className="glass-card rounded-xl border border-default p-5 space-y-4 max-w-2xl">
+      <div className="flex items-center gap-2 border-b border-default pb-3">
         <div className="p-2 rounded-lg bg-primary/10 text-primary border border-primary/20">
           <Building2 size={18} />
         </div>
@@ -38,7 +38,7 @@ export const GeneralSettingsForm: React.FC = () => {
             type="text"
             value={formData.systemName}
             onChange={(e) => setFormData((p) => ({ ...p, systemName: e.target.value }))}
-            className="w-full bg-surface-container-highest border border-white/10 rounded-lg p-2 text-[13px] text-on-surface focus:outline-none focus:border-primary/50"
+            className="w-full bg-surface-container-highest border border-default rounded-lg p-2 text-[13px] text-on-surface focus:outline-none focus:border-primary/50"
           />
         </div>
         <div>
@@ -47,7 +47,7 @@ export const GeneralSettingsForm: React.FC = () => {
             type="text"
             value={formData.companyName}
             onChange={(e) => setFormData((p) => ({ ...p, companyName: e.target.value }))}
-            className="w-full bg-surface-container-highest border border-white/10 rounded-lg p-2 text-[13px] text-on-surface focus:outline-none focus:border-primary/50"
+            className="w-full bg-surface-container-highest border border-default rounded-lg p-2 text-[13px] text-on-surface focus:outline-none focus:border-primary/50"
           />
         </div>
         <div>
@@ -56,12 +56,12 @@ export const GeneralSettingsForm: React.FC = () => {
             type="text"
             value={formData.footerText}
             onChange={(e) => setFormData((p) => ({ ...p, footerText: e.target.value }))}
-            className="w-full bg-surface-container-highest border border-white/10 rounded-lg p-2 text-[13px] text-on-surface focus:outline-none focus:border-primary/50"
+            className="w-full bg-surface-container-highest border border-default rounded-lg p-2 text-[13px] text-on-surface focus:outline-none focus:border-primary/50"
           />
         </div>
       </div>
 
-      <div className="flex justify-end pt-3 border-t border-white/10">
+      <div className="flex justify-end pt-3 border-t border-default">
         <button
           type="submit"
           className="px-4 py-2 rounded-lg bg-primary text-white text-[12px] font-semibold flex items-center gap-1.5 shadow-md hover:bg-primary/90 transition-all cursor-pointer"

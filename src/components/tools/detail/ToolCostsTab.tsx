@@ -22,25 +22,25 @@ export const ToolCostsTab: React.FC<ToolCostsTabProps> = ({ tool, maintenances, 
         <DollarSign size={16} className="text-emerald-400" /> Resumo de Custos e Valor Patrimonial
       </h3>
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
-        <div className="glass-card rounded-xl p-3.5 border border-white/10">
+        <div className="glass-card rounded-xl p-3.5 border border-default">
           <span className="text-[11px] font-mono-label text-on-surface-variant/70 block">Valor de Aquisição</span>
           <p className="text-lg font-bold text-on-surface font-mono-label mt-1">
             R$ {acqCost.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
           </p>
         </div>
-        <div className="glass-card rounded-xl p-3.5 border border-white/10">
+        <div className="glass-card rounded-xl p-3.5 border border-default">
           <span className="text-[11px] font-mono-label text-on-surface-variant/70 block">Custos de Manutenção</span>
           <p className="text-lg font-bold text-amber-400 font-mono-label mt-1">
             R$ {mntCost.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
           </p>
         </div>
-        <div className="glass-card rounded-xl p-3.5 border border-white/10">
+        <div className="glass-card rounded-xl p-3.5 border border-default">
           <span className="text-[11px] font-mono-label text-on-surface-variant/70 block">Custos de Calibração</span>
           <p className="text-lg font-bold text-blue-400 font-mono-label mt-1">
             R$ {calibCost.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
           </p>
         </div>
-        <div className="glass-card rounded-xl p-3.5 border border-white/10">
+        <div className="glass-card rounded-xl p-3.5 border border-default">
           <span className="text-[11px] font-mono-label text-on-surface-variant/70 block">Custo Total Acumulado</span>
           <p className="text-lg font-bold text-emerald-400 font-mono-label mt-1">
             R$ {totalCost.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}

@@ -71,8 +71,8 @@ export const WorkOrderDetailView: React.FC = () => {
       </div>
 
       {/* Tabs Menu */}
-      <div className="glass-card rounded-2xl border border-white/10 overflow-hidden flex flex-col min-h-[500px]">
-        <div className="overflow-x-auto custom-scrollbar border-b border-white/10 bg-surface-container-high/30">
+      <div className="glass-card rounded-2xl border border-default overflow-hidden flex flex-col min-h-[500px]">
+        <div className="overflow-x-auto custom-scrollbar border-b border-default bg-surface-container-high/30">
           <div className="flex min-w-max">
             <TabButton active={activeTab === 'resumo'} icon={LayoutList} label="Resumo da OS" onClick={() => setActiveTab('resumo')} />
             <TabButton active={activeTab === 'diagnostico'} icon={FileText} label="Diagnóstico" onClick={() => setActiveTab('diagnostico')} />
@@ -94,8 +94,8 @@ export const WorkOrderDetailView: React.FC = () => {
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Informações Gerais */}
-                <div className="glass-card p-5 rounded-xl border border-white/5 space-y-4 bg-surface-container-low/20">
-                  <h3 className="font-bold text-base text-primary border-b border-white/10 pb-2">Classificação Geral</h3>
+                <div className="glass-card p-5 rounded-xl border border-default space-y-4 bg-surface-container-low/20">
+                  <h3 className="font-bold text-base text-primary border-b border-default pb-2">Classificação Geral</h3>
                   
                   <div className="grid grid-cols-2 gap-4">
                     <div>
@@ -187,8 +187,8 @@ export const WorkOrderDetailView: React.FC = () => {
                 </div>
 
                 {/* Status e Descrição */}
-                <div className="glass-card p-5 rounded-xl border border-white/5 space-y-4 bg-surface-container-low/20">
-                  <h3 className="font-bold text-base text-primary border-b border-white/10 pb-2">Status & Problema</h3>
+                <div className="glass-card p-5 rounded-xl border border-default space-y-4 bg-surface-container-low/20">
+                  <h3 className="font-bold text-base text-primary border-b border-default pb-2">Status & Problema</h3>
                   
                   <div className="space-y-3">
                     <div>
@@ -197,7 +197,7 @@ export const WorkOrderDetailView: React.FC = () => {
                     </div>
                     <div>
                       <span className="block text-xs font-bold text-on-surface-variant/70 uppercase">Descrição Detalhada</span>
-                      <p className="text-on-surface-variant bg-black/10 p-3 rounded-lg border border-white/5 min-h-[60px] whitespace-pre-wrap">{order.description}</p>
+                      <p className="text-on-surface-variant bg-black/10 p-3 rounded-lg border border-default min-h-[60px] whitespace-pre-wrap">{order.description}</p>
                     </div>
                   </div>
                 </div>

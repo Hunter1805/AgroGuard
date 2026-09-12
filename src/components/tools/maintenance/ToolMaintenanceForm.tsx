@@ -21,8 +21,8 @@ export const ToolMaintenanceForm: React.FC<ToolMaintenanceFormProps> = ({ toolId
   const [toolId, setToolId] = useState(initialToolId || '');
   const [type, setType] = useState<ToolMaintenanceType>('corretiva');
   const [problemDescription, setProblemDescription] = useState('');
-  const [providerName, setProviderName] = useState('Oficina Mecânica Express');
-  const [responsibleName, setResponsibleName] = useState('Roberto Alves');
+  const [providerName, setProviderName] = useState('');
+  const [responsibleName, setResponsibleName] = useState('');
   const [notes, setNotes] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -54,9 +54,9 @@ export const ToolMaintenanceForm: React.FC<ToolMaintenanceFormProps> = ({ toolId
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-surface-container-highest border border-white/10 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl animate-fade-in">
-        <div className="p-4 border-b border-white/10 flex items-center justify-between">
+    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+      <div className="bg-surface-container-highest border border-default rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl animate-fade-in">
+        <div className="p-4 border-b border-default flex items-center justify-between">
           <h3 className="font-bold text-on-surface text-sm flex items-center gap-2">
             <Wrench size={16} className="text-primary" />
             Enviar Ferramenta para Manutenção
@@ -79,7 +79,7 @@ export const ToolMaintenanceForm: React.FC<ToolMaintenanceFormProps> = ({ toolId
             <select
               value={toolId}
               onChange={e => setToolId(e.target.value)}
-              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
               required
             >
               <option value="">Selecione a ferramenta...</option>
@@ -97,7 +97,7 @@ export const ToolMaintenanceForm: React.FC<ToolMaintenanceFormProps> = ({ toolId
               <select
                 value={type}
                 onChange={e => setType(e.target.value as any)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-semibold"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-semibold"
               >
                 <option value="corretiva">Corretiva</option>
                 <option value="preventiva">Preventiva</option>
@@ -116,7 +116,7 @@ export const ToolMaintenanceForm: React.FC<ToolMaintenanceFormProps> = ({ toolId
                 type="text"
                 value={providerName}
                 onChange={e => setProviderName(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
                 placeholder="Ex: Oficina Mecânica Express"
               />
             </div>
@@ -128,7 +128,7 @@ export const ToolMaintenanceForm: React.FC<ToolMaintenanceFormProps> = ({ toolId
               rows={2}
               value={problemDescription}
               onChange={e => setProblemDescription(e.target.value)}
-              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
               placeholder="Descreva a falha ou a necessidade de revisão..."
               required
             />
@@ -140,7 +140,7 @@ export const ToolMaintenanceForm: React.FC<ToolMaintenanceFormProps> = ({ toolId
               type="text"
               value={responsibleName}
               onChange={e => setResponsibleName(e.target.value)}
-              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
               required
             />
           </div>
@@ -151,12 +151,12 @@ export const ToolMaintenanceForm: React.FC<ToolMaintenanceFormProps> = ({ toolId
               rows={2}
               value={notes}
               onChange={e => setNotes(e.target.value)}
-              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
               placeholder="Instruções ou prazos previstos..."
             />
           </div>
 
-          <div className="pt-3 border-t border-white/10 flex items-center justify-end gap-2">
+          <div className="pt-3 border-t border-default flex items-center justify-end gap-2">
             <Button type="button" variant="outline" size="sm" onClick={onClose}>
               Cancelar
             </Button>

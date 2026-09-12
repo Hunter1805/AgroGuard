@@ -68,8 +68,8 @@ export const ChecklistScheduleForm: React.FC<ChecklistScheduleFormProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs animate-fade-in">
-      <div className="relative max-w-lg w-full glass-card bg-surface-container-highest border border-white/10 rounded-2xl p-6 space-y-4 shadow-2xl text-[12px]">
-        <div className="flex justify-between items-center pb-2 border-b border-white/10">
+      <div className="relative max-w-lg w-full glass-card bg-surface-container-highest border border-default rounded-2xl p-6 space-y-4 shadow-2xl text-[12px]">
+        <div className="flex justify-between items-center pb-2 border-b border-default">
           <div className="flex items-center gap-2 text-secondary">
             <Clock size={20} />
             <h3 className="font-title-md text-[16px] font-bold text-on-surface">Nova Programação de Inspeção</h3>
@@ -89,7 +89,7 @@ export const ChecklistScheduleForm: React.FC<ChecklistScheduleFormProps> = ({
             <select
               value={selectedTemplateId}
               onChange={(e) => setSelectedTemplateId(e.target.value)}
-              className="w-full bg-surface-container border border-white/10 rounded-lg px-3 py-2 text-on-surface focus:outline-none"
+              className="w-full bg-surface-container border border-default rounded-lg px-3 py-2 text-on-surface focus:outline-none"
               required
             >
               <option value="">Selecione o modelo na biblioteca...</option>
@@ -107,7 +107,7 @@ export const ChecklistScheduleForm: React.FC<ChecklistScheduleFormProps> = ({
               <select
                 value={frequency}
                 onChange={(e) => setFrequency(e.target.value as any)}
-                className="w-full bg-surface-container border border-white/10 rounded-lg px-3 py-2 text-on-surface focus:outline-none capitalize"
+                className="w-full bg-surface-container border border-default rounded-lg px-3 py-2 text-on-surface focus:outline-none capitalize"
               >
                 <option value="diaria">Diária</option>
                 <option value="semanal">Semanal</option>
@@ -124,7 +124,7 @@ export const ChecklistScheduleForm: React.FC<ChecklistScheduleFormProps> = ({
                 type="time"
                 value={dueTime}
                 onChange={(e) => setDueTime(e.target.value)}
-                className="w-full bg-surface-container border border-white/10 rounded-lg px-3 py-2 text-on-surface focus:outline-none font-mono-label"
+                className="w-full bg-surface-container border border-default rounded-lg px-3 py-2 text-on-surface focus:outline-none font-mono-label"
               />
             </div>
           </div>
@@ -133,7 +133,7 @@ export const ChecklistScheduleForm: React.FC<ChecklistScheduleFormProps> = ({
             <label className="text-[11px] font-mono-label text-on-surface-variant/80 uppercase block mb-1">
               Vincular a Equipamentos da Frota
             </label>
-            <div className="max-h-40 overflow-y-auto border border-white/10 rounded-xl p-2 space-y-1 bg-surface-container/50">
+            <div className="max-h-40 overflow-y-auto border border-default rounded-xl p-2 space-y-1 bg-surface-container/50">
               {equipments.map((eq) => {
                 const sel = selectedEquipmentIds.includes(eq.id);
                 return (
@@ -142,7 +142,7 @@ export const ChecklistScheduleForm: React.FC<ChecklistScheduleFormProps> = ({
                       type="checkbox"
                       checked={sel}
                       onChange={() => handleToggleEquipment(eq.id)}
-                      className="rounded border-white/20 bg-surface text-secondary focus:ring-0"
+                      className="rounded border-default bg-surface text-secondary focus:ring-0"
                     />
                     <span className="text-on-surface font-semibold">{eq.plateOrCode}</span>
                     <span className="text-on-surface-variant text-[11px] truncate">{eq.name}</span>
@@ -152,7 +152,7 @@ export const ChecklistScheduleForm: React.FC<ChecklistScheduleFormProps> = ({
             </div>
           </div>
 
-          <div className="flex justify-end gap-2 pt-3 border-t border-white/10">
+          <div className="flex justify-end gap-2 pt-3 border-t border-default">
             <Button variant="outline" size="sm" type="button" onClick={onClose}>Cancelar</Button>
             <Button variant="primary" size="sm" type="submit" isLoading={isSubmitting}>Salvar Programação</Button>
           </div>

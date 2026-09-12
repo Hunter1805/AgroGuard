@@ -117,7 +117,7 @@ export const MaintenanceTab: React.FC<MaintenanceTabProps> = ({
       </div>
 
       {/* Lista de Intervalos e Histórico */}
-      <div className="glass-card rounded-2xl border border-white/10 p-6 space-y-4">
+      <div className="glass-card rounded-2xl border border-default p-6 space-y-4">
         <h4 className="text-sm font-extrabold text-on-surface flex items-center gap-2">
           <Wrench size={16} className="text-primary" /> Programação e Histórico de Revisões
         </h4>
@@ -136,7 +136,7 @@ export const MaintenanceTab: React.FC<MaintenanceTabProps> = ({
           <div className="overflow-x-auto">
             <table className="w-full text-xs text-left">
               <thead>
-                <tr className="bg-surface-container-highest/40 text-on-surface-variant/70 font-mono-label text-[11px] font-extrabold uppercase border-b border-white/5">
+                <tr className="bg-surface-container-highest/40 text-on-surface-variant/70 font-mono-label text-[11px] font-extrabold uppercase border-b border-default">
                   <th className="px-4 py-3">Serviço / Pacote</th>
                   <th className="px-4 py-3">Gatilho</th>
                   <th className="px-4 py-3">Vencimento</th>

@@ -120,7 +120,7 @@ export const EquipmentFilters: React.FC<EquipmentFiltersProps> = ({
               value={searchTerm}
               onChange={(e) => onSearchChange(e.target.value)}
               placeholder="Buscar código, nome, marca, patrimônio..."
-              className="w-full bg-surface-container-highest border border-white/10 rounded-md pl-8 pr-8 py-1.5 text-[12px] text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary/50 transition-all"
+              className="w-full bg-surface-container-highest border border-default rounded-md pl-8 pr-8 py-1.5 text-[12px] text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary/50 transition-all"
             />
             {searchTerm && (
               <button
@@ -167,7 +167,7 @@ export const EquipmentFilters: React.FC<EquipmentFiltersProps> = ({
 
         {/* Alternador de visualização & Botão Novo */}
         <div className="flex items-center gap-2">
-          <div className="flex items-center bg-surface-container-highest/60 border border-white/10 rounded-md p-0.5">
+          <div className="flex items-center bg-surface-container-highest/60 border border-default rounded-md p-0.5">
             <button
               onClick={() => onViewModeChange('table')}
               title="Visualização em Tabela"
@@ -199,7 +199,7 @@ export const EquipmentFilters: React.FC<EquipmentFiltersProps> = ({
       </div>
 
       {/* Linha 2 de toggles rápidos: Alertas Pendentes e Leitura Atrasada */}
-      <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-white/5">
+      <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-default">
         <div className="flex items-center gap-2">
           <span className="text-[11px] text-on-surface-variant/60 flex items-center gap-1 mr-1 font-mono-label">
             <Filter size={11} /> Filtros Rápidos:
@@ -209,7 +209,7 @@ export const EquipmentFilters: React.FC<EquipmentFiltersProps> = ({
             className={`px-2.5 py-1 rounded-md text-[11px] font-medium border transition-all cursor-pointer flex items-center gap-1.5 ${
               hasPendingAlert
                 ? 'bg-error/15 border-error/40 text-error font-semibold'
-                : 'bg-surface-container-highest/40 border-white/5 text-on-surface-variant hover:text-on-surface'
+                : 'bg-surface-container-highest/40 border-default text-on-surface-variant hover:text-on-surface'
             }`}
           >
             <span className={`w-1.5 h-1.5 rounded-full ${hasPendingAlert ? 'bg-error animate-ping' : 'bg-on-surface-variant/40'}`} />
@@ -221,7 +221,7 @@ export const EquipmentFilters: React.FC<EquipmentFiltersProps> = ({
             className={`px-2.5 py-1 rounded-md text-[11px] font-medium border transition-all cursor-pointer flex items-center gap-1.5 ${
               isReadingOverdue
                 ? 'bg-warning/15 border-warning/40 text-warning font-semibold'
-                : 'bg-surface-container-highest/40 border-white/5 text-on-surface-variant hover:text-on-surface'
+                : 'bg-surface-container-highest/40 border-default text-on-surface-variant hover:text-on-surface'
             }`}
           >
             <span className={`w-1.5 h-1.5 rounded-full ${isReadingOverdue ? 'bg-warning' : 'bg-on-surface-variant/40'}`} />

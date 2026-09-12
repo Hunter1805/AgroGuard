@@ -18,7 +18,7 @@ export const DocumentosView: React.FC = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {docs.map((doc, idx) => (
-          <div key={idx} className="glass-card rounded-xl p-4 border border-white/5 flex items-center justify-between">
+          <div key={idx} className="glass-card rounded-xl p-4 border border-default flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-surface-container-highest flex items-center justify-center text-primary">
                 <FileText size={20} />

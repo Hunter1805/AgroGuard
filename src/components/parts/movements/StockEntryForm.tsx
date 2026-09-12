@@ -22,16 +22,16 @@ export const StockEntryForm: React.FC<StockEntryFormProps> = ({ initialItemId, o
 
   const [quantity, setQuantity] = useState<number>(10);
   const [unitCost, setUnitCost] = useState<number | ''>(68);
-  const [supplierName, setSupplierName] = useState('AgroPeças Distribuidora');
-  const [invoiceNumber, setInvoiceNumber] = useState('NF-2026-9901');
-  const [lotCode, setLotCode] = useState(`LT-${Math.floor(1000 + Math.random() * 9000)}`);
+  const [supplierName, setSupplierName] = useState('');
+  const [invoiceNumber, setInvoiceNumber] = useState('');
+  const [lotCode, setLotCode] = useState('');
   const [expirationDate, setExpirationDate] = useState(() => {
     const d = new Date();
     d.setFullYear(d.getFullYear() + 1);
     return d.toISOString().split('T')[0];
   });
-  const [responsibleName, setResponsibleName] = useState('Roberto Alves (Almoxarife)');
-  const [notes, setNotes] = useState('Entrada referente ao pedido de compras');
+  const [responsibleName, setResponsibleName] = useState('');
+  const [notes, setNotes] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,9 +65,9 @@ export const StockEntryForm: React.FC<StockEntryFormProps> = ({ initialItemId, o
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 text-xs">
-      <div className="bg-surface-container-highest border border-white/10 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl animate-fade-in max-h-[90vh] flex flex-col">
-        <div className="p-4 border-b border-white/10 flex items-center justify-between">
+    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4 text-xs">
+      <div className="bg-surface-container-highest border border-default rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl animate-fade-in max-h-[90vh] flex flex-col">
+        <div className="p-4 border-b border-default flex items-center justify-between">
           <h3 className="font-bold text-on-surface text-sm flex items-center gap-2 text-emerald-400">
             <ArrowDownLeft size={18} />
             Registrar Entrada de Estoque (Compra / Reposição)
@@ -90,7 +90,7 @@ export const StockEntryForm: React.FC<StockEntryFormProps> = ({ initialItemId, o
             <select
               value={itemId}
               onChange={e => setItemId(e.target.value)}
-              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-bold"
+              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-bold"
               required
             >
               <option value="">Selecione o item...</option>
@@ -113,7 +113,7 @@ export const StockEntryForm: React.FC<StockEntryFormProps> = ({ initialItemId, o
                 min="0.01"
                 value={quantity}
                 onChange={e => setQuantity(Number(e.target.value))}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-mono-label font-bold"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-mono-label font-bold"
                 required
               />
             </div>
@@ -125,7 +125,7 @@ export const StockEntryForm: React.FC<StockEntryFormProps> = ({ initialItemId, o
                 min="0"
                 value={unitCost}
                 onChange={e => setUnitCost(e.target.value === '' ? '' : Number(e.target.value))}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-mono-label font-bold"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-mono-label font-bold"
                 required
               />
             </div>
@@ -138,7 +138,7 @@ export const StockEntryForm: React.FC<StockEntryFormProps> = ({ initialItemId, o
                 type="text"
                 value={supplierName}
                 onChange={e => setSupplierName(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
               />
             </div>
             <div>
@@ -147,7 +147,7 @@ export const StockEntryForm: React.FC<StockEntryFormProps> = ({ initialItemId, o
                 type="text"
                 value={invoiceNumber}
                 onChange={e => setInvoiceNumber(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-mono-label"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-mono-label"
               />
             </div>
           </div>
@@ -159,7 +159,7 @@ export const StockEntryForm: React.FC<StockEntryFormProps> = ({ initialItemId, o
                 type="text"
                 value={lotCode}
                 onChange={e => setLotCode(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-mono-label font-bold"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-mono-label font-bold"
                 required
               />
             </div>
@@ -172,7 +172,7 @@ export const StockEntryForm: React.FC<StockEntryFormProps> = ({ initialItemId, o
                 type="date"
                 value={expirationDate}
                 onChange={e => setExpirationDate(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-mono-label font-bold"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-mono-label font-bold"
                 required
               />
             </div>
@@ -184,7 +184,7 @@ export const StockEntryForm: React.FC<StockEntryFormProps> = ({ initialItemId, o
               type="text"
               value={responsibleName}
               onChange={e => setResponsibleName(e.target.value)}
-              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
               required
             />
           </div>
@@ -195,11 +195,11 @@ export const StockEntryForm: React.FC<StockEntryFormProps> = ({ initialItemId, o
               rows={2}
               value={notes}
               onChange={e => setNotes(e.target.value)}
-              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
             />
           </div>
 
-          <div className="pt-3 border-t border-white/10 flex items-center justify-end gap-2">
+          <div className="pt-3 border-t border-default flex items-center justify-end gap-2">
             <Button type="button" variant="outline" size="sm" onClick={onClose}>
               Cancelar
             </Button>

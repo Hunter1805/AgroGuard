@@ -8,7 +8,7 @@ interface StockMovementsTabProps {
 
 export const StockMovementsTab: React.FC<StockMovementsTabProps> = ({ movements }) => {
   return (
-    <div className="glass-card rounded-2xl p-5 border border-white/10 space-y-4 text-xs">
+    <div className="glass-card rounded-2xl p-5 border border-default space-y-4 text-xs">
       <h3 className="font-bold text-on-surface text-sm flex items-center gap-2">
         <ArrowLeftRight size={16} className="text-primary" /> Histórico de Movimentações
       </h3>
@@ -19,7 +19,7 @@ export const StockMovementsTab: React.FC<StockMovementsTabProps> = ({ movements 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead>
-              <tr className="bg-surface-container-highest/40 text-on-surface-variant/70 font-mono-label uppercase border-b border-white/5">
+              <tr className="bg-surface-container-highest/40 text-on-surface-variant/70 font-mono-label uppercase border-b border-default">
                 <th className="px-3.5 py-2 font-medium">Cód. Mov.</th>
                 <th className="px-3.5 py-2 font-medium">Tipo</th>
                 <th className="px-3.5 py-2 font-medium">Qtd</th>

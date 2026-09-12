@@ -10,7 +10,7 @@ interface ToolFiltersProps {
 
 export const ToolFilters: React.FC<ToolFiltersProps> = ({ filters, onFilterChange, onReset }) => {
   return (
-    <div className="p-4 bg-surface-container-low/40 border-b border-white/10 space-y-3">
+    <div className="p-4 bg-surface-container-low/40 border-b border-default space-y-3">
       <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
         {/* Campo de Busca */}
         <div className="relative flex-1 max-w-md">
@@ -20,7 +20,7 @@ export const ToolFilters: React.FC<ToolFiltersProps> = ({ filters, onFilterChang
             placeholder="Buscar por código, ferramenta, marca, série ou patrimônio..."
             value={filters.search || ''}
             onChange={e => onFilterChange({ search: e.target.value })}
-            className="w-full pl-9 pr-3 py-1.5 bg-surface-container/60 rounded-xl border border-white/10 text-xs text-on-surface focus:outline-none focus:border-primary/50"
+            className="w-full pl-9 pr-3 py-1.5 bg-surface-container/60 rounded-xl border border-default text-xs text-on-surface focus:outline-none focus:border-primary/50"
           />
         </div>
 
@@ -31,7 +31,7 @@ export const ToolFilters: React.FC<ToolFiltersProps> = ({ filters, onFilterChang
             <select
               value={filters.category || 'todas'}
               onChange={e => onFilterChange({ category: e.target.value })}
-              className="bg-surface-container/60 border border-white/10 rounded-xl px-2.5 py-1.5 text-on-surface"
+              className="bg-surface-container/60 border border-default rounded-xl px-2.5 py-1.5 text-on-surface"
             >
               <option value="todas">Todas Categorias</option>
               <option value="Chaves">Chaves</option>
@@ -46,7 +46,7 @@ export const ToolFilters: React.FC<ToolFiltersProps> = ({ filters, onFilterChang
           <select
             value={filters.status || 'todos'}
             onChange={e => onFilterChange({ status: e.target.value as any })}
-            className="bg-surface-container/60 border border-white/10 rounded-xl px-2.5 py-1.5 text-on-surface"
+            className="bg-surface-container/60 border border-default rounded-xl px-2.5 py-1.5 text-on-surface"
           >
             <option value="todos">Todos Status</option>
             <option value="disponivel">Disponível</option>
@@ -62,7 +62,7 @@ export const ToolFilters: React.FC<ToolFiltersProps> = ({ filters, onFilterChang
           <select
             value={filters.condition || 'todas'}
             onChange={e => onFilterChange({ condition: e.target.value as any })}
-            className="bg-surface-container/60 border border-white/10 rounded-xl px-2.5 py-1.5 text-on-surface"
+            className="bg-surface-container/60 border border-default rounded-xl px-2.5 py-1.5 text-on-surface"
           >
             <option value="todas">Todas Conservações</option>
             <option value="nova">Nova</option>
@@ -76,7 +76,7 @@ export const ToolFilters: React.FC<ToolFiltersProps> = ({ filters, onFilterChang
           <select
             value={filters.controlType || 'todos'}
             onChange={e => onFilterChange({ controlType: e.target.value as any })}
-            className="bg-surface-container/60 border border-white/10 rounded-xl px-2.5 py-1.5 text-on-surface"
+            className="bg-surface-container/60 border border-default rounded-xl px-2.5 py-1.5 text-on-surface"
           >
             <option value="todos">Controle (Todos)</option>
             <option value="individual">Individual (Patrimônio/Série)</option>

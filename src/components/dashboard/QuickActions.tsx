@@ -57,15 +57,15 @@ const QUICK_ACTIONS: QuickAction[] = [
 
 const VARIANT_CLASSES = {
   primary: 'bg-primary/10 hover:bg-primary/20 text-primary border-primary/20 hover:border-primary/40',
-  secondary: 'bg-surface-container-highest/60 hover:bg-surface-container-highest text-on-surface border-white/10 hover:border-white/20',
-  ghost: 'bg-transparent hover:bg-surface-container-highest/40 text-on-surface-variant hover:text-on-surface border-white/5 hover:border-white/10',
+  secondary: 'bg-surface-container-highest/60 hover:bg-surface-container-highest text-on-surface border-default hover:border-default',
+  ghost: 'bg-transparent hover:bg-surface-container-highest/40 text-on-surface-variant hover:text-on-surface border-default hover:border-default',
 };
 
 export const QuickActions: React.FC = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="glass-card rounded-xl border border-white/5 p-4">
+    <div className="glass-card rounded-xl border border-default p-4">
       <div className="flex items-center gap-2 mb-4">
         <Zap size={16} className="text-primary" />
         <h3 className="font-body-sm text-[13px] font-semibold text-on-surface">Ações Rápidas</h3>

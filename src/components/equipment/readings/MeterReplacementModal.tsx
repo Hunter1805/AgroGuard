@@ -70,8 +70,8 @@ export const MeterReplacementModal: React.FC<MeterReplacementModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs animate-fade-in">
-      <div className="relative max-w-lg w-full glass-card bg-surface-container-highest border border-white/10 rounded-2xl p-6 space-y-4 shadow-2xl">
-        <div className="flex justify-between items-center pb-2 border-b border-white/10">
+      <div className="relative max-w-lg w-full glass-card bg-surface-container-highest border border-default rounded-2xl p-6 space-y-4 shadow-2xl">
+        <div className="flex justify-between items-center pb-2 border-b border-default">
           <div className="flex items-center gap-2 text-primary">
             <RefreshCw size={20} />
             <div>
@@ -94,7 +94,7 @@ export const MeterReplacementModal: React.FC<MeterReplacementModalProps> = ({
           </div>
         )}
 
-        <div className="p-3 rounded-xl bg-surface-container/50 border border-white/5 space-y-1 text-[12px] font-mono-label">
+        <div className="p-3 rounded-xl bg-surface-container/50 border border-default space-y-1 text-[12px] font-mono-label">
           <p>Equipamento: <strong>{equipment.name} ({equipment.plateOrCode})</strong></p>
           <p>Medidor Atual: <strong>{currentMeter.label}</strong></p>
           <p>Última Leitura Final: <strong className="text-warning">{currentMeter.currentValue} {currentMeter.unit}</strong></p>
@@ -108,7 +108,7 @@ export const MeterReplacementModal: React.FC<MeterReplacementModalProps> = ({
             <select
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              className="w-full bg-surface-container border border-white/10 rounded-lg px-3 py-2 text-on-surface focus:outline-none"
+              className="w-full bg-surface-container border border-default rounded-lg px-3 py-2 text-on-surface focus:outline-none"
             >
               <option value="Defeito no mostrador / display quebrada">Defeito no mostrador / display quebrada</option>
               <option value="Reinício natural do medidor (zeramento)">Reinício natural do medidor (zeramento)</option>
@@ -128,7 +128,7 @@ export const MeterReplacementModal: React.FC<MeterReplacementModalProps> = ({
                 value={newSerialNumber}
                 onChange={(e) => setNewSerialNumber(e.target.value)}
                 placeholder="Ex: SER-9901-X"
-                className="w-full bg-surface-container border border-white/10 rounded-lg px-3 py-2 text-on-surface focus:outline-none font-mono-label"
+                className="w-full bg-surface-container border border-default rounded-lg px-3 py-2 text-on-surface focus:outline-none font-mono-label"
               />
             </div>
 
@@ -157,7 +157,7 @@ export const MeterReplacementModal: React.FC<MeterReplacementModalProps> = ({
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Detalhes da troca efetuada pela oficina..."
               rows={2}
-              className="w-full bg-surface-container border border-white/10 rounded-lg p-2.5 text-on-surface focus:outline-none"
+              className="w-full bg-surface-container border border-default rounded-lg p-2.5 text-on-surface focus:outline-none"
             />
           </div>
 

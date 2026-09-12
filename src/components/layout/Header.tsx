@@ -22,13 +22,13 @@ export const Header: React.FC<HeaderProps> = ({ onOpenCommandPalette }) => {
   }, [onOpenCommandPalette]);
 
   return (
-    <header className="flex justify-between items-center w-full px-6 h-14 bg-surface/50 backdrop-blur-md border-b border-white/5 shrink-0 z-40 sticky top-0">
+    <header className="flex justify-between items-center w-full px-6 h-14 bg-surface/50 backdrop-blur-md border-b border-default shrink-0 z-40 sticky top-0">
       <div className="flex-1 max-w-2xl">
         <TopSearch onOpenCommandPalette={onOpenCommandPalette} />
       </div>
 
       <div className="flex items-center gap-3 pl-4 relative">
-        <div className="flex items-center gap-1 border-r border-white/10 pr-3">
+        <div className="flex items-center gap-1 border-r border-default pr-3">
           <div className="relative">
             <button
               onClick={() => setShowNotifications(!showNotifications)}
@@ -42,8 +42,8 @@ export const Header: React.FC<HeaderProps> = ({ onOpenCommandPalette }) => {
             </button>
 
             {showNotifications && (
-              <div className="absolute right-0 mt-2 w-80 glass-card rounded-xl shadow-2xl p-4 z-50 border border-white/10 text-xs">
-                <div className="flex justify-between items-center pb-2 border-b border-white/10 mb-3">
+              <div className="absolute right-0 mt-2 w-80 glass-card rounded-xl shadow-2xl p-4 z-50 border border-default text-xs">
+                <div className="flex justify-between items-center pb-2 border-b border-default mb-3">
                   <h4 className="font-semibold text-on-surface text-[13px]">Notificações</h4>
                   {unreadNotifications > 0 && (
                     <button
@@ -89,7 +89,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenCommandPalette }) => {
           </div>
           <img
             alt="User Profile Avatar"
-            className="w-7 h-7 rounded-md border border-white/10 group-hover:border-primary/50 transition-colors object-cover"
+            className="w-7 h-7 rounded-md border border-default group-hover:border-primary/50 transition-colors object-cover"
             src="https://lh3.googleusercontent.com/aida-public/AB6AXuBcohqe9MeMMuzFTuoSLknHvmSx8a6x2fg35Pk-suBoBwhhx6czvQd-Td8-iPzd5R6_Rj3OLZRB9Our2bUT22S_CwnkWZTzciJWMnnOl8VBVfkUHIkj8DbqWWJ-UrhWoQ-U80q_HhdpZTYEN2kaK4OZVlemVySVzljYOpWkl7Hpv3vVPIgWfVHD2c9hpMgiMwN3FJ99GjnyA414Nc4ztWdEi0Sw2O5TJyhb02H5Zv2Le5EJGgwNmERj5g"
           />
         </div>

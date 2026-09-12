@@ -50,7 +50,7 @@ export const ChecklistTemplateList: React.FC<ChecklistTemplateListProps> = ({
         {templates.map((tpl) => (
           <div
             key={tpl.id}
-            className="glass-card bg-surface-container-highest/40 border border-white/10 rounded-2xl p-5 flex flex-col justify-between hover:border-primary/40 transition-all shadow-lg group"
+            className="glass-card bg-surface-container-highest/40 border border-default rounded-2xl p-5 flex flex-col justify-between hover:border-primary/40 transition-all shadow-lg group"
           >
             <div>
               <div className="flex justify-between items-start mb-2 gap-2">
@@ -73,14 +73,14 @@ export const ChecklistTemplateList: React.FC<ChecklistTemplateListProps> = ({
               <div className="mt-3.5 flex flex-wrap gap-1.5 text-[11px] font-mono-label">
                 <span className="text-on-surface-variant/60 uppercase">Aplicável a:</span>
                 {tpl.applicableEquipmentTypeIds?.map((t) => (
-                  <span key={t} className="px-2 py-0.5 rounded bg-surface-container text-secondary border border-white/5 font-bold">
+                  <span key={t} className="px-2 py-0.5 rounded bg-surface-container text-secondary border border-default font-bold">
                     {t}
                   </span>
                 ))}
               </div>
             </div>
 
-            <div className="mt-5 pt-3.5 border-t border-white/10 flex items-center justify-between gap-2">
+            <div className="mt-5 pt-3.5 border-t border-default flex items-center justify-between gap-2">
               <span className="text-[11px] font-mono-label text-on-surface-variant/70">
                 {tpl.sections?.length || 0} Seção(ões) • {tpl.sections?.reduce((acc, s) => acc + s.items.length, 0)} Item(ns)
               </span>

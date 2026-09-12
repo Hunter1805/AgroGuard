@@ -13,7 +13,7 @@ export const TabOverview: React.FC<TabOverviewProps> = ({ equipment }) => {
     <div className="space-y-6">
       {/* Cards de Métricas Principais */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="glass-card rounded-xl p-4 border border-white/10 flex items-center gap-3">
+        <div className="glass-card rounded-xl p-4 border border-default flex items-center gap-3">
           <div className="w-10 h-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
             <Gauge size={20} />
           </div>
@@ -25,7 +25,7 @@ export const TabOverview: React.FC<TabOverviewProps> = ({ equipment }) => {
           </div>
         </div>
 
-        <div className="glass-card rounded-xl p-4 border border-white/10 flex items-center gap-3">
+        <div className="glass-card rounded-xl p-4 border border-default flex items-center gap-3">
           <div className="w-10 h-10 rounded-lg bg-warning/10 border border-warning/20 flex items-center justify-center text-warning">
             <Fuel size={20} />
           </div>
@@ -37,7 +37,7 @@ export const TabOverview: React.FC<TabOverviewProps> = ({ equipment }) => {
           </div>
         </div>
 
-        <div className="glass-card rounded-xl p-4 border border-white/10 flex items-center gap-3">
+        <div className="glass-card rounded-xl p-4 border border-default flex items-center gap-3">
           <div className="w-10 h-10 rounded-lg bg-success/10 border border-success/20 flex items-center justify-center text-success">
             <MapPin size={20} />
           </div>
@@ -49,7 +49,7 @@ export const TabOverview: React.FC<TabOverviewProps> = ({ equipment }) => {
           </div>
         </div>
 
-        <div className="glass-card rounded-xl p-4 border border-white/10 flex items-center gap-3">
+        <div className="glass-card rounded-xl p-4 border border-default flex items-center gap-3">
           <div className="w-10 h-10 rounded-lg bg-tertiary/10 border border-tertiary/20 flex items-center justify-center text-tertiary">
             <Calendar size={20} />
           </div>
@@ -64,8 +64,8 @@ export const TabOverview: React.FC<TabOverviewProps> = ({ equipment }) => {
 
       {/* Ficha de Dados Detalhados */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="glass-card rounded-xl p-5 border border-white/10 space-y-3">
-          <h4 className="text-[13px] font-semibold text-on-surface flex items-center gap-2 pb-2 border-b border-white/10">
+        <div className="glass-card rounded-xl p-5 border border-default space-y-3">
+          <h4 className="text-[13px] font-semibold text-on-surface flex items-center gap-2 pb-2 border-b border-default">
             <Shield size={16} className="text-primary" /> Informações do Ativo
           </h4>
           <div className="space-y-2 text-[12px]">
@@ -88,8 +88,8 @@ export const TabOverview: React.FC<TabOverviewProps> = ({ equipment }) => {
           </div>
         </div>
 
-        <div className="glass-card rounded-xl p-5 border border-white/10 space-y-3">
-          <h4 className="text-[13px] font-semibold text-on-surface flex items-center gap-2 pb-2 border-b border-white/10">
+        <div className="glass-card rounded-xl p-5 border border-default space-y-3">
+          <h4 className="text-[13px] font-semibold text-on-surface flex items-center gap-2 pb-2 border-b border-default">
             <User size={16} className="text-primary" /> Alocação & Operação
           </h4>
           <div className="space-y-2 text-[12px]">

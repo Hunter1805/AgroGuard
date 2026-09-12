@@ -57,20 +57,20 @@ export const Drawer: React.FC<DrawerProps> = ({
       {/* Overlay */}
       <div
         ref={overlayRef}
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fade-in"
+        className="absolute inset-0 bg-black/50 animate-fade-in"
         onClick={onClose}
         aria-hidden="true"
       />
 
       {/* Painel */}
       <div
-        className={`relative w-full ${widthClasses[width]} h-full bg-surface-container border-l border-white/10 shadow-2xl flex flex-col animate-slide-in-right`}
+        className={`relative w-full ${widthClasses[width]} h-full bg-surface-container border-l border-default shadow-2xl flex flex-col animate-slide-in-right`}
         role="dialog"
         aria-modal="true"
         aria-label={title}
       >
         {/* Cabeçalho */}
-        <div className="flex items-center justify-between p-5 border-b border-white/10 shrink-0">
+        <div className="flex items-center justify-between p-5 border-b border-default shrink-0">
           <div className="flex items-center gap-3 min-w-0">
             {icon && (
               <span className="text-primary shrink-0">{icon}</span>
@@ -103,7 +103,7 @@ export const Drawer: React.FC<DrawerProps> = ({
 
         {/* Rodapé */}
         {footer && (
-          <div className="shrink-0 p-4 border-t border-white/10 bg-surface-container/80">
+          <div className="shrink-0 p-4 border-t border-default bg-surface-container/80">
             {footer}
           </div>
         )}

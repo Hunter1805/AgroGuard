@@ -16,7 +16,7 @@ const StatusButton: React.FC<{
         ? variant === 'ok'
           ? 'bg-primary/20 text-primary border border-primary/40'
           : 'bg-error/20 text-error border border-error/40'
-        : 'bg-surface-container-highest border border-white/10 text-on-surface-variant hover:border-white/20'
+        : 'bg-surface-container-highest border border-default text-on-surface-variant hover:border-default'
     }`}
   >
     {variant === 'ok' ? <CheckCircle2 size={13} /> : <XCircle size={13} />}
@@ -97,7 +97,7 @@ export const ChecklistDiarioView: React.FC = () => {
               className={`px-4 py-1.5 rounded-md text-[13px] font-medium transition-all ${
                 mode === m
                   ? 'bg-primary/10 text-primary border border-primary/30'
-                  : 'bg-surface-container-highest border border-white/10 text-on-surface-variant hover:text-on-surface'
+                  : 'bg-surface-container-highest border border-default text-on-surface-variant hover:text-on-surface'
               }`}
             >
               {m === 'form' ? 'Novo Checklist' : 'Histórico'}
@@ -140,7 +140,7 @@ export const ChecklistDiarioView: React.FC = () => {
                   <select
                     value={selectedEquipmentId}
                     onChange={(e) => setSelectedEquipmentId(e.target.value)}
-                    className="w-full mt-1 bg-surface-container-highest border border-white/10 rounded-md py-1.5 px-3 text-[13px] text-on-surface focus:outline-none focus:border-primary/50"
+                    className="w-full mt-1 bg-surface-container-highest border border-default rounded-md py-1.5 px-3 text-[13px] text-on-surface focus:outline-none focus:border-primary/50"
                   >
                     <option value="">Selecionar equipamento...</option>
                     {equipments.filter((e) => e.assetType === 'Trator' || e.assetType === 'Colhedora').map((e) => (
@@ -155,7 +155,7 @@ export const ChecklistDiarioView: React.FC = () => {
                     placeholder="Ex: 6800"
                     value={horimeter}
                     onChange={(e) => setHorimeter(e.target.value)}
-                    className="w-full mt-1 bg-surface-container-highest border border-white/10 rounded-md py-1.5 px-3 text-[13px] text-on-surface focus:outline-none focus:border-primary/50"
+                    className="w-full mt-1 bg-surface-container-highest border border-default rounded-md py-1.5 px-3 text-[13px] text-on-surface focus:outline-none focus:border-primary/50"
                   />
                 </div>
                 <div>
@@ -167,7 +167,7 @@ export const ChecklistDiarioView: React.FC = () => {
                     placeholder="Ex: 25"
                     value={timeSpent}
                     onChange={(e) => setTimeSpent(e.target.value)}
-                    className="w-full mt-1 bg-surface-container-highest border border-white/10 rounded-md py-1.5 px-3 text-[13px] text-on-surface focus:outline-none focus:border-primary/50"
+                    className="w-full mt-1 bg-surface-container-highest border border-default rounded-md py-1.5 px-3 text-[13px] text-on-surface focus:outline-none focus:border-primary/50"
                   />
                 </div>
                 <div className="col-span-2">
@@ -177,7 +177,7 @@ export const ChecklistDiarioView: React.FC = () => {
                     placeholder="Nome do funcionário"
                     value={operatorName}
                     onChange={(e) => setOperatorName(e.target.value)}
-                    className="w-full mt-1 bg-surface-container-highest border border-white/10 rounded-md py-1.5 px-3 text-[13px] text-on-surface focus:outline-none focus:border-primary/50"
+                    className="w-full mt-1 bg-surface-container-highest border border-default rounded-md py-1.5 px-3 text-[13px] text-on-surface focus:outline-none focus:border-primary/50"
                   />
                 </div>
               </div>

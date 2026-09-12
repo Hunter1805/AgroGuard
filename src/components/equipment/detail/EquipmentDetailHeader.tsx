@@ -44,7 +44,7 @@ export const EquipmentDetailHeader: React.FC<EquipmentDetailHeaderProps> = ({
   };
 
   return (
-    <div className="glass-card rounded-2xl p-6 border border-white/10 bg-surface-container-highest/30 space-y-4 shadow-xl">
+    <div className="glass-card rounded-2xl p-6 border border-default bg-surface-container-highest/30 space-y-4 shadow-xl">
       {/* Botão de navegação voltar */}
       <div className="flex items-center justify-between">
         <button
@@ -75,7 +75,7 @@ export const EquipmentDetailHeader: React.FC<EquipmentDetailHeaderProps> = ({
                 {equipment.assetType} {equipment.assetId ? `· ID ${equipment.assetId}` : ''}
               </span>
               {equipment.patrimony && (
-                <span className="text-[11px] font-mono-label text-on-surface-variant/60 bg-surface-container-highest px-2 py-0.5 rounded border border-white/5">
+                <span className="text-[11px] font-mono-label text-on-surface-variant/60 bg-surface-container-highest px-2 py-0.5 rounded border border-default">
                   Patrimônio: {equipment.patrimony}
                 </span>
               )}
@@ -92,7 +92,7 @@ export const EquipmentDetailHeader: React.FC<EquipmentDetailHeaderProps> = ({
         </div>
 
         {/* Status e Alocação */}
-        <div className="flex flex-col md:items-end gap-2 shrink-0 border-t md:border-t-0 pt-3 md:pt-0 border-white/5">
+        <div className="flex flex-col md:items-end gap-2 shrink-0 border-t md:border-t-0 pt-3 md:pt-0 border-default">
           <StatusBadge status={equipment.status} />
 
           <div className="flex items-center gap-4 text-[12px] text-on-surface-variant/80 flex-wrap">

@@ -61,13 +61,13 @@ export const ChecklistStats: React.FC<ChecklistStatsProps> = ({ stats }) => {
       {items.map((it, idx) => (
         <div
           key={idx}
-          className="glass-card bg-surface-container-highest/40 border border-white/10 rounded-xl p-3.5 flex flex-col justify-between transition-all hover:bg-surface-container-highest/70"
+          className="glass-card bg-surface-container-highest/40 border border-default rounded-xl p-3.5 flex flex-col justify-between transition-all hover:bg-surface-container-highest/70"
         >
           <div className="flex justify-between items-start mb-2">
             <span className="text-[11px] font-mono-label font-medium text-on-surface-variant/80 uppercase tracking-wider leading-tight">
               {it.label}
             </span>
-            <div className="p-1.5 rounded-lg bg-surface-container border border-white/5 shrink-0">
+            <div className="p-1.5 rounded-lg bg-surface-container border border-default shrink-0">
               {it.icon}
             </div>
           </div>

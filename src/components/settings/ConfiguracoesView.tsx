@@ -20,7 +20,7 @@ interface ViewProps {
 }
 
 const UnavailableSettings: React.FC<{ label: string }> = ({ label }) => (
-  <div role="status" className="rounded-xl border-white/10 bg-surface-container p-6 text-sm text-on-surface-variant">Configuração ainda não disponível: {label}.</div>
+  <div role="status" className="rounded-xl border-default bg-surface-container p-6 text-sm text-on-surface-variant">Configuração ainda não disponível: {label}.</div>
 );
 
 export const ConfiguracoesView: React.FC<ViewProps> = ({ initialTab = 'visao_geral' }) => {

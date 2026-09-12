@@ -18,13 +18,13 @@ export const FornecedoresView: React.FC = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {vendors.map((v, i) => (
-          <div key={i} className="glass-card rounded-xl p-5 border border-white/5 space-y-2">
+          <div key={i} className="glass-card rounded-xl p-5 border border-default space-y-2">
             <div className="flex justify-between items-start">
               <h4 className="font-title-md text-[15px] font-semibold text-on-surface">{v.name}</h4>
               <span className="bg-primary/10 text-primary text-[10px] px-2 py-0.5 rounded font-mono-label">{v.rating}</span>
             </div>
             <p className="text-[12px] text-on-surface-variant/80">{v.service}</p>
-            <div className="pt-2 border-t border-white/5 text-[11px] font-mono-label text-on-surface-variant flex items-center gap-2">
+            <div className="pt-2 border-t border-default text-[11px] font-mono-label text-on-surface-variant flex items-center gap-2">
               <Phone size={14} /> {v.phone}
             </div>
           </div>

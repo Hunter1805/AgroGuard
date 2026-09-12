@@ -13,8 +13,8 @@ interface NextRevisionsPanelProps {
 export const NextRevisionsPanel: React.FC<NextRevisionsPanelProps> = ({ revisions }) => {
   const navigate = useNavigate();
   return (
-    <div className="glass-card rounded-xl flex flex-col h-72 border-white/5">
-      <div className="flex justify-between items-center p-4 border-b border-white/5 bg-surface/30 rounded-t-xl">
+    <div className="glass-card rounded-xl flex flex-col h-72 border-default">
+      <div className="flex justify-between items-center p-4 border-b border-default bg-surface/30 rounded-t-xl">
         <div className="flex items-center gap-2">
           <Calendar size={16} className="text-on-surface-variant" />
           <h3 className="font-body-sm text-[13px] font-semibold text-on-surface">Próximas Revisões</h3>
@@ -28,11 +28,11 @@ export const NextRevisionsPanel: React.FC<NextRevisionsPanelProps> = ({ revision
           <div
             key={rev.id}
             onClick={() => navigate(ROUTES.EQUIPAMENTOS)}
-            className="bg-surface-container-highest/40 border border-white/5 rounded-md p-3 flex justify-between items-center group hover:border-white/10 transition-colors cursor-pointer"
+            className="bg-surface-container-highest/40 border border-default rounded-md p-3 flex justify-between items-center group hover:border-default transition-colors cursor-pointer"
           >
             <div className="flex items-center gap-3">
               <div
-                className={`w-8 h-8 rounded bg-surface border border-white/5 flex items-center justify-center text-[10px] font-mono-label ${
+                className={`w-8 h-8 rounded bg-surface border border-default flex items-center justify-center text-[10px] font-mono-label ${
                   rev.isTomorrow ? 'text-tertiary font-bold' : 'text-on-surface-variant'
                 }`}
               >

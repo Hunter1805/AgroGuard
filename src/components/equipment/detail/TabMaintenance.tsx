@@ -15,7 +15,7 @@ export const TabMaintenance: React.FC<TabMaintenanceProps> = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="glass-card rounded-xl p-5 border border-white/10 space-y-3">
+        <div className="glass-card rounded-xl p-5 border border-default space-y-3">
           <div className="flex justify-between items-start">
             <div>
               <span className="text-[10px] font-mono-label text-primary uppercase">Plano Ativo</span>
@@ -26,7 +26,7 @@ export const TabMaintenance: React.FC<TabMaintenanceProps> = () => {
           <p className="text-[12px] text-on-surface-variant/70">
             Troca de óleo de motor, substituição dos filtros de ar e combustível, regulagem de válvulas.
           </p>
-          <div className="space-y-1.5 text-[11px] font-mono-label pt-2 border-t border-white/5">
+          <div className="space-y-1.5 text-[11px] font-mono-label pt-2 border-t border-default">
             <div className="flex justify-between">
               <span className="text-on-surface-variant/60">Gatilho:</span>
               <span className="text-on-surface">A cada 250 horas</span>
@@ -42,7 +42,7 @@ export const TabMaintenance: React.FC<TabMaintenanceProps> = () => {
           </div>
         </div>
 
-        <div className="glass-card rounded-xl p-5 border border-white/10 space-y-3">
+        <div className="glass-card rounded-xl p-5 border border-default space-y-3">
           <div className="flex justify-between items-start">
             <div>
               <span className="text-[10px] font-mono-label text-on-surface-variant/60 uppercase">Plano Anual</span>
@@ -53,7 +53,7 @@ export const TabMaintenance: React.FC<TabMaintenanceProps> = () => {
           <p className="text-[12px] text-on-surface-variant/70">
             Revisão completa do sistema hidráulico, transmissão, embreagem e alinhamento do chassi.
           </p>
-          <div className="space-y-1.5 text-[11px] font-mono-label pt-2 border-t border-white/5">
+          <div className="space-y-1.5 text-[11px] font-mono-label pt-2 border-t border-default">
             <div className="flex justify-between">
               <span className="text-on-surface-variant/60">Gatilho:</span>
               <span className="text-on-surface">Anual (Novembro)</span>

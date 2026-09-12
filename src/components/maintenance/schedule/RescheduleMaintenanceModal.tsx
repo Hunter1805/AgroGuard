@@ -36,7 +36,7 @@ export const RescheduleMaintenanceModal: React.FC<RescheduleMaintenanceModalProp
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 animate-fadeIn">
       <form onSubmit={handleSubmit} className="glass-card bg-white dark:bg-gray-900 max-w-lg w-full p-6 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-800 space-y-5">
         <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-800">
           <div className="flex items-center gap-2.5">

@@ -25,10 +25,10 @@ export const ReadingDetailDrawer: React.FC<ReadingDetailDrawerProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end bg-black/75 backdrop-blur-xs animate-fade-in">
-      <div className="w-full max-w-md h-full glass-card bg-surface-container-highest border-l border-white/10 p-6 flex flex-col justify-between overflow-y-auto space-y-6">
+      <div className="w-full max-w-md h-full glass-card bg-surface-container-highest border-l border-default p-6 flex flex-col justify-between overflow-y-auto space-y-6">
         <div className="space-y-5">
           {/* Header */}
-          <div className="flex justify-between items-start border-b border-white/10 pb-4">
+          <div className="flex justify-between items-start border-b border-default pb-4">
             <div>
               <span className="text-[10px] font-mono-label text-primary uppercase">Detalhamento e Trilha de Auditoria</span>
               <h3 className="font-title-md text-[18px] font-bold text-on-surface">{reading.equipmentName}</h3>
@@ -40,13 +40,13 @@ export const ReadingDetailDrawer: React.FC<ReadingDetailDrawerProps> = ({
           </div>
 
           {/* Status Badge e Alerta */}
-          <div className="flex items-center justify-between bg-surface-container/50 p-3 rounded-xl border border-white/5">
+          <div className="flex items-center justify-between bg-surface-container/50 p-3 rounded-xl border border-default">
             <span className="text-[12px] text-on-surface-variant/80 font-medium">Situação Atual:</span>
             <StatusBadge status={reading.status} />
           </div>
 
           {/* Dados numéricos */}
-          <div className="grid grid-cols-3 gap-2 p-3 bg-surface-container/40 rounded-xl border border-white/5 font-mono-label text-center">
+          <div className="grid grid-cols-3 gap-2 p-3 bg-surface-container/40 rounded-xl border border-default font-mono-label text-center">
             <div>
               <span className="text-[10px] text-on-surface-variant/60 block">Anterior</span>
               <span className="text-[13px] font-bold text-on-surface">{reading.previousValue} {reading.unit}</span>
@@ -65,19 +65,19 @@ export const ReadingDetailDrawer: React.FC<ReadingDetailDrawerProps> = ({
 
           {/* Atributos Gerais */}
           <div className="space-y-2 text-[12px]">
-            <div className="flex justify-between py-1.5 border-b border-white/5">
+            <div className="flex justify-between py-1.5 border-b border-default">
               <span className="text-on-surface-variant/70">Medidor:</span>
               <span className="font-medium text-on-surface">{reading.meterName || reading.meterType}</span>
             </div>
-            <div className="flex justify-between py-1.5 border-b border-white/5">
+            <div className="flex justify-between py-1.5 border-b border-default">
               <span className="text-on-surface-variant/70">Data e Hora do Registro:</span>
               <span className="font-mono-label font-medium text-on-surface">{reading.readingAt}</span>
             </div>
-            <div className="flex justify-between py-1.5 border-b border-white/5">
+            <div className="flex justify-between py-1.5 border-b border-default">
               <span className="text-on-surface-variant/70">Origem do Apontamento:</span>
               <span className="font-medium text-on-surface capitalize">{reading.source.replace('_', ' ')}</span>
             </div>
-            <div className="flex justify-between py-1.5 border-b border-white/5">
+            <div className="flex justify-between py-1.5 border-b border-default">
               <span className="text-on-surface-variant/70">Cadastrado por:</span>
               <span className="font-medium text-on-surface">{reading.createdBy}</span>
             </div>
@@ -104,7 +104,7 @@ export const ReadingDetailDrawer: React.FC<ReadingDetailDrawerProps> = ({
               <span className="text-[11px] font-mono-label text-on-surface-variant/80 uppercase flex items-center gap-1">
                 <Camera size={14} /> Foto Comprobatória do Painel
               </span>
-              <div className="aspect-video rounded-xl overflow-hidden border border-white/10 bg-black">
+              <div className="aspect-video rounded-xl overflow-hidden border border-default bg-black">
                 <img src={reading.photoUrl} alt="Painel" className="w-full h-full object-cover" />
               </div>
             </div>
@@ -112,7 +112,7 @@ export const ReadingDetailDrawer: React.FC<ReadingDetailDrawerProps> = ({
         </div>
 
         {/* Rodapé de Ações de Auditoria */}
-        <div className="pt-4 border-t border-white/10 space-y-2">
+        <div className="pt-4 border-t border-default space-y-2">
           {reading.status === 'pendente_aprovacao' && (
             <div className="grid grid-cols-2 gap-2">
               {onApprove && (

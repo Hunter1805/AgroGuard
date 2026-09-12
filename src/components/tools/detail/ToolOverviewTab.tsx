@@ -9,8 +9,8 @@ export const ToolOverviewTab: React.FC<ToolOverviewTabProps> = ({ tool }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
       {/* Especificações & Localização */}
-      <div className="glass-card rounded-2xl p-5 border border-white/10 space-y-4">
-        <h3 className="font-bold text-on-surface text-sm border-b border-white/5 pb-2">Identificação & Especificações</h3>
+      <div className="glass-card rounded-2xl p-5 border border-default space-y-4">
+        <h3 className="font-bold text-on-surface text-sm border-b border-default pb-2">Identificação & Especificações</h3>
 
         <div className="grid grid-cols-2 gap-3 font-mono-label">
           <div>
@@ -31,7 +31,7 @@ export const ToolOverviewTab: React.FC<ToolOverviewTabProps> = ({ tool }) => {
           </div>
         </div>
 
-        <div className="pt-3 border-t border-white/5 space-y-2 font-mono-label">
+        <div className="pt-3 border-t border-default space-y-2 font-mono-label">
           <div className="flex items-center justify-between">
             <span className="text-on-surface-variant/70">Estoque Atual</span>
             <span className="font-bold text-emerald-400">
@@ -47,7 +47,7 @@ export const ToolOverviewTab: React.FC<ToolOverviewTabProps> = ({ tool }) => {
         </div>
 
         {tool.technicalSpec && (
-          <div className="pt-3 border-t border-white/5">
+          <div className="pt-3 border-t border-default">
             <span className="text-on-surface-variant/70 text-[11px] block font-mono-label">Especificação Técnica</span>
             <p className="text-on-surface text-xs mt-1">{tool.technicalSpec}</p>
           </div>
@@ -55,8 +55,8 @@ export const ToolOverviewTab: React.FC<ToolOverviewTabProps> = ({ tool }) => {
       </div>
 
       {/* Aquisição, Conservação & Calibração */}
-      <div className="glass-card rounded-2xl p-5 border border-white/10 space-y-4">
-        <h3 className="font-bold text-on-surface text-sm border-b border-white/5 pb-2">Dados de Aquisição & Conservação</h3>
+      <div className="glass-card rounded-2xl p-5 border border-default space-y-4">
+        <h3 className="font-bold text-on-surface text-sm border-b border-default pb-2">Dados de Aquisição & Conservação</h3>
 
         <div className="grid grid-cols-2 gap-3 font-mono-label">
           <div>
@@ -83,7 +83,7 @@ export const ToolOverviewTab: React.FC<ToolOverviewTabProps> = ({ tool }) => {
           </div>
         </div>
 
-        <div className="pt-3 border-t border-white/5 space-y-2 font-mono-label">
+        <div className="pt-3 border-t border-default space-y-2 font-mono-label">
           <div className="flex items-center justify-between">
             <span className="text-on-surface-variant/70">Requer Calibração</span>
             <span className="font-bold text-on-surface">
@@ -101,7 +101,7 @@ export const ToolOverviewTab: React.FC<ToolOverviewTabProps> = ({ tool }) => {
         </div>
 
         {tool.unavailabilityReason && (
-          <div className="pt-3 border-t border-white/5 p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl">
+          <div className="pt-3 border-t border-default p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl">
             <span className="text-rose-400 text-[11px] font-bold block font-mono-label">Motivo de Indisponibilidade:</span>
             <p className="text-rose-300 text-xs mt-0.5">{tool.unavailabilityReason}</p>
           </div>

@@ -38,7 +38,7 @@ export const CostsReportView: React.FC = () => {
         onExport={fmt => data && exportData('Relatório Consolidado de Custos', 'custos', fmt, { ...data, columns: colsToDisplay })}
       />
 
-      <div className="glass-card rounded-2xl border border-white/10 overflow-hidden">
+      <div className="glass-card rounded-2xl border border-default overflow-hidden">
         <ReportGlobalFilters filters={filters} onFilterChange={updateFilters} onReset={resetFilters} />
 
         {loading ? (
@@ -60,7 +60,7 @@ export const CostsReportView: React.FC = () => {
               ]}
             />
 
-            <div className="rounded-xl border border-white/10 overflow-hidden">
+            <div className="rounded-xl border border-default overflow-hidden">
               <ReportTable data={data} visibleColumns={colsToDisplay.filter(c => c.visible)} />
             </div>
           </div>

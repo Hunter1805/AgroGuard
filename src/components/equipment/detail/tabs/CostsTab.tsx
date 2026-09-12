@@ -34,7 +34,7 @@ export const CostsTab: React.FC<CostsTabProps> = ({ costs }) => {
           <select
             value={periodFilter}
             onChange={(e) => setPeriodFilter(e.target.value)}
-            className="bg-surface-container border border-white/10 rounded-md px-3 py-1.5 text-on-surface focus:outline-none"
+            className="bg-surface-container border border-default rounded-md px-3 py-1.5 text-on-surface focus:outline-none"
           >
             <option value="30">Últimos 30 dias</option>
             <option value="90">Últimos 90 dias</option>
@@ -52,19 +52,19 @@ export const CostsTab: React.FC<CostsTabProps> = ({ costs }) => {
             R$ {totalAccumulated.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
           </p>
         </div>
-        <div className="glass-card rounded-xl p-3.5 border border-white/10">
+        <div className="glass-card rounded-xl p-3.5 border border-default">
           <span className="text-[11px] font-mono-label text-on-surface-variant/70 block">Manutenção Preventiva</span>
           <p className="text-[18px] font-bold text-success font-mono-label mt-1">
             R$ {preventiveTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
           </p>
         </div>
-        <div className="glass-card rounded-xl p-3.5 border border-white/10">
+        <div className="glass-card rounded-xl p-3.5 border border-default">
           <span className="text-[11px] font-mono-label text-on-surface-variant/70 block">Manutenção Corretiva</span>
           <p className="text-[18px] font-bold text-error font-mono-label mt-1">
             R$ {correctiveTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
           </p>
         </div>
-        <div className="glass-card rounded-xl p-3.5 border border-white/10">
+        <div className="glass-card rounded-xl p-3.5 border border-default">
           <span className="text-[11px] font-mono-label text-on-surface-variant/70 block">Peças & Insumos</span>
           <p className="text-[18px] font-bold text-warning font-mono-label mt-1">
             R$ {(totalAccumulated * 0.4).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
@@ -73,7 +73,7 @@ export const CostsTab: React.FC<CostsTabProps> = ({ costs }) => {
       </div>
 
       {/* Tabela de Lançamentos de Custos */}
-      <div className="glass-card rounded-xl border border-white/10 p-5 space-y-4">
+      <div className="glass-card rounded-xl border border-default p-5 space-y-4">
         <h4 className="text-[13px] font-semibold text-on-surface flex items-center gap-2">
           <DollarSign size={15} className="text-primary" /> Lançamentos de Despesas Registradas
         </h4>
@@ -87,7 +87,7 @@ export const CostsTab: React.FC<CostsTabProps> = ({ costs }) => {
           <div className="overflow-x-auto">
             <table className="w-full text-[12px] text-left">
               <thead>
-                <tr className="bg-surface-container-highest/40 text-on-surface-variant/70 font-mono-label text-[10px] uppercase border-b border-white/5">
+                <tr className="bg-surface-container-highest/40 text-on-surface-variant/70 font-mono-label text-[10px] uppercase border-b border-default">
                   <th className="px-3.5 py-2.5 font-medium">Data</th>
                   <th className="px-3.5 py-2.5 font-medium">Categoria</th>
                   <th className="px-3.5 py-2.5 font-medium">Descrição</th>
@@ -101,7 +101,7 @@ export const CostsTab: React.FC<CostsTabProps> = ({ costs }) => {
                   <tr key={c.id} className="hover:bg-surface-container-highest/20 transition-colors">
                     <td className="px-3.5 py-3 font-mono-label">{c.date}</td>
                     <td className="px-3.5 py-3 font-medium text-on-surface">
-                      <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-surface-container-highest border border-white/10">
+                      <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-surface-container-highest border border-default">
                         {c.category}
                       </span>
                     </td>

@@ -24,8 +24,8 @@ export const ChecklistTemplateReview: React.FC<ChecklistTemplateReviewProps> = (
   );
 
   return (
-    <div className="glass-card bg-surface-container-highest/50 border border-white/10 rounded-2xl p-6 space-y-6 shadow-xl animate-fade-in">
-      <div className="flex items-center gap-3 pb-3 border-b border-white/10">
+    <div className="glass-card bg-surface-container-highest/50 border border-default rounded-2xl p-6 space-y-6 shadow-xl animate-fade-in">
+      <div className="flex items-center gap-3 pb-3 border-b border-default">
         <div className="p-3 rounded-2xl bg-primary/20 text-primary">
           <CheckSquare size={28} />
         </div>
@@ -39,17 +39,17 @@ export const ChecklistTemplateReview: React.FC<ChecklistTemplateReviewProps> = (
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-[12px] font-mono-label">
-        <div className="p-3.5 rounded-xl bg-surface-container border border-white/5 flex flex-col justify-between">
+        <div className="p-3.5 rounded-xl bg-surface-container border border-default flex flex-col justify-between">
           <span className="text-on-surface-variant/70 uppercase text-[11px]">Categoria / Frequência</span>
           <strong className="text-[16px] text-primary capitalize mt-1">{type}</strong>
         </div>
 
-        <div className="p-3.5 rounded-xl bg-surface-container border border-white/5 flex flex-col justify-between">
+        <div className="p-3.5 rounded-xl bg-surface-container border border-default flex flex-col justify-between">
           <span className="text-on-surface-variant/70 uppercase text-[11px]">Total de Seções & Itens</span>
           <strong className="text-[16px] text-on-surface mt-1">{sections.length} Seções ({totalItems} Itens)</strong>
         </div>
 
-        <div className="p-3.5 rounded-xl bg-surface-container border border-white/5 flex flex-col justify-between">
+        <div className="p-3.5 rounded-xl bg-surface-container border border-default flex flex-col justify-between">
           <span className="text-on-surface-variant/70 uppercase text-[11px]">Itens Críticos (Bloqueantes)</span>
           <strong className={`text-[16px] mt-1 ${criticalItems > 0 ? 'text-error' : 'text-success'}`}>
             {criticalItems} Item(ns)
@@ -63,7 +63,7 @@ export const ChecklistTemplateReview: React.FC<ChecklistTemplateReviewProps> = (
         </h4>
         <div className="flex flex-wrap gap-2">
           {applicableTypes.map((t) => (
-            <span key={t} className="px-3 py-1 rounded-lg bg-surface text-secondary border border-white/10 text-[12px] font-mono-label font-bold">
+            <span key={t} className="px-3 py-1 rounded-lg bg-surface text-secondary border border-default text-[12px] font-mono-label font-bold">
               {t}
             </span>
           ))}
@@ -74,7 +74,7 @@ export const ChecklistTemplateReview: React.FC<ChecklistTemplateReviewProps> = (
         <h4 className="text-[12px] font-mono-label font-bold text-on-surface uppercase flex items-center gap-1.5">
           <Layers size={15} className="text-primary" /> Resumo das Seções
         </h4>
-        <div className="divide-y divide-white/10 rounded-xl bg-surface-container/50 border border-white/5 overflow-hidden text-[12px]">
+        <div className="divide-y divide-white/10 rounded-xl bg-surface-container/50 border border-default overflow-hidden text-[12px]">
           {sections.map((sec, idx) => (
             <div key={sec.id} className="p-3 flex justify-between items-center hover:bg-white/5">
               <div>

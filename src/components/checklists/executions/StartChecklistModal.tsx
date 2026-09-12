@@ -95,8 +95,8 @@ export const StartChecklistModal: React.FC<StartChecklistModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs animate-fade-in">
-      <div className="relative max-w-lg w-full glass-card bg-surface-container-highest border border-white/10 rounded-2xl p-6 space-y-5 shadow-2xl">
-        <div className="flex justify-between items-center pb-3 border-b border-white/10">
+      <div className="relative max-w-lg w-full glass-card bg-surface-container-highest border border-default rounded-2xl p-6 space-y-5 shadow-2xl">
+        <div className="flex justify-between items-center pb-3 border-b border-default">
           <div className="flex items-center gap-2.5 text-primary">
             <CheckSquare size={22} />
             <div>
@@ -124,7 +124,7 @@ export const StartChecklistModal: React.FC<StartChecklistModalProps> = ({
               <select
                 value={selectedEquipmentId}
                 onChange={(e) => setSelectedEquipmentId(e.target.value)}
-                className="w-full bg-surface-container border border-white/10 rounded-lg px-3 py-2 text-on-surface focus:outline-none focus:border-primary"
+                className="w-full bg-surface-container border border-default rounded-lg px-3 py-2 text-on-surface focus:outline-none focus:border-primary"
                 required
               >
                 <option value="">Selecione o equipamento na frota...</option>
@@ -143,7 +143,7 @@ export const StartChecklistModal: React.FC<StartChecklistModalProps> = ({
               <select
                 value={selectedTemplateId}
                 onChange={(e) => setSelectedTemplateId(e.target.value)}
-                className="w-full bg-surface-container border border-white/10 rounded-lg px-3 py-2 text-on-surface focus:outline-none focus:border-primary"
+                className="w-full bg-surface-container border border-default rounded-lg px-3 py-2 text-on-surface focus:outline-none focus:border-primary"
                 required
               >
                 <option value="">Selecione o modelo de inspeção...</option>
@@ -164,7 +164,7 @@ export const StartChecklistModal: React.FC<StartChecklistModalProps> = ({
                   type="text"
                   value={operatorName}
                   onChange={(e) => setOperatorName(e.target.value)}
-                  className="w-full bg-surface-container border border-white/10 rounded-lg px-3 py-2 text-on-surface focus:outline-none"
+                  className="w-full bg-surface-container border border-default rounded-lg px-3 py-2 text-on-surface focus:outline-none"
                   required
                 />
               </div>
@@ -193,7 +193,7 @@ export const StartChecklistModal: React.FC<StartChecklistModalProps> = ({
                 value={initialPhotoUrl}
                 onChange={(e) => setInitialPhotoUrl(e.target.value)}
                 placeholder="https://exemplo.com/foto-trator.jpg"
-                className="w-full bg-surface-container border border-white/10 rounded-lg px-3 py-2 text-on-surface focus:outline-none mb-3"
+                className="w-full bg-surface-container border border-default rounded-lg px-3 py-2 text-on-surface focus:outline-none mb-3"
               />
 
               <label className="text-[11px] font-mono-label text-on-surface-variant/80 uppercase block mb-1">
@@ -204,12 +204,12 @@ export const StartChecklistModal: React.FC<StartChecklistModalProps> = ({
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Ex: Trator assumido limpo e com tanque cheio..."
                 rows={2}
-                className="w-full bg-surface-container border border-white/10 rounded-lg p-2 text-on-surface focus:outline-none"
+                className="w-full bg-surface-container border border-default rounded-lg p-2 text-on-surface focus:outline-none"
               />
             </div>
           </div>
 
-          <div className="flex justify-end gap-2.5 pt-3 border-t border-white/10">
+          <div className="flex justify-end gap-2.5 pt-3 border-t border-default">
             <Button variant="outline" size="sm" type="button" onClick={onClose}>
               Cancelar
             </Button>

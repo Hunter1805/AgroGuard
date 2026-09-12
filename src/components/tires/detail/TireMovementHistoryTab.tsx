@@ -8,7 +8,7 @@ interface TireMovementHistoryTabProps {
 
 export const TireMovementHistoryTab: React.FC<TireMovementHistoryTabProps> = ({ movements }) => {
   return (
-    <div className="glass-card rounded-2xl p-5 border border-white/10 space-y-4">
+    <div className="glass-card rounded-2xl p-5 border border-default space-y-4">
       <h3 className="font-bold text-on-surface text-sm flex items-center gap-2">
         <History size={16} className="text-primary" /> Histórico Operacional e Movimentações
       </h3>
@@ -19,7 +19,7 @@ export const TireMovementHistoryTab: React.FC<TireMovementHistoryTabProps> = ({ 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead>
-              <tr className="bg-surface-container-highest/40 text-on-surface-variant/70 font-mono-label uppercase border-b border-white/5">
+              <tr className="bg-surface-container-highest/40 text-on-surface-variant/70 font-mono-label uppercase border-b border-default">
                 <th className="px-3.5 py-2.5 font-medium">Data / Hora</th>
                 <th className="px-3.5 py-2.5 font-medium">Ação</th>
                 <th className="px-3.5 py-2.5 font-medium">Equipamento</th>

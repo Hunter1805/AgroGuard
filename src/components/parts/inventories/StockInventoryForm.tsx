@@ -18,7 +18,7 @@ export const StockInventoryForm: React.FC<StockInventoryFormProps> = ({ onClose,
   const [type, setType] = useState<StockInventoryType>('geral');
   const [warehouseName, setWarehouseName] = useState('Almoxarifado Central');
   const [plannedDate, setPlannedDate] = useState(() => new Date().toISOString().split('T')[0]);
-  const [responsibleName, setResponsibleName] = useState('Roberto Alves (Almoxarife)');
+  const [responsibleName, setResponsibleName] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,9 +44,9 @@ export const StockInventoryForm: React.FC<StockInventoryFormProps> = ({ onClose,
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 text-xs">
-      <div className="bg-surface-container-highest border border-white/10 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl animate-fade-in max-h-[90vh] flex flex-col">
-        <div className="p-4 border-b border-white/10 flex items-center justify-between">
+    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4 text-xs">
+      <div className="bg-surface-container-highest border border-default rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl animate-fade-in max-h-[90vh] flex flex-col">
+        <div className="p-4 border-b border-default flex items-center justify-between">
           <h3 className="font-bold text-on-surface text-sm flex items-center gap-2">
             <ClipboardList size={16} className="text-primary" />
             Abrir Novo Inventário Físico
@@ -70,7 +70,7 @@ export const StockInventoryForm: React.FC<StockInventoryFormProps> = ({ onClose,
               type="text"
               value={title}
               onChange={e => setTitle(e.target.value)}
-              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-bold"
+              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-bold"
               required
             />
           </div>
@@ -81,7 +81,7 @@ export const StockInventoryForm: React.FC<StockInventoryFormProps> = ({ onClose,
               <select
                 value={type}
                 onChange={e => setType(e.target.value as any)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-bold"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-bold"
               >
                 <option value="geral">Geral (Todos os Itens)</option>
                 <option value="por_almoxarifado">Por Almoxarifado</option>
@@ -96,7 +96,7 @@ export const StockInventoryForm: React.FC<StockInventoryFormProps> = ({ onClose,
                 type="text"
                 value={warehouseName}
                 onChange={e => setWarehouseName(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
               />
             </div>
           </div>
@@ -108,7 +108,7 @@ export const StockInventoryForm: React.FC<StockInventoryFormProps> = ({ onClose,
                 type="date"
                 value={plannedDate}
                 onChange={e => setPlannedDate(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-mono-label"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-mono-label"
                 required
               />
             </div>
@@ -118,13 +118,13 @@ export const StockInventoryForm: React.FC<StockInventoryFormProps> = ({ onClose,
                 type="text"
                 value={responsibleName}
                 onChange={e => setResponsibleName(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
                 required
               />
             </div>
           </div>
 
-          <div className="pt-3 border-t border-white/10 flex items-center justify-end gap-2">
+          <div className="pt-3 border-t border-default flex items-center justify-end gap-2">
             <Button type="button" variant="outline" size="sm" onClick={onClose}>
               Cancelar
             </Button>

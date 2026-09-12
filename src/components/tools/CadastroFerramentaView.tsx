@@ -20,7 +20,7 @@ export const CadastroFerramentaView: React.FC = () => {
   const [description, setDescription] = useState('');
   const [technicalSpec, setTechnicalSpec] = useState('');
   const [controlType, setControlType] = useState<ToolControlType>('individual');
-  const [brand, setBrand] = useState('Gedore Red');
+  const [brand, setBrand] = useState('');
   const [model, setModel] = useState('');
   const [serialNumber, setSerialNumber] = useState('');
   const [patrimonyNumber, setPatrimonyNumber] = useState('');
@@ -29,17 +29,17 @@ export const CadastroFerramentaView: React.FC = () => {
   const [minimumQuantity, setMinimumQuantity] = useState<number>(1);
   const [unitOfMeasure, setUnitOfMeasure] = useState('UN');
 
-  const [workshop, setWorkshop] = useState('Oficina Central');
-  const [cabinet, setCabinet] = useState('Armário A1');
+  const [workshop, setWorkshop] = useState('');
+  const [cabinet, setCabinet] = useState('');
 
   const [acquisitionDate, setAcquisitionDate] = useState(new Date().toISOString().split('T')[0]);
-  const [acquisitionValue, setAcquisitionValue] = useState<number | ''>(450);
-  const [supplierName, setSupplierName] = useState('Ferramentas Kennedy');
-  const [invoiceNumber, setInvoiceNumber] = useState('NF-2026-99');
+  const [acquisitionValue, setAcquisitionValue] = useState<number | ''>('');
+  const [supplierName, setSupplierName] = useState('');
+  const [invoiceNumber, setInvoiceNumber] = useState('');
 
   const [condition, setCondition] = useState<ToolCondition>('boa');
   const [requiresCalibration, setRequiresCalibration] = useState(false);
-  const [calibrationType, setCalibrationType] = useState('Aferição de Precisão Standard');
+  const [calibrationType, setCalibrationType] = useState('');
   const [calibrationFrequencyValue, setCalibrationFrequencyValue] = useState<number>(6);
 
   const [initialTool, setInitialTool] = useState<any>(undefined);
@@ -144,8 +144,8 @@ export const CadastroFerramentaView: React.FC = () => {
         )}
 
         {/* Identificação */}
-        <div className="glass-card rounded-2xl p-5 border border-white/10 space-y-4">
-          <h3 className="font-bold text-on-surface text-sm flex items-center gap-2 border-b border-white/5 pb-2">
+        <div className="glass-card rounded-2xl p-5 border border-default space-y-4">
+          <h3 className="font-bold text-on-surface text-sm flex items-center gap-2 border-b border-default pb-2">
             <Wrench className="text-primary" size={18} /> 1. Identificação da Ferramenta
           </h3>
 
@@ -156,7 +156,7 @@ export const CadastroFerramentaView: React.FC = () => {
                 type="text"
                 value={code}
                 onChange={e => setCode(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-mono-label font-bold"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-mono-label font-bold"
                 required
               />
             </div>
@@ -167,7 +167,7 @@ export const CadastroFerramentaView: React.FC = () => {
                 placeholder="Ex: Torquímetro de Estalo 1/2"
                 value={name}
                 onChange={e => setName(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-bold"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-bold"
                 required
               />
             </div>
@@ -176,7 +176,7 @@ export const CadastroFerramentaView: React.FC = () => {
               <select
                 value={controlType}
                 onChange={e => setControlType(e.target.value as any)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-bold"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-bold"
               >
                 <option value="individual">Individual (Patrimônio / Série)</option>
                 <option value="quantidade">Por Quantidade (Estoque)</option>
@@ -190,7 +190,7 @@ export const CadastroFerramentaView: React.FC = () => {
               <select
                 value={category}
                 onChange={e => setCategory(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-semibold"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-semibold"
                 required
               >
                 <option value="Chaves">Chaves</option>
@@ -208,7 +208,7 @@ export const CadastroFerramentaView: React.FC = () => {
                 type="text"
                 value={brand}
                 onChange={e => setBrand(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
               />
             </div>
             <div>
@@ -217,7 +217,7 @@ export const CadastroFerramentaView: React.FC = () => {
                 type="text"
                 value={model}
                 onChange={e => setModel(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
               />
             </div>
           </div>
@@ -231,7 +231,7 @@ export const CadastroFerramentaView: React.FC = () => {
                   placeholder="Ex: PAT-4401"
                   value={patrimonyNumber}
                   onChange={e => setPatrimonyNumber(e.target.value)}
-                  className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-mono-label font-bold"
+                  className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-mono-label font-bold"
                 />
               </div>
               <div>
@@ -241,7 +241,7 @@ export const CadastroFerramentaView: React.FC = () => {
                   placeholder="Ex: SN-998822"
                   value={serialNumber}
                   onChange={e => setSerialNumber(e.target.value)}
-                  className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-mono-label"
+                  className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-mono-label"
                 />
               </div>
             </div>
@@ -254,7 +254,7 @@ export const CadastroFerramentaView: React.FC = () => {
                   min={1}
                   value={totalQuantity}
                   onChange={e => setTotalQuantity(Number(e.target.value))}
-                  className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-mono-label font-bold"
+                  className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-mono-label font-bold"
                   required
                 />
               </div>
@@ -265,7 +265,7 @@ export const CadastroFerramentaView: React.FC = () => {
                   min={1}
                   value={minimumQuantity}
                   onChange={e => setMinimumQuantity(Number(e.target.value))}
-                  className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-mono-label"
+                  className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-mono-label"
                 />
               </div>
               <div>
@@ -274,7 +274,7 @@ export const CadastroFerramentaView: React.FC = () => {
                   type="text"
                   value={unitOfMeasure}
                   onChange={e => setUnitOfMeasure(e.target.value)}
-                  className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-mono-label"
+                  className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-mono-label"
                 />
               </div>
             </div>
@@ -286,15 +286,15 @@ export const CadastroFerramentaView: React.FC = () => {
               rows={2}
               value={technicalSpec}
               onChange={e => setTechnicalSpec(e.target.value)}
-              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
               placeholder="Descreva encaixes, capacidade, faixa de medição, etc..."
             />
           </div>
         </div>
 
         {/* Localização & Aquisição */}
-        <div className="glass-card rounded-2xl p-5 border border-white/10 space-y-4">
-          <h3 className="font-bold text-on-surface text-sm border-b border-white/5 pb-2">2. Localização & Dados de Aquisição</h3>
+        <div className="glass-card rounded-2xl p-5 border border-default space-y-4">
+          <h3 className="font-bold text-on-surface text-sm border-b border-default pb-2">2. Localização & Dados de Aquisição</h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -303,7 +303,7 @@ export const CadastroFerramentaView: React.FC = () => {
                 type="text"
                 value={workshop}
                 onChange={e => setWorkshop(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
               />
             </div>
             <div>
@@ -312,7 +312,7 @@ export const CadastroFerramentaView: React.FC = () => {
                 type="text"
                 value={cabinet}
                 onChange={e => setCabinet(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
               />
             </div>
           </div>
@@ -325,7 +325,7 @@ export const CadastroFerramentaView: React.FC = () => {
                 step="0.01"
                 value={acquisitionValue}
                 onChange={e => setAcquisitionValue(e.target.value === '' ? '' : Number(e.target.value))}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-mono-label"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-mono-label"
               />
             </div>
             <div>
@@ -334,7 +334,7 @@ export const CadastroFerramentaView: React.FC = () => {
                 type="text"
                 value={supplierName}
                 onChange={e => setSupplierName(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
               />
             </div>
             <div>
@@ -343,7 +343,7 @@ export const CadastroFerramentaView: React.FC = () => {
                 type="text"
                 value={invoiceNumber}
                 onChange={e => setInvoiceNumber(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-mono-label"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-mono-label"
               />
             </div>
           </div>
@@ -354,7 +354,7 @@ export const CadastroFerramentaView: React.FC = () => {
               id="reqCal"
               checked={requiresCalibration}
               onChange={e => setRequiresCalibration(e.target.checked)}
-              className="rounded bg-surface-container border-white/10 text-primary"
+              className="rounded bg-surface-container border-default text-primary"
             />
             <label htmlFor="reqCal" className="text-on-surface font-semibold cursor-pointer">
               Esta ferramenta necessita de Calibração / Aferição Periódica

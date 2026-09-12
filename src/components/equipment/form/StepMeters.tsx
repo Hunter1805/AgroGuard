@@ -68,7 +68,7 @@ export const StepMeters: React.FC<StepMetersProps> = ({ data, onChange }) => {
                 placeholder="0"
                 value={data.currentHours || ''}
                 onChange={(e) => onChange('currentHours', e.target.value)}
-                className="w-full bg-surface-container-highest border border-white/10 rounded-md px-3 py-2 text-[13px] text-on-surface font-mono-label placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary/50"
+                className="w-full bg-surface-container-highest border border-default rounded-md px-3 py-2 text-[13px] text-on-surface font-mono-label placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary/50"
               />
               <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] font-mono-label text-on-surface-variant/50">
                 {unitLabel}

@@ -43,26 +43,26 @@ export const PartsTab: React.FC<PartsTabProps> = ({ parts }) => {
 
       {/* Cards de Métricas */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="glass-card rounded-xl p-3.5 border border-white/10">
+        <div className="glass-card rounded-xl p-3.5 border border-default">
           <span className="text-[11px] font-mono-label text-on-surface-variant/70 block">Total de Itens Aplicados</span>
           <p className="text-[20px] font-bold text-on-surface mt-1">{totalItems} un</p>
         </div>
-        <div className="glass-card rounded-xl p-3.5 border border-white/10">
+        <div className="glass-card rounded-xl p-3.5 border border-default">
           <span className="text-[11px] font-mono-label text-on-surface-variant/70 block">Custo Acumulado Peças</span>
           <p className="text-[18px] font-bold text-primary font-mono-label mt-1">R$ {totalCost.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
         </div>
-        <div className="glass-card rounded-xl p-3.5 border border-white/10">
+        <div className="glass-card rounded-xl p-3.5 border border-default">
           <span className="text-[11px] font-mono-label text-on-surface-variant/70 block">Item Mais Utilizado</span>
           <p className="text-[13px] font-bold text-on-surface truncate mt-1">Filtro Óleo Lubrificante</p>
         </div>
-        <div className="glass-card rounded-xl p-3.5 border border-white/10">
+        <div className="glass-card rounded-xl p-3.5 border border-default">
           <span className="text-[11px] font-mono-label text-on-surface-variant/70 block">Última Aplicação</span>
           <p className="text-[13px] font-bold text-success font-mono-label mt-1">15/07/2026</p>
         </div>
       </div>
 
       {/* Tabela de Consumo */}
-      <div className="glass-card rounded-xl border border-white/10 p-5 space-y-4">
+      <div className="glass-card rounded-xl border border-default p-5 space-y-4">
         <h4 className="text-[13px] font-semibold text-on-surface flex items-center gap-2">
           <Package size={15} className="text-primary" /> Relação de Materiais e Peças Utilizadas
         </h4>
@@ -76,7 +76,7 @@ export const PartsTab: React.FC<PartsTabProps> = ({ parts }) => {
           <div className="overflow-x-auto">
             <table className="w-full text-[12px] text-left">
               <thead>
-                <tr className="bg-surface-container-highest/40 text-on-surface-variant/70 font-mono-label text-[10px] uppercase border-b border-white/5">
+                <tr className="bg-surface-container-highest/40 text-on-surface-variant/70 font-mono-label text-[10px] uppercase border-b border-default">
                   <th className="px-3.5 py-2.5 font-medium">Data</th>
                   <th className="px-3.5 py-2.5 font-medium">Código / Item</th>
                   <th className="px-3.5 py-2.5 font-medium">Categoria</th>

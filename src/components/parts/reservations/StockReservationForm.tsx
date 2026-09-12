@@ -28,15 +28,15 @@ export const StockReservationForm: React.FC<StockReservationFormProps> = ({
 
   const [quantity, setQuantity] = useState<number>(2);
   const [workOrderCode, setWorkOrderCode] = useState(initialWorkOrderCode || 'OS-2026-105');
-  const [equipmentName, setEquipmentName] = useState('Trator Valtra A750 14');
-  const [requesterName, setRequesterName] = useState('Marcos Souza (Mecânico)');
+  const [equipmentName, setEquipmentName] = useState('');
+  const [requesterName, setRequesterName] = useState('');
   const [expectedUseDate, setExpectedUseDate] = useState(() => {
     const d = new Date();
     d.setDate(d.getDate() + 2);
     return d.toISOString().split('T')[0];
   });
-  const [priority, setPriority] = useState<'baixa' | 'media' | 'alta' | 'urgente'>('alta');
-  const [justification, setJustification] = useState('Garantia de insumos para manutenção preventiva de 250 horas');
+  const [priority, setPriority] = useState<'baixa' | 'media' | 'alta' | 'urgente'>('media');
+  const [justification, setJustification] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,9 +70,9 @@ export const StockReservationForm: React.FC<StockReservationFormProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 text-xs">
-      <div className="bg-surface-container-highest border border-white/10 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl animate-fade-in max-h-[90vh] flex flex-col">
-        <div className="p-4 border-b border-white/10 flex items-center justify-between">
+    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4 text-xs">
+      <div className="bg-surface-container-highest border border-default rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl animate-fade-in max-h-[90vh] flex flex-col">
+        <div className="p-4 border-b border-default flex items-center justify-between">
           <h3 className="font-bold text-on-surface text-sm flex items-center gap-2">
             <Bookmark size={16} className="text-primary" />
             Criar Reserva de Peças / Insumos
@@ -95,7 +95,7 @@ export const StockReservationForm: React.FC<StockReservationFormProps> = ({
             <select
               value={itemId}
               onChange={e => setItemId(e.target.value)}
-              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-bold"
+              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-bold"
               required
             >
               <option value="">Selecione o item...</option>
@@ -119,7 +119,7 @@ export const StockReservationForm: React.FC<StockReservationFormProps> = ({
                 max={selectedItem?.availableQuantity}
                 value={quantity}
                 onChange={e => setQuantity(Number(e.target.value))}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-mono-label font-bold"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-mono-label font-bold"
                 required
               />
             </div>
@@ -129,7 +129,7 @@ export const StockReservationForm: React.FC<StockReservationFormProps> = ({
               <select
                 value={priority}
                 onChange={e => setPriority(e.target.value as any)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-bold"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-bold"
               >
                 <option value="baixa">Baixa</option>
                 <option value="media">Média</option>
@@ -147,7 +147,7 @@ export const StockReservationForm: React.FC<StockReservationFormProps> = ({
                 placeholder="Ex: OS-2026-105"
                 value={workOrderCode}
                 onChange={e => setWorkOrderCode(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-mono-label"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-mono-label"
               />
             </div>
             <div>
@@ -156,7 +156,7 @@ export const StockReservationForm: React.FC<StockReservationFormProps> = ({
                 type="date"
                 value={expectedUseDate}
                 onChange={e => setExpectedUseDate(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-mono-label"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-mono-label"
                 required
               />
             </div>
@@ -169,7 +169,7 @@ export const StockReservationForm: React.FC<StockReservationFormProps> = ({
                 type="text"
                 value={equipmentName}
                 onChange={e => setEquipmentName(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
               />
             </div>
             <div>
@@ -178,7 +178,7 @@ export const StockReservationForm: React.FC<StockReservationFormProps> = ({
                 type="text"
                 value={requesterName}
                 onChange={e => setRequesterName(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
                 required
               />
             </div>
@@ -190,11 +190,11 @@ export const StockReservationForm: React.FC<StockReservationFormProps> = ({
               rows={2}
               value={justification}
               onChange={e => setJustification(e.target.value)}
-              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
             />
           </div>
 
-          <div className="pt-3 border-t border-white/10 flex items-center justify-end gap-2">
+          <div className="pt-3 border-t border-default flex items-center justify-end gap-2">
             <Button type="button" variant="outline" size="sm" onClick={onClose}>
               Cancelar
             </Button>

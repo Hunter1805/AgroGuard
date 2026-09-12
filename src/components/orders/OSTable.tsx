@@ -8,10 +8,10 @@ interface OSTableProps {
 
 export const OSTable: React.FC<OSTableProps> = ({ orders }) => {
   return (
-    <div className="glass-card rounded-xl border border-white/5 overflow-hidden">
+    <div className="glass-card rounded-xl border border-default overflow-hidden">
       <table className="w-full text-[13px] text-left border-collapse">
         <thead>
-          <tr className="text-on-surface-variant/60 font-mono-label text-[11px] uppercase bg-surface-container-highest/30 border-b border-white/5">
+          <tr className="text-on-surface-variant/60 font-mono-label text-[11px] uppercase bg-surface-container-highest/30 border-b border-default">
             <th className="p-4">OS #</th>
             <th className="p-4">EQUIPAMENTO</th>
             <th className="p-4">TIPO</th>

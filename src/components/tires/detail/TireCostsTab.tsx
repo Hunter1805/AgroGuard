@@ -19,19 +19,19 @@ export const TireCostsTab: React.FC<TireCostsTabProps> = ({ tire, movements }) =
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="glass-card rounded-2xl p-4 border border-white/10">
+        <div className="glass-card rounded-2xl p-4 border border-default">
           <span className="text-[11px] font-mono-label text-on-surface-variant/70 block">Custo de Aquisição</span>
           <p className="text-xl font-bold text-on-surface mt-1 font-mono-label">
             R$ {acquisitionCost.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
           </p>
         </div>
-        <div className="glass-card rounded-2xl p-4 border border-white/10">
+        <div className="glass-card rounded-2xl p-4 border border-default">
           <span className="text-[11px] font-mono-label text-on-surface-variant/70 block">Manutenções / Recapagens</span>
           <p className="text-xl font-bold text-amber-400 mt-1 font-mono-label">
             R$ {maintenanceCost.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
           </p>
         </div>
-        <div className="glass-card rounded-2xl p-4 border border-white/10">
+        <div className="glass-card rounded-2xl p-4 border border-default">
           <span className="text-[11px] font-mono-label text-on-surface-variant/70 block">Custo Total por Hora Operada</span>
           <p className="text-xl font-bold text-emerald-400 mt-1 font-mono-label">
             R$ {costPerHour.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} /h
@@ -39,7 +39,7 @@ export const TireCostsTab: React.FC<TireCostsTabProps> = ({ tire, movements }) =
         </div>
       </div>
 
-      <div className="glass-card rounded-2xl p-5 border border-white/10 space-y-4">
+      <div className="glass-card rounded-2xl p-5 border border-default space-y-4">
         <h3 className="font-bold text-on-surface text-sm flex items-center gap-2">
           <DollarSign size={16} className="text-emerald-400" /> Lançamentos de Custos do Pneu
         </h3>
@@ -47,7 +47,7 @@ export const TireCostsTab: React.FC<TireCostsTabProps> = ({ tire, movements }) =
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead>
-              <tr className="bg-surface-container-highest/40 text-on-surface-variant/70 font-mono-label uppercase border-b border-white/5">
+              <tr className="bg-surface-container-highest/40 text-on-surface-variant/70 font-mono-label uppercase border-b border-default">
                 <th className="px-3.5 py-2.5 font-medium">Data</th>
                 <th className="px-3.5 py-2.5 font-medium">Tipo de Custo</th>
                 <th className="px-3.5 py-2.5 font-medium">Descrição</th>

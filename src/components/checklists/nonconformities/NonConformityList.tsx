@@ -69,11 +69,11 @@ export const NonConformityList: React.FC<NonConformityListProps> = ({ initialEqu
           description="Excelente! A frota não apresenta avarias mecânicas abertas nem itens não conformes sob os filtros selecionados."
         />
       ) : (
-        <div className="glass-card bg-surface-container-highest/30 border border-white/10 rounded-xl overflow-hidden shadow-lg">
+        <div className="glass-card bg-surface-container-highest/30 border border-default rounded-xl overflow-hidden shadow-lg">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-surface-container-highest/60 text-on-surface-variant font-mono-label text-[10px] uppercase border-b border-white/10">
+                <tr className="bg-surface-container-highest/60 text-on-surface-variant font-mono-label text-[10px] uppercase border-b border-default">
                   <th className="px-4 py-3 font-semibold">Código</th>
                   <th className="px-4 py-3 font-semibold">Falha / Avaria</th>
                   <th className="px-4 py-3 font-semibold">Equipamento</th>
@@ -116,7 +116,7 @@ export const NonConformityList: React.FC<NonConformityListProps> = ({ initialEqu
                     <td className="px-4 py-3.5 text-right space-x-1.5">
                       <button
                         onClick={() => setSelectedForDetail(nc)}
-                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-surface-container border border-white/10 hover:text-primary transition-colors text-[11px] cursor-pointer"
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-surface-container border border-default hover:text-primary transition-colors text-[11px] cursor-pointer"
                         title="Ver ficha de avaria e fotos"
                       >
                         <Eye size={13} /> Visualizar

@@ -64,8 +64,8 @@ export const ChecklistValidationModal: React.FC<ChecklistValidationModalProps> =
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs animate-fade-in">
-      <div className="relative max-w-md w-full glass-card bg-surface-container-highest border border-white/10 rounded-2xl p-6 space-y-4 shadow-2xl">
-        <div className="flex justify-between items-center pb-2 border-b border-white/10">
+      <div className="relative max-w-md w-full glass-card bg-surface-container-highest border border-default rounded-2xl p-6 space-y-4 shadow-2xl">
+        <div className="flex justify-between items-center pb-2 border-b border-default">
           <div className="flex items-center gap-2 text-primary">
             <ShieldCheck size={20} />
             <h3 className="font-title-md text-[16px] font-bold text-on-surface">Validação por Supervisor</h3>
@@ -75,7 +75,7 @@ export const ChecklistValidationModal: React.FC<ChecklistValidationModalProps> =
           </button>
         </div>
 
-        <div className="p-3 rounded-xl bg-surface-container/50 border border-white/5 text-[12px] space-y-1 font-mono-label">
+        <div className="p-3 rounded-xl bg-surface-container/50 border border-default text-[12px] space-y-1 font-mono-label">
           <p>Checklist: <strong>{execution.code} ({execution.templateName})</strong></p>
           <p>Equipamento: <strong>{execution.equipmentCode} — {execution.equipmentName}</strong></p>
           <p>Operador: <strong>{execution.operatorName}</strong></p>
@@ -96,7 +96,7 @@ export const ChecklistValidationModal: React.FC<ChecklistValidationModalProps> =
             type="text"
             value={validatorName}
             onChange={(e) => setValidatorName(e.target.value)}
-            className="w-full bg-surface-container border border-white/10 rounded-lg px-3 py-2 text-on-surface text-[12px] focus:outline-none"
+            className="w-full bg-surface-container border border-default rounded-lg px-3 py-2 text-on-surface text-[12px] focus:outline-none"
             required
           />
         </div>
@@ -112,7 +112,7 @@ export const ChecklistValidationModal: React.FC<ChecklistValidationModalProps> =
                 onChange={(e) => setComments(e.target.value)}
                 placeholder="Observações adicionais na aprovação..."
                 rows={2}
-                className="w-full bg-surface-container border border-white/10 rounded-lg p-2.5 text-on-surface text-[12px] focus:outline-none"
+                className="w-full bg-surface-container border border-default rounded-lg p-2.5 text-on-surface text-[12px] focus:outline-none"
               />
             </div>
 

@@ -56,9 +56,9 @@ export const TireRecommendationForm: React.FC<TireRecommendationFormProps> = ({ 
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-surface-container-highest border border-white/10 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl animate-fade-in">
-        <div className="p-4 border-b border-white/10 flex items-center justify-between">
+    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+      <div className="bg-surface-container-highest border border-default rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl animate-fade-in">
+        <div className="p-4 border-b border-default flex items-center justify-between">
           <h3 className="font-bold text-on-surface text-sm">Nova Recomendação de Pressão</h3>
           <button onClick={onClose} className="p-1 rounded-lg text-on-surface-variant hover:text-on-surface">
             <X size={18} />
@@ -79,7 +79,7 @@ export const TireRecommendationForm: React.FC<TireRecommendationFormProps> = ({ 
               <select
                 value={category}
                 onChange={e => setCategory(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
               >
                 <option value="Trator">Trator</option>
                 <option value="Caminhão">Caminhão</option>
@@ -97,7 +97,7 @@ export const TireRecommendationForm: React.FC<TireRecommendationFormProps> = ({ 
                 placeholder="Ex: 18.4-30, 295/80 R22.5"
                 value={size}
                 onChange={e => setSize(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
                 required
               />
             </div>
@@ -111,7 +111,7 @@ export const TireRecommendationForm: React.FC<TireRecommendationFormProps> = ({ 
                 placeholder="Ex: MF 275"
                 value={equipmentModel}
                 onChange={e => setEquipmentModel(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
               />
             </div>
 
@@ -122,7 +122,7 @@ export const TireRecommendationForm: React.FC<TireRecommendationFormProps> = ({ 
                 placeholder="Ex: Preparo de Solo, Rodoviário"
                 value={application}
                 onChange={e => setApplication(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
               />
             </div>
           </div>
@@ -134,7 +134,7 @@ export const TireRecommendationForm: React.FC<TireRecommendationFormProps> = ({ 
                 type="number"
                 value={minPressure}
                 onChange={e => setMinPressure(e.target.value === '' ? '' : Number(e.target.value))}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-mono-label"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-mono-label"
                 required
               />
             </div>
@@ -144,7 +144,7 @@ export const TireRecommendationForm: React.FC<TireRecommendationFormProps> = ({ 
                 type="number"
                 value={maxPressure}
                 onChange={e => setMaxPressure(e.target.value === '' ? '' : Number(e.target.value))}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-mono-label"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-mono-label"
                 required
               />
             </div>
@@ -153,7 +153,7 @@ export const TireRecommendationForm: React.FC<TireRecommendationFormProps> = ({ 
               <select
                 value={unit}
                 onChange={e => setUnit(e.target.value as any)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
               >
                 <option value="psi">PSI</option>
                 <option value="bar">BAR</option>
@@ -168,7 +168,7 @@ export const TireRecommendationForm: React.FC<TireRecommendationFormProps> = ({ 
               id="waterBallast"
               checked={withWaterBallast}
               onChange={e => setWithWaterBallast(e.target.checked)}
-              className="rounded bg-surface-container border-white/10 text-primary focus:ring-0"
+              className="rounded bg-surface-container border-default text-primary focus:ring-0"
             />
             <label htmlFor="waterBallast" className="text-on-surface font-medium cursor-pointer">
               Considera utilização de lastro com água
@@ -182,7 +182,7 @@ export const TireRecommendationForm: React.FC<TireRecommendationFormProps> = ({ 
               placeholder="Ex: Manual Pirelli 2024"
               value={sourceRecommendation}
               onChange={e => setSourceRecommendation(e.target.value)}
-              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
             />
           </div>
 
@@ -192,12 +192,12 @@ export const TireRecommendationForm: React.FC<TireRecommendationFormProps> = ({ 
               rows={2}
               value={notes}
               onChange={e => setNotes(e.target.value)}
-              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+              className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
               placeholder="Instruções ou ressalvas técnicas..."
             />
           </div>
 
-          <div className="pt-3 border-t border-white/10 flex items-center justify-end gap-2">
+          <div className="pt-3 border-t border-default flex items-center justify-end gap-2">
             <Button type="button" variant="outline" size="sm" onClick={onClose}>
               Cancelar
             </Button>

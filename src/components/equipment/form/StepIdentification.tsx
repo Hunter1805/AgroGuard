@@ -47,7 +47,7 @@ export const StepIdentification: React.FC<StepIdentificationProps> = ({ data, on
             placeholder="Ex: MF-265-01 ou ABC-1234"
             value={data.plateOrCode}
             onChange={(e) => onChange('plateOrCode', e.target.value)}
-            className="w-full bg-surface-container-highest border border-white/10 rounded-md px-3 py-2 text-[13px] text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary/50"
+            className="w-full bg-surface-container-highest border border-default rounded-md px-3 py-2 text-[13px] text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary/50"
           />
         </div>
 
@@ -62,7 +62,7 @@ export const StepIdentification: React.FC<StepIdentificationProps> = ({ data, on
             placeholder="Ex: Trator Massey Ferguson 265 01 4x2"
             value={data.name}
             onChange={(e) => onChange('name', e.target.value)}
-            className="w-full bg-surface-container-highest border border-white/10 rounded-md px-3 py-2 text-[13px] text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary/50"
+            className="w-full bg-surface-container-highest border border-default rounded-md px-3 py-2 text-[13px] text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary/50"
           />
         </div>
 
@@ -77,7 +77,7 @@ export const StepIdentification: React.FC<StepIdentificationProps> = ({ data, on
             placeholder="Ex: Massey Ferguson, Valtra, Jacto"
             value={data.brand}
             onChange={(e) => onChange('brand', e.target.value)}
-            className="w-full bg-surface-container-highest border border-white/10 rounded-md px-3 py-2 text-[13px] text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary/50"
+            className="w-full bg-surface-container-highest border border-default rounded-md px-3 py-2 text-[13px] text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary/50"
           />
         </div>
 
@@ -92,7 +92,7 @@ export const StepIdentification: React.FC<StepIdentificationProps> = ({ data, on
             placeholder="Ex: 265, A750, FH 360"
             value={data.model}
             onChange={(e) => onChange('model', e.target.value)}
-            className="w-full bg-surface-container-highest border border-white/10 rounded-md px-3 py-2 text-[13px] text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary/50"
+            className="w-full bg-surface-container-highest border border-default rounded-md px-3 py-2 text-[13px] text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary/50"
           />
         </div>
 
@@ -106,7 +106,7 @@ export const StepIdentification: React.FC<StepIdentificationProps> = ({ data, on
             placeholder="Ex: 2022"
             value={data.year || ''}
             onChange={(e) => onChange('year', e.target.value)}
-            className="w-full bg-surface-container-highest border border-white/10 rounded-md px-3 py-2 text-[13px] text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary/50"
+            className="w-full bg-surface-container-highest border border-default rounded-md px-3 py-2 text-[13px] text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary/50"
           />
         </div>
 
@@ -120,7 +120,7 @@ export const StepIdentification: React.FC<StepIdentificationProps> = ({ data, on
             placeholder="Ex: PAT-0012"
             value={data.patrimony || ''}
             onChange={(e) => onChange('patrimony', e.target.value)}
-            className="w-full bg-surface-container-highest border border-white/10 rounded-md px-3 py-2 text-[13px] text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary/50"
+            className="w-full bg-surface-container-highest border border-default rounded-md px-3 py-2 text-[13px] text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary/50"
           />
         </div>
 
@@ -134,7 +134,7 @@ export const StepIdentification: React.FC<StepIdentificationProps> = ({ data, on
             placeholder="Ex: MF265-2010-9901"
             value={data.serialNumber || ''}
             onChange={(e) => onChange('serialNumber', e.target.value)}
-            className="w-full bg-surface-container-highest border border-white/10 rounded-md px-3 py-2 text-[13px] text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary/50 font-mono-label"
+            className="w-full bg-surface-container-highest border border-default rounded-md px-3 py-2 text-[13px] text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary/50 font-mono-label"
           />
         </div>
       </div>

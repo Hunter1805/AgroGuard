@@ -96,23 +96,23 @@ export const TiresTab: React.FC<TiresTabProps> = ({ equipment, onRegisterInspect
 
       {/* Cards de Métricas do Equipamento */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="glass-card rounded-xl p-3.5 border border-white/10">
+        <div className="glass-card rounded-xl p-3.5 border border-default">
           <span className="text-[11px] font-mono-label text-on-surface-variant/70 block">Pneus Instalados</span>
           <p className="text-[20px] font-bold text-on-surface mt-1 font-mono-label">{installedTires.length}</p>
         </div>
-        <div className="glass-card rounded-xl p-3.5 border border-white/10">
+        <div className="glass-card rounded-xl p-3.5 border border-default">
           <span className="text-[11px] font-mono-label text-on-surface-variant/70 block">Configuração de Eixos</span>
           <p className="text-[13px] font-bold text-primary truncate mt-1">
             {config ? `${config.axleCount} Eixos (${config.axles.reduce((acc, a) => acc + a.positions.length, 0)} Posições)` : 'Não configurado'}
           </p>
         </div>
-        <div className="glass-card rounded-xl p-3.5 border border-white/10">
+        <div className="glass-card rounded-xl p-3.5 border border-default">
           <span className="text-[11px] font-mono-label text-on-surface-variant/70 block">Pressão Média</span>
           <p className="text-[12px] font-bold text-emerald-400 font-mono-label truncate mt-1">
             {config?.pressureUnit ? `32 ${config.pressureUnit.toUpperCase()}` : '32 PSI'}
           </p>
         </div>
-        <div className="glass-card rounded-xl p-3.5 border border-white/10">
+        <div className="glass-card rounded-xl p-3.5 border border-default">
           <span className="text-[11px] font-mono-label text-on-surface-variant/70 block">Última Inspeção</span>
           <p className="text-[13px] font-bold text-success font-mono-label mt-1">Recente</p>
         </div>
@@ -122,7 +122,7 @@ export const TiresTab: React.FC<TiresTabProps> = ({ equipment, onRegisterInspect
       {loading ? (
         <div className="p-8 text-center text-on-surface-variant">Carregando mapa de eixos...</div>
       ) : !config ? (
-        <div className="glass-card rounded-xl border border-white/10 p-8 text-center space-y-3">
+        <div className="glass-card rounded-xl border border-default p-8 text-center space-y-3">
           <Sliders className="w-10 h-10 text-on-surface-variant/40 mx-auto" />
           <p className="text-sm font-bold text-on-surface">Configuração de Eixos Não Ativada</p>
           <p className="text-xs text-on-surface-variant/70 max-w-md mx-auto">

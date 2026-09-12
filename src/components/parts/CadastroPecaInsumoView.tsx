@@ -134,8 +134,8 @@ export const CadastroPecaInsumoView: React.FC = () => {
           </div>
         )}
 
-        <div className="glass-card rounded-2xl p-5 border border-white/10 space-y-4">
-          <h3 className="font-bold text-on-surface text-sm flex items-center gap-2 border-b border-white/5 pb-2">
+        <div className="glass-card rounded-2xl p-5 border border-default space-y-4">
+          <h3 className="font-bold text-on-surface text-sm flex items-center gap-2 border-b border-default pb-2">
             <Package className="text-primary" size={18} /> 1. Identificação do Item
           </h3>
 
@@ -146,7 +146,7 @@ export const CadastroPecaInsumoView: React.FC = () => {
                 type="text"
                 value={internalCode}
                 onChange={e => setInternalCode(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-mono-label font-bold"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-mono-label font-bold"
                 required
               />
             </div>
@@ -157,7 +157,7 @@ export const CadastroPecaInsumoView: React.FC = () => {
                 placeholder="Ex: Filtro de Óleo Lubrificante"
                 value={name}
                 onChange={e => setName(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-bold"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-bold"
                 required
               />
             </div>
@@ -167,7 +167,7 @@ export const CadastroPecaInsumoView: React.FC = () => {
                 type="text"
                 value={barcode}
                 onChange={e => setBarcode(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-mono-label"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-mono-label"
               />
             </div>
           </div>
@@ -178,7 +178,7 @@ export const CadastroPecaInsumoView: React.FC = () => {
               <select
                 value={type}
                 onChange={e => setType(e.target.value as any)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-bold"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-bold"
               >
                 <option value="peca">Peça de Reposição</option>
                 <option value="filtro">Filtro</option>
@@ -198,7 +198,7 @@ export const CadastroPecaInsumoView: React.FC = () => {
                 type="text"
                 value={brand}
                 onChange={e => setBrand(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
               />
             </div>
             <div>
@@ -207,7 +207,7 @@ export const CadastroPecaInsumoView: React.FC = () => {
                 type="text"
                 value={manufacturerCode}
                 onChange={e => setManufacturerCode(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-mono-label"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-mono-label"
               />
             </div>
           </div>
@@ -218,7 +218,7 @@ export const CadastroPecaInsumoView: React.FC = () => {
               <select
                 value={controlUnit}
                 onChange={e => setControlUnit(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-bold"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-bold"
               >
                 <option value="Unidade">Unidade</option>
                 <option value="Litro">Litro</option>
@@ -236,7 +236,7 @@ export const CadastroPecaInsumoView: React.FC = () => {
                   type="checkbox"
                   checked={allowsFractionalQuantity}
                   onChange={e => setAllowsFractionalQuantity(e.target.checked)}
-                  className="rounded bg-surface-container border-white/10 text-primary"
+                  className="rounded bg-surface-container border-default text-primary"
                 />
                 Permite Quantidade Fracionada (Decimais)
               </label>
@@ -244,8 +244,8 @@ export const CadastroPecaInsumoView: React.FC = () => {
           </div>
         </div>
 
-        <div className="glass-card rounded-2xl p-5 border border-white/10 space-y-4">
-          <h3 className="font-bold text-on-surface text-sm border-b border-white/5 pb-2">2. Quantidades, Custos & Localização</h3>
+        <div className="glass-card rounded-2xl p-5 border border-default space-y-4">
+          <h3 className="font-bold text-on-surface text-sm border-b border-default pb-2">2. Quantidades, Custos & Localização</h3>
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
@@ -256,7 +256,7 @@ export const CadastroPecaInsumoView: React.FC = () => {
                 min="0"
                 value={currentQuantity}
                 onChange={e => setCurrentQuantity(Number(e.target.value))}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-mono-label font-bold"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-mono-label font-bold"
                 required
               />
             </div>
@@ -268,7 +268,7 @@ export const CadastroPecaInsumoView: React.FC = () => {
                 min="0"
                 value={minimumQuantity}
                 onChange={e => setMinimumQuantity(Number(e.target.value))}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-mono-label font-bold"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-mono-label font-bold"
                 required
               />
             </div>
@@ -280,7 +280,7 @@ export const CadastroPecaInsumoView: React.FC = () => {
                 min="0"
                 value={maximumQuantity}
                 onChange={e => setMaximumQuantity(Number(e.target.value))}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-mono-label"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-mono-label"
               />
             </div>
             <div>
@@ -291,7 +291,7 @@ export const CadastroPecaInsumoView: React.FC = () => {
                 min="0"
                 value={averageCost}
                 onChange={e => setAverageCost(e.target.value === '' ? '' : Number(e.target.value))}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface font-mono-label font-bold"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface font-mono-label font-bold"
                 required
               />
             </div>
@@ -304,7 +304,7 @@ export const CadastroPecaInsumoView: React.FC = () => {
                 type="text"
                 value={warehouseName}
                 onChange={e => setWarehouseName(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
               />
             </div>
             <div>
@@ -313,7 +313,7 @@ export const CadastroPecaInsumoView: React.FC = () => {
                 type="text"
                 value={shelf}
                 onChange={e => setShelf(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
               />
             </div>
             <div>
@@ -322,18 +322,18 @@ export const CadastroPecaInsumoView: React.FC = () => {
                 type="text"
                 value={bin}
                 onChange={e => setBin(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-white/10 text-on-surface"
+                className="w-full px-3 py-2 bg-surface-container rounded-xl border border-default text-on-surface"
               />
             </div>
           </div>
 
-          <div className="pt-3 border-t border-white/5 space-y-2">
+          <div className="pt-3 border-t border-default space-y-2">
             <label className="flex items-center gap-2 cursor-pointer text-on-surface font-semibold">
               <input
                 type="checkbox"
                 checked={controlsLot}
                 onChange={e => setControlsLot(e.target.checked)}
-                className="rounded bg-surface-container border-white/10 text-primary"
+                className="rounded bg-surface-container border-default text-primary"
               />
               Exige Controle de Lote na Entrada
             </label>
@@ -342,7 +342,7 @@ export const CadastroPecaInsumoView: React.FC = () => {
                 type="checkbox"
                 checked={controlsExpiration}
                 onChange={e => setControlsExpiration(e.target.checked)}
-                className="rounded bg-surface-container border-white/10 text-primary"
+                className="rounded bg-surface-container border-default text-primary"
               />
               Exige Controle de Data de Validade
             </label>

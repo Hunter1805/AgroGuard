@@ -13,7 +13,7 @@ export const MasterDataGroupCard: React.FC<CardProps> = ({ card }) => {
   return (
     <div
       onClick={() => navigate(card.route)}
-      className="glass-card rounded-xl border border-white/10 p-4 hover:border-primary/40 hover:bg-surface-container-highest/60 transition-all cursor-pointer flex flex-col justify-between group space-y-3"
+      className="glass-card rounded-xl border border-default p-4 hover:border-primary/40 hover:bg-surface-container-highest/60 transition-all cursor-pointer flex flex-col justify-between group space-y-3"
     >
       <div>
         <div className="flex items-center justify-between">
@@ -38,7 +38,7 @@ export const MasterDataGroupCard: React.FC<CardProps> = ({ card }) => {
         </p>
       </div>
 
-      <div className="pt-3 border-t border-white/5 flex items-center justify-between text-[11px]">
+      <div className="pt-3 border-t border-default flex items-center justify-between text-[11px]">
         <div className="flex items-center gap-3 text-on-surface-variant/60">
           <span className="flex items-center gap-1">
             <CheckCircle2 size={12} className="text-success" />

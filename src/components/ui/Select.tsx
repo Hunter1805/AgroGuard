@@ -56,7 +56,7 @@ export const Select: React.FC<SelectProps> = ({
             disabled:opacity-50 disabled:cursor-not-allowed
             ${error
               ? 'border-error focus:ring-error/50 focus:border-error'
-              : 'border-white/10 focus:ring-primary/50 focus:border-primary/50'
+              : 'border-default focus:ring-primary/50 focus:border-primary/50'
             }
           `}
         >

@@ -20,7 +20,7 @@ export const MasterDataOverviewStats: React.FC<StatsProps> = ({ stats, loading =
     return (
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3 animate-pulse">
         {Array.from({ length: 8 }).map((_, i) => (
-          <div key={i} className="glass-card rounded-xl border border-white/10 p-3 h-20 bg-surface-container-high/40" />
+          <div key={i} className="glass-card rounded-xl border border-default p-3 h-20 bg-surface-container-high/40" />
         ))}
       </div>
     );
@@ -44,7 +44,7 @@ export const MasterDataOverviewStats: React.FC<StatsProps> = ({ stats, loading =
         return (
           <div
             key={idx}
-            className="glass-card rounded-xl border border-white/10 p-3 hover:border-primary/30 transition-all duration-200 flex flex-col justify-between"
+            className="glass-card rounded-xl border border-default p-3 hover:border-primary/30 transition-all duration-200 flex flex-col justify-between"
           >
             <div className="flex items-center justify-between">
               <span className="text-[10px] font-medium text-on-surface-variant/70 uppercase tracking-wider line-clamp-1">

@@ -25,7 +25,7 @@ export const ReadingsTable: React.FC<ReadingsTableProps> = ({
 }) => {
   if (readings.length === 0) {
     return (
-      <div className="glass-card rounded-xl border border-white/10 p-6">
+      <div className="glass-card rounded-xl border border-default p-6">
         <EmptyState
           title="Nenhuma leitura encontrada"
           description="Ajuste os filtros de pesquisa ou registre uma nova leitura de medidor na frota."
@@ -45,11 +45,11 @@ export const ReadingsTable: React.FC<ReadingsTableProps> = ({
   }
 
   return (
-    <div className="glass-card rounded-xl border border-white/10 overflow-hidden">
+    <div className="glass-card rounded-xl border border-default overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full text-[12px] text-left">
           <thead>
-            <tr className="bg-surface-container-highest/40 text-on-surface-variant/70 font-mono-label text-[10px] uppercase border-b border-white/5">
+            <tr className="bg-surface-container-highest/40 text-on-surface-variant/70 font-mono-label text-[10px] uppercase border-b border-default">
               <th className="px-3.5 py-2.5 font-medium">Data e Hora</th>
               <th className="px-3.5 py-2.5 font-medium">Equipamento</th>
               <th className="px-3.5 py-2.5 font-medium">Medidor</th>
@@ -74,7 +74,7 @@ export const ReadingsTable: React.FC<ReadingsTableProps> = ({
                   </div>
                 </td>
                 <td className="px-3.5 py-3">
-                  <span className="font-mono-label text-[11px] bg-surface-container-highest px-2 py-0.5 rounded border border-white/5">
+                  <span className="font-mono-label text-[11px] bg-surface-container-highest px-2 py-0.5 rounded border border-default">
                     {r.meterName || r.meterType}
                   </span>
                 </td>

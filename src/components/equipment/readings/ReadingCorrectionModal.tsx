@@ -52,8 +52,8 @@ export const ReadingCorrectionModal: React.FC<ReadingCorrectionModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs animate-fade-in">
-      <div className="relative max-w-md w-full glass-card bg-surface-container-highest border border-white/10 rounded-2xl p-6 space-y-4 shadow-2xl">
-        <div className="flex justify-between items-center pb-2 border-b border-white/10">
+      <div className="relative max-w-md w-full glass-card bg-surface-container-highest border border-default rounded-2xl p-6 space-y-4 shadow-2xl">
+        <div className="flex justify-between items-center pb-2 border-b border-default">
           <div className="flex items-center gap-2">
             <Edit size={18} className="text-warning" />
             <h3 className="font-title-md text-[16px] font-bold text-on-surface">
@@ -100,7 +100,7 @@ export const ReadingCorrectionModal: React.FC<ReadingCorrectionModalProps> = ({
               onChange={(e) => setJustification(e.target.value)}
               placeholder="Explique o motivo do ajuste auditável..."
               rows={3}
-              className="w-full bg-surface-container border border-white/10 rounded-lg p-2.5 text-on-surface focus:outline-none"
+              className="w-full bg-surface-container border border-default rounded-lg p-2.5 text-on-surface focus:outline-none"
               required
             />
           </div>

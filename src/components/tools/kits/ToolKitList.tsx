@@ -23,7 +23,7 @@ export const ToolKitList: React.FC = () => {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-surface-container-low/30 p-4 rounded-xl border border-white/10">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-surface-container-low/30 p-4 rounded-xl border border-default">
         <div>
           <h3 className="text-base font-bold text-on-surface flex items-center gap-2">
             <Package className="text-primary" size={18} />
@@ -35,8 +35,8 @@ export const ToolKitList: React.FC = () => {
         </div>
       </div>
 
-      <div className="glass-card rounded-2xl border border-white/10 overflow-hidden">
-        <div className="p-4 border-b border-white/10 flex items-center justify-between gap-3">
+      <div className="glass-card rounded-2xl border border-default overflow-hidden">
+        <div className="p-4 border-b border-default flex items-center justify-between gap-3">
           <div className="relative flex-1 max-w-md">
             <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/50" />
             <input
@@ -44,7 +44,7 @@ export const ToolKitList: React.FC = () => {
               placeholder="Buscar kit por código, nome ou responsável..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full pl-9 pr-3 py-1.5 bg-surface-container/60 rounded-xl border border-white/10 text-xs text-on-surface focus:outline-none focus:border-primary/50"
+              className="w-full pl-9 pr-3 py-1.5 bg-surface-container/60 rounded-xl border border-default text-xs text-on-surface focus:outline-none focus:border-primary/50"
             />
           </div>
           <span className="text-xs font-mono-label text-on-surface-variant">{kits.length} kits cadastrados</span>
@@ -61,8 +61,8 @@ export const ToolKitList: React.FC = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
             {kits.map(kit => (
-              <div key={kit.id} className="p-4 bg-surface-container/40 rounded-xl border border-white/10 space-y-3">
-                <div className="flex items-center justify-between border-b border-white/5 pb-2">
+              <div key={kit.id} className="p-4 bg-surface-container/40 rounded-xl border border-default space-y-3">
+                <div className="flex items-center justify-between border-b border-default pb-2">
                   <div>
                     <div className="flex items-center gap-2">
                       <span className="font-mono-label font-bold text-primary text-xs">{kit.code}</span>
@@ -91,7 +91,7 @@ export const ToolKitList: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="pt-2 border-t border-white/5 flex items-center justify-between">
+                <div className="pt-2 border-t border-default flex items-center justify-between">
                   <span className="text-[10px] font-mono-label text-on-surface-variant/70">
                     Última Conferência: {kit.lastInspectionDate ? new Date(kit.lastInspectionDate).toLocaleDateString('pt-BR') : 'Nunca'}
                   </span>

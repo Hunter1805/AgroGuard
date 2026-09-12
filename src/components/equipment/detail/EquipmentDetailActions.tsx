@@ -110,14 +110,14 @@ export const EquipmentDetailActions: React.FC<EquipmentDetailActionsProps> = ({
         <div className="relative">
           <button
             onClick={() => setIsMoreOpen(!isMoreOpen)}
-            className="p-2 rounded-lg bg-surface-container-highest border border-white/10 text-on-surface-variant hover:text-on-surface hover:bg-white/10 transition-all cursor-pointer"
+            className="p-2 rounded-lg bg-surface-container-highest border border-default text-on-surface-variant hover:text-on-surface hover:bg-white/10 transition-all cursor-pointer"
             title="Mais ações"
           >
             <MoreVertical size={16} />
           </button>
 
           {isMoreOpen && (
-            <div className="absolute right-0 mt-2 w-56 glass-card bg-surface-container-highest border border-white/10 rounded-xl shadow-2xl py-2 z-30 text-[12px] space-y-0.5 animate-fade-in">
+            <div className="absolute right-0 mt-2 w-56 glass-card bg-surface-container-highest border border-default rounded-xl shadow-2xl py-2 z-30 text-[12px] space-y-0.5 animate-fade-in">
               <button
                 onClick={() => {
                   setIsMoreOpen(false);
@@ -168,7 +168,7 @@ export const EquipmentDetailActions: React.FC<EquipmentDetailActionsProps> = ({
                 <Printer size={14} className="text-primary" /> Imprimir Ficha Operacional
               </button>
 
-              <div className="border-t border-white/5 my-1" />
+              <div className="border-t border-default my-1" />
 
               <button
                 onClick={() => {

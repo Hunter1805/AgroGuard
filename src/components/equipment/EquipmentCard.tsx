@@ -23,7 +23,7 @@ export const EquipmentCard: React.FC<EquipmentCardProps> = ({
   const unit = item.meterType === 'odometro' ? 'km' : 'h';
 
   return (
-    <div className="glass-card rounded-xl p-5 border border-white/5 space-y-4 hover:border-primary/30 transition-all flex flex-col justify-between group">
+    <div className="glass-card rounded-xl p-5 border border-default space-y-4 hover:border-primary/30 transition-all flex flex-col justify-between group">
       <div className="space-y-3">
         {/* Cabeçalho */}
         <div className="flex justify-between items-start gap-2">
@@ -57,7 +57,7 @@ export const EquipmentCard: React.FC<EquipmentCardProps> = ({
         </div>
 
         {/* Informações operacionais */}
-        <div className="space-y-2 text-[12px] border-t border-b border-white/5 py-3">
+        <div className="space-y-2 text-[12px] border-t border-b border-default py-3">
           <div className="flex justify-between items-center">
             <span className="text-on-surface-variant/70 flex items-center gap-1">
               <MapPin size={12} className="text-primary/70" /> Localização:
@@ -114,7 +114,7 @@ export const EquipmentCard: React.FC<EquipmentCardProps> = ({
             <button
               onClick={() => onEditEquipment(item)}
               title="Editar equipamento"
-              className="p-1.5 rounded-md bg-surface-container-highest border border-white/10 text-on-surface-variant hover:text-primary transition-all cursor-pointer"
+              className="p-1.5 rounded-md bg-surface-container-highest border border-default text-on-surface-variant hover:text-primary transition-all cursor-pointer"
             >
               <Edit size={14} />
             </button>
@@ -122,7 +122,7 @@ export const EquipmentCard: React.FC<EquipmentCardProps> = ({
             <button
               onClick={() => navigate(`/equipamentos/${item.id}/editar`)}
               title="Editar equipamento"
-              className="p-1.5 rounded-md bg-surface-container-highest border border-white/10 text-on-surface-variant hover:text-primary transition-all cursor-pointer"
+              className="p-1.5 rounded-md bg-surface-container-highest border border-default text-on-surface-variant hover:text-primary transition-all cursor-pointer"
             >
               <Edit size={14} />
             </button>
@@ -132,7 +132,7 @@ export const EquipmentCard: React.FC<EquipmentCardProps> = ({
             <button
               onClick={() => onOpenQuickReading(item)}
               title="Registrar leitura"
-              className="p-1.5 rounded-md bg-surface-container-highest border border-white/10 text-on-surface-variant hover:text-primary transition-all cursor-pointer"
+              className="p-1.5 rounded-md bg-surface-container-highest border border-default text-on-surface-variant hover:text-primary transition-all cursor-pointer"
             >
               <Gauge size={14} />
             </button>
@@ -142,7 +142,7 @@ export const EquipmentCard: React.FC<EquipmentCardProps> = ({
             <button
               onClick={() => onArchiveEquipment(item)}
               title="Arquivar equipamento"
-              className="p-1.5 rounded-md bg-surface-container-highest border border-white/10 text-on-surface-variant hover:text-error transition-all cursor-pointer"
+              className="p-1.5 rounded-md bg-surface-container-highest border border-default text-on-surface-variant hover:text-error transition-all cursor-pointer"
             >
               <Archive size={14} />
             </button>
