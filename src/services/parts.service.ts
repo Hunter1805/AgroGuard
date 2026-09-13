@@ -195,6 +195,29 @@ const defaultStockHistory: StockHistoryLog[] = [
 
 export const partsService = {
   async getStockDashboardStats(): Promise<StockDashboardStats> {
+    if (!isExplicitMockMode) {
+      const list = await this.getStockItems();
+      const totalItems = list.filter(i => i.status !== 'arquivado').length;
+      const totalStockValue = list.reduce((acc, i) => acc + (i.status !== 'arquivado' ? i.totalStockValue : 0), 0);
+      const itemsBelowMinimum = list.filter(i => i.currentQuantity <= i.minimumQuantity && i.currentQuantity > 0 && i.status !== 'arquivado').length;
+      const itemsOutOfStock = list.filter(i => i.currentQuantity <= 0 && i.status !== 'arquivado').length;
+      const reservedItems = list.filter(i => i.reservedQuantity > 0 && i.status !== 'arquivado').length;
+
+      return {
+        totalItems,
+        totalStockValue,
+        itemsBelowMinimum,
+        itemsOutOfStock,
+        reservedItems,
+        pendingReservations: 0,
+        lotsExpiringSoon: 0,
+        expiredLots: 0,
+        movementsCountPeriod: 0,
+        monthlyConsumptionCost: 0,
+        periodLossCost: 0,
+        inventoryDivergencesCount: 0,
+      };
+    }
     const list = await mockStorage.get<StockItem>('stock_items', defaultStockItems);
     const totalItems = list.filter(i => i.status !== 'arquivado').length;
     const totalStockValue = list.reduce((acc, i) => acc + (i.status !== 'arquivado' ? i.totalStockValue : 0), 0);
@@ -291,6 +314,10 @@ export const partsService = {
   },
 
   async getStockItemById(id: string): Promise<StockItem | undefined> {
+    if (!isExplicitMockMode) {
+      const items = await this.getStockItems();
+      return items.find(i => i.id === id || i.internalCode === id);
+    }
     const list = await mockStorage.get<StockItem>('stock_items', defaultStockItems);
     return list.find(i => i.id === id);
   },

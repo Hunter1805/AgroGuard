@@ -310,9 +310,6 @@ export const equipmentService = {
 
   async createEquipment(formData: EquipmentFormData): Promise<Equipment> {
     if (dataSourceConfig.equipment === 'api') {
-      // A API exige vínculos de master-data (empresa/unidade/tipo/modelo).
-      // O formulário do front envia texto livre — usamos os IDs salvos no rascunho
-      // ou os primeiros vínculos disponíveis da organização.
       const draft = (this.getDraft?.() ?? {}) as Record<string, any>;
       const payload: CreateEquipmentPayload = {
         companyId: (formData as any).companyId || draft.companyId,
@@ -320,6 +317,9 @@ export const equipmentService = {
         farmId: draft.farmId || undefined,
         equipmentTypeId: (formData as any).equipmentTypeId || draft.equipmentTypeId,
         modelId: (formData as any).modelId || draft.modelId,
+        assetType: formData.assetType,
+        brand: formData.brand,
+        model: formData.model,
         code: formData.plateOrCode,
         name: formData.name,
         serialNumber: formData.serialNumber || undefined,

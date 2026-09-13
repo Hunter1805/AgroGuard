@@ -16,30 +16,30 @@ export const CadastroPneuView: React.FC = () => {
   const isEditing = Boolean(tireId);
 
   const [internalCode, setInternalCode] = useState('');
-  const [brand, setBrand] = useState('Pirelli');
+  const [brand, setBrand] = useState('');
   const [model, setModel] = useState('');
-  const [size, setSize] = useState('18.4-30');
-  const [constructionType, setConstructionType] = useState<'radial' | 'diagonal'>('diagonal');
+  const [size, setSize] = useState('');
+  const [constructionType, setConstructionType] = useState<'radial' | 'diagonal'>('radial');
   const [application, setApplication] = useState('');
   const [serialNumber, setSerialNumber] = useState('');
   const [dotCode, setDotCode] = useState('');
   const [manufacturingDate, setManufacturingDate] = useState('');
 
   const [acquisitionDate, setAcquisitionDate] = useState(new Date().toISOString().split('T')[0]);
-  const [acquisitionValue, setAcquisitionValue] = useState<number | ''>(4500);
+  const [acquisitionValue, setAcquisitionValue] = useState<number | ''>('');
   const [warrantyEndDate, setWarrantyEndDate] = useState('');
 
-  const [initialTreadDepth, setInitialTreadDepth] = useState<number | ''>(35);
-  const [currentTreadDepth, setCurrentTreadDepth] = useState<number | ''>(35);
-  const [minimumTreadDepth, setMinimumTreadDepth] = useState<number | ''>(8);
+  const [initialTreadDepth, setInitialTreadDepth] = useState<number | ''>('');
+  const [currentTreadDepth, setCurrentTreadDepth] = useState<number | ''>('');
+  const [minimumTreadDepth, setMinimumTreadDepth] = useState<number | ''>('');
 
-  const [recommendedMinimumPressure, setRecommendedMinimumPressure] = useState<number | ''>(28);
-  const [recommendedMaximumPressure, setRecommendedMaximumPressure] = useState<number | ''>(34);
+  const [recommendedMinimumPressure, setRecommendedMinimumPressure] = useState<number | ''>('');
+  const [recommendedMaximumPressure, setRecommendedMaximumPressure] = useState<number | ''>('');
   const [pressureUnit, setPressureUnit] = useState<'psi' | 'bar' | 'kpa'>('psi');
 
-  const [hasTube, setHasTube] = useState(true);
-  const [usesWaterBallast, setUsesWaterBallast] = useState(true);
-  const [maximumRetreads, setMaximumRetreads] = useState<number | ''>(2);
+  const [hasTube, setHasTube] = useState(false);
+  const [usesWaterBallast, setUsesWaterBallast] = useState(false);
+  const [maximumRetreads, setMaximumRetreads] = useState<number | ''>('');
   const [notes, setNotes] = useState('');
 
   const [initialTire, setInitialTire] = useState<any>(undefined);
@@ -75,8 +75,7 @@ export const CadastroPneuView: React.FC = () => {
         }
       });
     } else {
-      // Sugere código interno único
-      setInternalCode(`PN-${Math.floor(1000 + Math.random() * 9000)}`);
+      setInternalCode('');
     }
   }, [isEditing, tireId]);
 

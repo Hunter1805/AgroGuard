@@ -20,8 +20,8 @@ export const StockEntryForm: React.FC<StockEntryFormProps> = ({ initialItemId, o
   const [itemId, setItemId] = useState(initialItemId || '');
   const selectedItem = items.find(i => i.id === itemId);
 
-  const [quantity, setQuantity] = useState<number>(10);
-  const [unitCost, setUnitCost] = useState<number | ''>(68);
+  const [quantity, setQuantity] = useState<number | ''>('');
+  const [unitCost, setUnitCost] = useState<number | ''>('');
   const [supplierName, setSupplierName] = useState('');
   const [invoiceNumber, setInvoiceNumber] = useState('');
   const [lotCode, setLotCode] = useState('');

@@ -51,7 +51,75 @@ export async function equipmentRoutes(app: FastifyInstance) {
       throw new AppError(`Já existe um equipamento com o código ${body.code}.`, 409, 'DUPLICATE_RECORD');
     }
 
-    const equipment = await repo.createEquipment(request.actor.organizationId, body);
+    // Auto-resolve empresa e unidade se não informados
+    let companyId = body.companyId;
+    if (!companyId) {
+      let company = await prisma.company.findFirst({ where: { organizationId: request.actor.organizationId } });
+      if (!company) {
+        company = await prisma.company.create({
+          data: { organizationId: request.actor.organizationId, code: 'EMP-01', name: 'Empresa Principal' }
+        });
+      }
+      companyId = company.id;
+    }
+
+    let unitId = body.unitId;
+    if (!unitId) {
+      let unit = await prisma.unit.findFirst({ where: { organizationId: request.actor.organizationId } });
+      if (!unit) {
+        unit = await prisma.unit.create({
+          data: { organizationId: request.actor.organizationId, companyId, code: 'UND-01', name: 'Unidade Principal' }
+        });
+      }
+      unitId = unit.id;
+    }
+
+    // Auto-resolve tipo de equipamento
+    let equipmentTypeId = body.equipmentTypeId;
+    if (!equipmentTypeId) {
+      const typeName = body.assetType || 'Trator';
+      let eqType = await prisma.equipmentType.findFirst({
+        where: { OR: [{ name: { equals: typeName, mode: 'insensitive' } }, { code: { equals: typeName.slice(0, 10).toUpperCase() } }] }
+      });
+      if (!eqType) {
+        eqType = await prisma.equipmentType.create({
+          data: { code: typeName.slice(0, 10).toUpperCase(), name: typeName }
+        });
+      }
+      equipmentTypeId = eqType.id;
+    }
+
+    // Auto-resolve marca e modelo
+    let modelId = body.modelId;
+    if (!modelId) {
+      const brandName = body.brand || 'Geral';
+      let brand = await prisma.brand.findFirst({
+        where: { OR: [{ name: { equals: brandName, mode: 'insensitive' } }, { code: { equals: brandName.slice(0, 10).toUpperCase() } }] }
+      });
+      if (!brand) {
+        brand = await prisma.brand.create({
+          data: { code: brandName.slice(0, 10).toUpperCase(), name: brandName }
+        });
+      }
+      const modelName = body.model || 'Padrão';
+      let model = await prisma.model.findFirst({
+        where: { brandId: brand.id, OR: [{ name: { equals: modelName, mode: 'insensitive' } }, { code: { equals: modelName.slice(0, 10).toUpperCase() } }] }
+      });
+      if (!model) {
+        model = await prisma.model.create({
+          data: { brandId: brand.id, code: modelName.slice(0, 10).toUpperCase(), name: modelName }
+        });
+      }
+      modelId = model.id;
+    }
+
+    const equipment = await repo.createEquipment(request.actor.organizationId, {
+      ...body,
+      companyId,
+      unitId,
+      equipmentTypeId,
+      modelId,
+    });
     const response: ApiResponse<typeof equipment> = { data: equipment };
     return reply.status(201).send(response);
   });

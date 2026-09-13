@@ -39,13 +39,23 @@ export class StockService {
             ],
           },
         });
-    if (!unit) {
-      throw new AppError('Unidade de medida não encontrada.', 404, 'NOT_FOUND');
+    let resolvedUnit = unit;
+    if (!resolvedUnit) {
+      resolvedUnit = await this.prisma.unitMeasure.findFirst();
+      if (!resolvedUnit) {
+        resolvedUnit = await this.prisma.unitMeasure.create({
+          data: {
+            code: (input.unitMeasureSymbol || 'UN').toUpperCase().slice(0, 10),
+            name: input.unitMeasureSymbol || 'Unidade',
+            symbol: (input.unitMeasureSymbol || 'UN').slice(0, 10),
+          },
+        });
+      }
     }
     return this.prisma.stockItem.create({
       data: {
         organizationId: actor.organizationId!,
-        unitMeasureId: unit.id,
+        unitMeasureId: resolvedUnit.id,
         code: input.code,
         name: input.name,
         partNumber: input.partNumber,

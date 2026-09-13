@@ -1,11 +1,14 @@
 import { z } from 'zod';
 
 export const createEquipmentSchema = z.object({
-  companyId: z.string().uuid(),
-  unitId: z.string().uuid(),
+  companyId: z.string().uuid().optional(),
+  unitId: z.string().uuid().optional(),
   farmId: z.string().uuid().optional(),
-  equipmentTypeId: z.string().uuid(),
-  modelId: z.string().uuid(),
+  equipmentTypeId: z.string().uuid().optional(),
+  modelId: z.string().uuid().optional(),
+  assetType: z.string().optional(),
+  brand: z.string().optional(),
+  model: z.string().optional(),
   code: z.string().min(2).max(30),
   name: z.string().min(2).max(100),
   serialNumber: z.string().optional(),

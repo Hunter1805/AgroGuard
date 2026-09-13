@@ -18,23 +18,23 @@ export const CadastroPecaInsumoView: React.FC = () => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [type, setType] = useState<StockItemType>('peca');
-  const [categoryName, setCategoryName] = useState('Filtros de Motor');
-  const [brand, setBrand] = useState('Mann Filter');
+  const [categoryName, setCategoryName] = useState('');
+  const [brand, setBrand] = useState('');
   const [manufacturerCode, setManufacturerCode] = useState('');
 
   const [controlUnit, setControlUnit] = useState('Unidade');
   const [allowsFractionalQuantity, setAllowsFractionalQuantity] = useState(false);
 
-  const [currentQuantity, setCurrentQuantity] = useState<number>(10);
-  const [minimumQuantity, setMinimumQuantity] = useState<number>(5);
-  const [maximumQuantity, setMaximumQuantity] = useState<number>(50);
-  const [reorderPoint, setReorderPoint] = useState<number>(8);
+  const [currentQuantity, setCurrentQuantity] = useState<number>(0);
+  const [minimumQuantity, setMinimumQuantity] = useState<number>(0);
+  const [maximumQuantity, setMaximumQuantity] = useState<number>(0);
+  const [reorderPoint, setReorderPoint] = useState<number>(0);
 
-  const [averageCost, setAverageCost] = useState<number | ''>(65.50);
+  const [averageCost, setAverageCost] = useState<number | ''>(0);
 
-  const [warehouseName, setWarehouseName] = useState('Almoxarifado Central');
-  const [shelf, setShelf] = useState('Prateleira B');
-  const [bin, setBin] = useState('Gaveta B3');
+  const [warehouseName, setWarehouseName] = useState('');
+  const [shelf, setShelf] = useState('');
+  const [bin, setBin] = useState('');
 
   const [controlsLot, setControlsLot] = useState(false);
   const [controlsExpiration, setControlsExpiration] = useState(false);
@@ -72,8 +72,8 @@ export const CadastroPecaInsumoView: React.FC = () => {
         }
       });
     } else {
-      setInternalCode(`FLT-${Math.floor(1000 + Math.random() * 9000)}`);
-      setBarcode(`789${Math.floor(1000000000 + Math.random() * 9000000000)}`);
+      setInternalCode('');
+      setBarcode('');
     }
   }, [isEditing, itemId]);
 

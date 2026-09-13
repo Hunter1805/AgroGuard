@@ -4,11 +4,11 @@ import { withTimeout } from '../../services/auth-flow.service';
 
 const configuredBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim();
 
-// Em produção, nunca use localhost: o navegador resolveria esse endereço
-// para o computador do usuário, e não para o servidor da API.
+// Em produção, se VITE_API_BASE_URL não estiver configurado na Vercel/host,
+// utiliza o backend real no Render como fallback seguro (nunca localhost ou domínio fictício).
 const BASE_URL = configuredBaseUrl || (
   import.meta.env.PROD
-    ? 'https://api.agroguard.com.br/api/v1'
+    ? 'https://agroguard-4tve.onrender.com/api/v1'
     : 'http://localhost:3333/api/v1'
 );
 

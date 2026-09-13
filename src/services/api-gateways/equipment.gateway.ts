@@ -76,11 +76,14 @@ export async function registerReadingInApi(equipmentId: string, meterId: string,
 }
 
 export interface CreateEquipmentPayload {
-  companyId: string;
-  unitId: string;
+  companyId?: string;
+  unitId?: string;
   farmId?: string;
-  equipmentTypeId: string;
-  modelId: string;
+  equipmentTypeId?: string;
+  modelId?: string;
+  assetType?: string;
+  brand?: string;
+  model?: string;
   code: string;
   name: string;
   serialNumber?: string;
