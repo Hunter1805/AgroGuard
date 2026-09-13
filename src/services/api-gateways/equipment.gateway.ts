@@ -59,6 +59,11 @@ export async function fetchEquipmentsFromApi(query?: string): Promise<Equipment[
   return request;
 }
 
+export function equipmentCacheInvalidation() {
+  equipmentCache = null;
+  equipmentRequest = null;
+}
+
 export async function registerReadingInApi(equipmentId: string, meterId: string, value: number) {
   return apiClient('/readings', {
     method: 'POST',
@@ -67,5 +72,43 @@ export async function registerReadingInApi(equipmentId: string, meterId: string,
       meterId,
       readingValue: value,
     }),
+  });
+}
+
+export interface CreateEquipmentPayload {
+  companyId: string;
+  unitId: string;
+  farmId?: string;
+  equipmentTypeId: string;
+  modelId: string;
+  code: string;
+  name: string;
+  serialNumber?: string;
+  manufactureYear?: number;
+}
+
+export async function createEquipmentInApi(payload: CreateEquipmentPayload): Promise<unknown> {
+  const res = await apiClient<{ ok?: boolean }>('/equipment', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+    timeoutMs: 10_000,
+  });
+  return res.data;
+}
+
+export async function updateEquipmentInApi(id: string, payload: Record<string, unknown>): Promise<unknown> {
+  const res = await apiClient(`/equipment/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(payload),
+    timeoutMs: 10_000,
+  });
+  return res.data;
+}
+
+export async function archiveEquipmentInApi(id: string, reason?: string): Promise<void> {
+  await apiClient(`/equipment/${id}`, {
+    method: 'DELETE',
+    body: JSON.stringify({ reason }),
+    timeoutMs: 8_000,
   });
 }

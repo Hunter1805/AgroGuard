@@ -21,6 +21,7 @@ import { importRoutes } from './modules/imports/import.routes';
 import { jobRoutes } from './modules/jobs/job.routes';
 import { maintenanceRoutes } from './modules/maintenance/maintenance.routes';
 import { toolRoutes } from './modules/tools/tools.routes';
+import { tireRoutes } from './modules/tires/tires.routes';
 import type { ApiErrorResponse } from './shared/http/ApiResponse';
 
 import helmet from '@fastify/helmet';
@@ -125,6 +126,7 @@ export async function buildApp() {
   await app.register(jobRoutes);
   await app.register(maintenanceRoutes);
   await app.register(toolRoutes);
+  await app.register(tireRoutes);
 
   return app;
 }

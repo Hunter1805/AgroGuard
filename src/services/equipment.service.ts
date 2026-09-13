@@ -6,7 +6,7 @@ import type {
 } from '../types/equipment';
 import type { EquipmentFormData } from '../types/equipment-form';
 import { dataSourceConfig } from '../config/data-source.config';
-import { fetchEquipmentsFromApi } from './api-gateways/equipment.gateway';
+import { fetchEquipmentsFromApi, createEquipmentInApi, updateEquipmentInApi, archiveEquipmentInApi, equipmentCacheInvalidation, type CreateEquipmentPayload } from './api-gateways/equipment.gateway';
 import { mockStorage } from './mock-storage';
 
 const DRAFT_STORAGE_KEY = 'agroguard_equipment_draft';
@@ -293,7 +293,8 @@ export const equipmentService = {
 
   async archiveEquipment(id: string, reason: string): Promise<boolean> {
     if (dataSourceConfig.equipment === 'api') {
-      throw new Error('Arquivamento de equipamentos requer o gateway da API.');
+      await archiveEquipmentInApi(id, reason);
+      return true;
     }
     const list = await mockStorage.get<Equipment>('equipments', defaultEquipments);
     const index = list.findIndex((e) => e.id === id);
@@ -309,7 +310,24 @@ export const equipmentService = {
 
   async createEquipment(formData: EquipmentFormData): Promise<Equipment> {
     if (dataSourceConfig.equipment === 'api') {
-      throw new Error('Cadastro de equipamentos requer o gateway da API.');
+      // A API exige vínculos de master-data (empresa/unidade/tipo/modelo).
+      // O formulário do front envia texto livre — usamos os IDs salvos no rascunho
+      // ou os primeiros vínculos disponíveis da organização.
+      const draft = (this.getDraft?.() ?? {}) as Record<string, any>;
+      const payload: CreateEquipmentPayload = {
+        companyId: (formData as any).companyId || draft.companyId,
+        unitId: (formData as any).unitId || draft.unitId,
+        farmId: draft.farmId || undefined,
+        equipmentTypeId: (formData as any).equipmentTypeId || draft.equipmentTypeId,
+        modelId: (formData as any).modelId || draft.modelId,
+        code: formData.plateOrCode,
+        name: formData.name,
+        serialNumber: formData.serialNumber || undefined,
+        manufactureYear: formData.year ? parseInt(formData.year, 10) || undefined : undefined,
+      };
+      await createEquipmentInApi(payload);
+      equipmentCacheInvalidation();
+      return formData as unknown as Equipment;
     }
     const list = await mockStorage.get<Equipment>('equipments', defaultEquipments);
     const newId = `EQ-${String(list.length + 1).padStart(3, '0')}`;
@@ -368,7 +386,15 @@ export const equipmentService = {
 
   async updateEquipment(id: string, formData: Partial<EquipmentFormData>): Promise<Equipment> {
     if (dataSourceConfig.equipment === 'api') {
-      throw new Error('Edição de equipamentos requer o gateway da API.');
+      await updateEquipmentInApi(id, {
+        ...(formData.name !== undefined ? { name: formData.name } : {}),
+        ...(formData.plateOrCode !== undefined ? { code: formData.plateOrCode } : {}),
+        ...(formData.serialNumber !== undefined ? { serialNumber: formData.serialNumber } : {}),
+        ...(formData.status !== undefined ? { status: formData.status } : {}),
+        ...(formData.year !== undefined ? { manufactureYear: parseInt(formData.year, 10) || null } : {}),
+      });
+      equipmentCacheInvalidation();
+      return { ...(formData as Equipment), id };
     }
     const list = await mockStorage.get<Equipment>('equipments', defaultEquipments);
     const index = list.findIndex((e) => e.id === id);

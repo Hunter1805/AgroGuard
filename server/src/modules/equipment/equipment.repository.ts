@@ -41,6 +41,56 @@ export class EquipmentRepository {
     });
   }
 
+  async findByCode(code: string, organizationId: string) {
+    return this.prisma.equipment.findFirst({ where: { code, organizationId } });
+  }
+
+  async createEquipment(organizationId: string, data: { companyId: string; unitId: string; farmId?: string; equipmentTypeId: string; modelId: string; code: string; name: string; serialNumber?: string; manufactureYear?: number }) {
+    const equipment = await this.prisma.equipment.create({
+      data: {
+        organizationId,
+        companyId: data.companyId,
+        unitId: data.unitId,
+        farmId: data.farmId,
+        equipmentTypeId: data.equipmentTypeId,
+        modelId: data.modelId,
+        code: data.code,
+        name: data.name,
+        serialNumber: data.serialNumber,
+        manufactureYear: data.manufactureYear,
+        status: 'operacional',
+      },
+    });
+
+    // Medidor inicial: horímetro zerado (padrão da frota agrícola)
+    await this.prisma.equipmentMeter.create({
+      data: { equipmentId: equipment.id, meterType: 'horimetro', currentValue: 0, unit: 'h' },
+    });
+
+    return equipment;
+  }
+
+  async updateEquipment(id: string, data: { code?: string; name?: string; serialNumber?: string | null; manufactureYear?: number | null; status?: string; farmId?: string | null }) {
+    return this.prisma.equipment.update({
+      where: { id },
+      data: {
+        ...(data.code !== undefined ? { code: data.code } : {}),
+        ...(data.name !== undefined ? { name: data.name } : {}),
+        ...(data.serialNumber !== undefined ? { serialNumber: data.serialNumber } : {}),
+        ...(data.manufactureYear !== undefined ? { manufactureYear: data.manufactureYear } : {}),
+        ...(data.status !== undefined ? { status: data.status } : {}),
+        ...(data.farmId !== undefined ? { farmId: data.farmId } : {}),
+      },
+    });
+  }
+
+  async archiveEquipment(id: string, _reason?: string) {
+    return this.prisma.equipment.update({
+      where: { id },
+      data: { archivedAt: new Date() },
+    });
+  }
+
   async createReadingTransaction(equipmentId: string, meterId: string, value: number, userId: string, version: number) {
     return this.prisma.$transaction(async (tx) => {
       const meter = await tx.equipmentMeter.findUnique({ where: { id: meterId } });

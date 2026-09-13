@@ -1,5 +1,21 @@
 import type { TireMovementLog, TireAction } from '../types/tire-movement';
 import { tiresService } from './tires.service';
+import { isExplicitMockMode } from '../config/data-source.config';
+import { logTireMovementInApi, type TireMovementPayload } from './api-gateways/tires.gateway';
+
+/** Ações do front -> payload da API. */
+function toApiAction(action: TireAction): TireMovementPayload['action'] | undefined {
+  const map: Partial<Record<TireAction, TireMovementPayload['action']>> = {
+    instalacao: 'instalar',
+    remocao: 'remover',
+    rodizio: 'rodizio',
+    transferencia: 'transferir',
+    reparo: 'reparo',
+    recapagem: 'recapagem',
+    descarte: 'descartar',
+  };
+  return map[action];
+}
 
 let movements: TireMovementLog[] = [
   {
@@ -64,6 +80,24 @@ export const tireMovementService = {
   },
 
   async logMovement(data: Omit<TireMovementLog, 'id'>): Promise<TireMovementLog> {
+    // Modo produção: grava na API (o servidor atualiza status/metadata do pneu)
+    if (!isExplicitMockMode) {
+      const apiAction = toApiAction(data.action);
+      if (apiAction) {
+        await logTireMovementInApi({
+          tireId: data.tireId,
+          action: apiAction,
+          equipmentId: data.equipmentId,
+          positionId: data.destinationPositionId,
+          newPositionId: data.originPositionId,
+          notes: data.notes,
+          metadata: { responsibleName: data.responsibleName, cost: data.cost },
+        }).catch(err => {
+          // Revalidação no servidor falhou: propaga para o usuário ver o motivo
+          throw err;
+        });
+      }
+    }
     await new Promise(resolve => setTimeout(resolve, 150));
     const newLog: TireMovementLog = {
       ...data,

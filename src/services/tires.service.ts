@@ -1,5 +1,13 @@
 import type { Tire, EquipmentTireConfiguration, TireStatus, TireCondition } from '../types/tires';
 import { mockStorage } from './mock-storage';
+import { isExplicitMockMode } from '../config/data-source.config';
+import {
+  fetchTiresFromApi,
+  fetchTireByIdFromApi,
+  createTireInApi,
+  updateTireInApi,
+  archiveTireInApi,
+} from './api-gateways/tires.gateway';
 
 // Mock DB de pneus com dados representativos de fazenda
 const defaultTires: Tire[] = [
@@ -318,7 +326,7 @@ export const tiresService = {
   async getTireDashboard() {
     await new Promise(resolve => setTimeout(resolve, 200));
     const list = await mockStorage.get<Tire>('tires', defaultTires);
-    
+
     const total = list.length;
     const instalados = list.filter(t => t.status === 'instalado').length;
     const estoque = list.filter(t => t.status === 'disponivel' || t.status === 'recapado').length;
@@ -329,7 +337,7 @@ export const tiresService = {
     const pressaoIrregular = list.filter(t => t.status === 'instalado' && t.condition === 'atencao').length; // mock
     const inspecoesAtrasadas = 2; // mock
     const proximosSubstituicao = list.filter(t => t.condition === 'critico').length;
-    
+
     const custoAcumulado = list.reduce((acc, t) => acc + (t.acquisitionValue || 0), 0);
     const custoMedio = total > 0 ? custoAcumulado / total : 0;
 
@@ -361,6 +369,18 @@ export const tiresService = {
     pressureIrregular?: boolean;
     treadCritical?: boolean;
   }): Promise<Tire[]> {
+    if (!isExplicitMockMode) {
+      const tools = await fetchTiresFromApi(filters?.search);
+      let result = tools.filter(t => !t.archivedAt);
+      if (filters?.status) result = result.filter(t => t.status === filters.status);
+      if (filters?.condition) result = result.filter(t => t.condition === filters.condition);
+      if (filters?.brand) result = result.filter(t => t.brand?.toLowerCase() === filters.brand?.toLowerCase());
+      if (filters?.size) result = result.filter(t => t.size.toLowerCase() === filters.size?.toLowerCase());
+      if (filters?.equipmentId) result = result.filter(t => t.currentEquipmentId === filters.equipmentId);
+      if (filters?.hasAnomaly) result = result.filter(t => t.condition === 'atencao' || t.condition === 'critico' || t.condition === 'inutilizavel');
+      if (filters?.treadCritical) result = result.filter(t => (t.currentTreadDepth || 0) <= (t.minimumTreadDepth || 0));
+      return result.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    }
     await new Promise(resolve => setTimeout(resolve, 250));
     const list = await mockStorage.get<Tire>('tires', defaultTires);
     let result = [...list].filter(t => !t.archivedAt);
@@ -402,15 +422,17 @@ export const tiresService = {
   },
 
   async getTireById(id: string): Promise<Tire | undefined> {
+    if (!isExplicitMockMode) return fetchTireByIdFromApi(id);
     await new Promise(resolve => setTimeout(resolve, 150));
     const list = await mockStorage.get<Tire>('tires', defaultTires);
     return list.find(t => t.id === id);
   },
 
   async createTire(data: Partial<Tire>): Promise<Tire> {
+    if (!isExplicitMockMode) return createTireInApi(data);
     await new Promise(resolve => setTimeout(resolve, 350));
     const list = await mockStorage.get<Tire>('tires', defaultTires);
-    
+
     if (!data.internalCode) {
       throw new Error('O código interno do pneu é obrigatório.');
     }
@@ -460,6 +482,7 @@ export const tiresService = {
   },
 
   async updateTire(id: string, data: Partial<Tire>): Promise<Tire> {
+    if (!isExplicitMockMode) return updateTireInApi(id, data);
     await new Promise(resolve => setTimeout(resolve, 350));
     const list = await mockStorage.get<Tire>('tires', defaultTires);
     const index = list.findIndex(t => t.id === id);
@@ -478,6 +501,7 @@ export const tiresService = {
   },
 
   async archiveTire(id: string): Promise<void> {
+    if (!isExplicitMockMode) return archiveTireInApi(id);
     const list = await mockStorage.get<Tire>('tires', defaultTires);
     const index = list.findIndex(t => t.id === id);
     if (index !== -1) {
