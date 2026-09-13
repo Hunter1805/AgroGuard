@@ -1,6 +1,8 @@
 import type { StockLot, StockLotFilter } from '../types/stock-lot';
+import { isExplicitMockMode } from '../config/data-source.config';
 
-let lotsStore: StockLot[] = [
+// Dados de demonstração usados SOMENTE no modo demo explícito.
+const demoLots: StockLot[] = [
   {
     id: 'LOT-001',
     itemId: 'PART-002',
@@ -37,6 +39,8 @@ let lotsStore: StockLot[] = [
     updatedAt: '2026-07-11T08:00:00Z',
   },
 ];
+
+let lotsStore: StockLot[] = isExplicitMockMode ? [...demoLots] : [];
 
 export const stockLotService = {
   async getStockLots(filters?: StockLotFilter): Promise<StockLot[]> {

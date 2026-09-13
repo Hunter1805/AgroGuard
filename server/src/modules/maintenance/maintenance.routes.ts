@@ -5,7 +5,7 @@ import { MaintenanceService } from './maintenance.service';
 import { AuditService } from '../../shared/services/audit.service';
 import { requirePermission, requireAuthentication, requireOrganizationScope } from '../../shared/middleware/authGuard';
 import { AppError } from '../../shared/errors/AppError';
-import { createPlanSchema, updatePlanSchema, createIntervalSchema, linkEquipmentSchema, createScheduleSchema, updateScheduleSchema, updateScheduleStatusSchema, listSchedulesQuerySchema } from './maintenance.schema';
+import { createPlanSchema, updatePlanSchema, createIntervalSchema, linkEquipmentSchema, createScheduleSchema, updateScheduleSchema, updateScheduleStatusSchema, listSchedulesQuerySchema, listHistoryQuerySchema } from './maintenance.schema';
 
 const prisma = new PrismaClient();
 const service = new MaintenanceService(new MaintenanceRepository(prisma), new AuditService(prisma));
@@ -30,4 +30,7 @@ export async function maintenanceRoutes(app: FastifyInstance) {
   app.post('/api/v1/maintenance/schedules', guard('schedule'), async (request, reply) => reply.status(201).send({ data: await service.createSchedule(actor(request), createScheduleSchema.parse(request.body)) }));
   app.patch('/api/v1/maintenance/schedules/:id', guard('update'), async (request) => ({ data: await service.updateSchedule(actor(request), (request.params as any).id, updateScheduleSchema.parse(request.body)) }));
   app.patch('/api/v1/maintenance/schedules/:id/status', guard('schedule'), async (request) => ({ data: await service.updateStatus(actor(request), (request.params as any).id, updateScheduleStatusSchema.parse(request.body)) }));
+
+  app.get('/api/v1/maintenance/history', guard('read'), async (request) => ({ data: await service.listHistory(actor(request), listHistoryQuerySchema.parse(request.query)) }));
+  app.get('/api/v1/maintenance/history/:id', guard('read'), async (request) => ({ data: await service.getHistory(actor(request), (request.params as any).id) }));
 }

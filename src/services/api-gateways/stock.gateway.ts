@@ -22,3 +22,11 @@ export async function processStockMovementInApi(data: { warehouseId: string; sto
     body: JSON.stringify(data),
   });
 }
+
+export async function createStockItemInApi(data: { code: string; name: string; unitMeasureSymbol?: string; partNumber?: string; minQuantity?: number }): Promise<any> {
+  const res = await apiClient<any>('/stock/items', {
+    method: 'POST',
+    body: JSON.stringify({ minQuantity: 0, ...data }),
+  });
+  return res.data;
+}

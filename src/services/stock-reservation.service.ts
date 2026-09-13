@@ -1,8 +1,10 @@
 import type { StockReservation, StockReservationFilter } from '../types/stock-reservation';
 import { partsService } from './parts.service';
 import { stockMovementService } from './stock-movement.service';
+import { isExplicitMockMode } from '../config/data-source.config';
 
-let reservationsStore: StockReservation[] = [
+// Dados de demonstração usados SOMENTE no modo demo explícito.
+const demoReservations: StockReservation[] = [
   {
     id: 'RES-001',
     code: 'RES-2026-001',
@@ -26,6 +28,8 @@ let reservationsStore: StockReservation[] = [
     updatedAt: '2026-08-04T08:00:00Z',
   },
 ];
+
+let reservationsStore: StockReservation[] = isExplicitMockMode ? [...demoReservations] : [];
 
 export const stockReservationService = {
   async getStockReservations(filters?: StockReservationFilter): Promise<StockReservation[]> {

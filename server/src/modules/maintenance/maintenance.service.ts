@@ -3,7 +3,7 @@ import { AppError } from '../../shared/errors/AppError';
 import { AuditService } from '../../shared/services/audit.service';
 import type { RequestActor } from '../../shared/http/RequestActor';
 import { MaintenanceRepository } from './maintenance.repository';
-import type { CreatePlanInput, UpdatePlanInput, LinkEquipmentInput, CreateScheduleInput, UpdateScheduleInput, UpdateScheduleStatusInput, CreateIntervalInput, ListSchedulesQueryInput } from './maintenance.schema';
+import type { CreatePlanInput, UpdatePlanInput, LinkEquipmentInput, CreateScheduleInput, UpdateScheduleInput, UpdateScheduleStatusInput, CreateIntervalInput, ListSchedulesQueryInput, ListHistoryQueryInput } from './maintenance.schema';
 
 const transitions: Record<MaintenanceScheduleStatus, MaintenanceScheduleStatus[]> = { SCHEDULED: ['DUE', 'CANCELLED'], DUE: ['OVERDUE', 'IN_PROGRESS', 'CANCELLED'], OVERDUE: ['IN_PROGRESS', 'CANCELLED'], IN_PROGRESS: ['COMPLETED', 'CANCELLED'], COMPLETED: [], CANCELLED: [] };
 export class MaintenanceService {
@@ -25,5 +25,7 @@ export class MaintenanceService {
   async createSchedule(a: RequestActor, i: CreateScheduleInput) { const o = this.org(a); if (!(await this.repo.findEquipment(i.equipmentId, o))) throw new AppError('Equipamento não encontrado.', 404, 'NOT_FOUND'); if (i.maintenancePlanId && !(await this.repo.findPlan(i.maintenancePlanId, o))) throw new AppError('Plano não encontrado.', 404, 'NOT_FOUND'); if (i.workOrderId && !(await this.repo.findWorkOrder(i.workOrderId, o))) throw new AppError('OS não encontrada.', 404, 'NOT_FOUND'); const r = await this.repo.createSchedule({ ...i, organizationId: o, code: `MNT-${Date.now()}`, status: MaintenanceScheduleStatus.SCHEDULED }); await this.log(a, 'MaintenanceSchedule', r.id, 'SCHEDULED'); return r; }
   async updateSchedule(a: RequestActor, id: string, i: UpdateScheduleInput) { const r = await this.repo.updateSchedule(id, this.org(a), i); if (!r) throw new AppError('Agendamento não encontrado.', 404, 'NOT_FOUND'); await this.log(a, 'MaintenanceSchedule', id, i.scheduledDate ? 'RESCHEDULED' : 'UPDATED'); return r; }
   async updateStatus(a: RequestActor, id: string, i: UpdateScheduleStatusInput) { const c = await this.getSchedule(a, id); if (!transitions[c.status].includes(i.status)) throw new AppError('Transição inválida.', 409, 'INVALID_STATUS_TRANSITION'); const r = await this.repo.updateSchedule(id, this.org(a), { status: i.status, canceledReason: i.canceledReason, completedAt: i.status === 'COMPLETED' ? new Date() : undefined }); await this.log(a, 'MaintenanceSchedule', id, i.status === 'COMPLETED' ? 'COMPLETED' : i.status === 'CANCELLED' ? 'CANCELLED' : 'STATUS_CHANGED'); return r; }
+  async listHistory(a: RequestActor, q: ListHistoryQueryInput) { return this.repo.listHistory(this.org(a), q); }
+  async getHistory(a: RequestActor, id: string) { const r = await this.repo.findHistory(id, this.org(a)); if (!r) throw new AppError('Registro de histórico não encontrado.', 404, 'NOT_FOUND'); return r; }
 }
 

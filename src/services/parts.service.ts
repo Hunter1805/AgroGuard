@@ -1,7 +1,7 @@
 import type { StockItem, StockDashboardStats, StockItemFilter, StockHistoryLog } from '../types/parts';
 import { stockCalculationService } from './stock-calculation.service';
 import { dataSourceConfig } from '../config/data-source.config';
-import { fetchStockItemsFromApi } from './api-gateways/stock.gateway';
+import { fetchStockItemsFromApi, createStockItemInApi } from './api-gateways/stock.gateway';
 import { mockStorage } from './mock-storage';
 
 const defaultStockItems: StockItem[] = [
@@ -296,6 +296,24 @@ export const partsService = {
   },
 
   async createStockItem(data: Omit<StockItem, 'id' | 'createdAt' | 'updatedAt' | 'availableQuantity' | 'totalStockValue'>): Promise<StockItem> {
+    if (!isExplicitMockMode) {
+      // Modo real: cria o item via API e devolve no formato do front.
+      const created = await createStockItemInApi({
+        code: data.internalCode,
+        name: data.name,
+        partNumber: data.manufacturerCode,
+        minQuantity: data.minimumQuantity,
+        unitMeasureSymbol: data.controlUnit,
+      });
+      return {
+        ...data,
+        id: created.id,
+        availableQuantity: stockCalculationService.calculateAvailableQuantity(data.currentQuantity, data.reservedQuantity || 0),
+        totalStockValue: Number((data.currentQuantity * data.averageCost).toFixed(2)),
+        createdAt: created.createdAt || new Date().toISOString(),
+        updatedAt: created.updatedAt || new Date().toISOString(),
+      };
+    }
     const list = await mockStorage.get<StockItem>('stock_items', defaultStockItems);
     const existing = list.find(i => i.internalCode.toLowerCase() === data.internalCode.toLowerCase());
     if (existing) {

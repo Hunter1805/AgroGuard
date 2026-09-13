@@ -47,4 +47,23 @@ export class MaintenanceRepository {
   }
   async createSchedule(data: any) { return this.prisma.maintenanceSchedule.create({ data, include: { equipment: true, maintenancePlan: true, maintenancePlanInterval: true } }); }
   async updateSchedule(id: string, organizationId: string, data: any) { const r = await this.prisma.maintenanceSchedule.updateMany({ where: { id, organizationId }, data }); return r.count ? this.prisma.maintenanceSchedule.findFirst({ where: { id, organizationId }, include: { equipment: true, maintenancePlan: true, maintenancePlanInterval: true, workOrder: true } }) : null; }
+  async listHistory(organizationId: string, q: import('./maintenance.schema').ListHistoryQueryInput) {
+    const where: any = { organizationId, status: MaintenanceScheduleStatus.COMPLETED };
+    if (q.equipmentId) where.equipmentId = q.equipmentId;
+    if (q.maintenancePlanId) where.maintenancePlanId = q.maintenancePlanId;
+    const dates: any = {}; if (q.startDate) dates.gte = q.startDate; if (q.endDate) dates.lte = q.endDate;
+    if (Object.keys(dates).length) where.completedAt = dates;
+    if (q.search && q.search.trim() !== '') where.OR = [
+      { code: { contains: q.search, mode: 'insensitive' } },
+      { observations: { contains: q.search, mode: 'insensitive' } },
+      { equipment: { name: { contains: q.search, mode: 'insensitive' } } },
+      { maintenancePlan: { name: { contains: q.search, mode: 'insensitive' } } },
+    ];
+    const page = q.page || 1; const pageSize = q.pageSize || 50;
+    const [items, total] = await Promise.all([this.prisma.maintenanceSchedule.findMany({ where, skip: (page - 1) * pageSize, take: pageSize, include: { equipment: true, maintenancePlan: true, maintenancePlanInterval: true, workOrder: true }, orderBy: { completedAt: 'desc' } }), this.prisma.maintenanceSchedule.count({ where })]);
+    return { items, total, page, pageSize };
+  }
+  async findHistory(id: string, organizationId: string) {
+    return this.prisma.maintenanceSchedule.findFirst({ where: { id, organizationId, status: MaintenanceScheduleStatus.COMPLETED }, include: { equipment: true, maintenancePlan: true, maintenancePlanInterval: true, workOrder: true } });
+  }
 }

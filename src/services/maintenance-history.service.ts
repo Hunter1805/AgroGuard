@@ -1,5 +1,6 @@
 import type { MaintenanceHistoryEntry, MaintenanceHistoryFilterState } from '../types/maintenance-schedule';
 import { isExplicitMockMode } from '../config/data-source.config';
+import { fetchMaintenanceHistoryFromApi, fetchHistoryByIdFromApi } from './api-gateways/maintenance.gateway';
 
 let mockHistory: MaintenanceHistoryEntry[] = [
   {
@@ -79,8 +80,14 @@ let mockHistory: MaintenanceHistoryEntry[] = [
 
 export const maintenanceHistoryService = {
   async getMaintenanceHistory(filters?: Partial<MaintenanceHistoryFilterState>): Promise<MaintenanceHistoryEntry[]> {
-    // Fora do modo demo, novas contas começam com histórico 100% vazio.
-    if (!isExplicitMockMode) return Promise.resolve([]);
+    // Fora do modo demo, consome a API real (agendamentos concluídos) via gateway.
+    if (!isExplicitMockMode) {
+      const items = await fetchMaintenanceHistoryFromApi({ equipmentId: filters?.equipmentId, planId: filters?.planId, search: filters?.search });
+      if (filters?.result && filters.result !== 'todos') return items.filter((h) => h.result === filters.result);
+      if (filters?.onlyWithOrder) return items.filter((h) => !!h.preventiveOrderId);
+      if (filters?.onlyWithDelay) return items.filter((h) => h.realizedMinutes > h.estimatedMinutes * 1.15);
+      return items;
+    }
     let result = [...mockHistory];
     if (!filters) return Promise.resolve(result);
 
@@ -117,7 +124,7 @@ export const maintenanceHistoryService = {
   },
 
   async getHistoryById(id: string): Promise<MaintenanceHistoryEntry | undefined> {
-    if (!isExplicitMockMode) return Promise.resolve(undefined);
+    if (!isExplicitMockMode) return fetchHistoryByIdFromApi(id);
     const found = mockHistory.find((h) => h.id === id || h.code === id);
     return Promise.resolve(found ? { ...found } : undefined);
   },

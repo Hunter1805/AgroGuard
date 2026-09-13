@@ -1,6 +1,14 @@
 import type { MaintenanceSchedule, MaintenanceScheduleFilterState } from '../types/maintenance-schedule';
 import { maintenanceService as legacyOrderService } from './maintenance.service';
 import { isExplicitMockMode } from '../config/data-source.config';
+import {
+  fetchSchedulesFromApi,
+  fetchScheduleByIdFromApi,
+  createScheduleInApi,
+  updateScheduleInApi,
+  rescheduleInApi,
+  cancelScheduleInApi,
+} from './api-gateways/maintenance.gateway';
 
 let mockSchedules: MaintenanceSchedule[] = [
   {
@@ -113,8 +121,8 @@ let mockSchedules: MaintenanceSchedule[] = [
 
 export const maintenanceScheduleService = {
   async getMaintenanceSchedules(filters?: Partial<MaintenanceScheduleFilterState>): Promise<MaintenanceSchedule[]> {
-    // Fora do modo demo, novas contas começam com agenda 100% vazia.
-    if (!isExplicitMockMode) return Promise.resolve([]);
+    // Fora do modo demo, consome a API real via gateway.
+    if (!isExplicitMockMode) return fetchSchedulesFromApi({ equipmentId: filters?.equipmentId, status: filters?.status, search: filters?.search });
     let result = [...mockSchedules];
     if (!filters) return Promise.resolve(result);
 
@@ -152,13 +160,13 @@ export const maintenanceScheduleService = {
   },
 
   async getScheduleById(id: string): Promise<MaintenanceSchedule | undefined> {
-    if (!isExplicitMockMode) return Promise.resolve(undefined);
+    if (!isExplicitMockMode) return fetchScheduleByIdFromApi(id);
     const found = mockSchedules.find((s) => s.id === id || s.code === id);
     return Promise.resolve(found ? { ...found } : undefined);
   },
 
   async createMaintenanceSchedule(data: Omit<MaintenanceSchedule, 'id' | 'code' | 'createdAt' | 'updatedAt'>): Promise<MaintenanceSchedule> {
-    if (!isExplicitMockMode) throw new Error('Modo demo desabilitado.');
+    if (!isExplicitMockMode) return createScheduleInApi(data);
     const id = `PRG-${5000 + mockSchedules.length + 1}`;
     const newSchedule: MaintenanceSchedule = {
       ...data,
@@ -172,7 +180,7 @@ export const maintenanceScheduleService = {
   },
 
   async updateMaintenanceSchedule(id: string, updates: Partial<MaintenanceSchedule>): Promise<MaintenanceSchedule> {
-    if (!isExplicitMockMode) throw new Error('Modo demo desabilitado.');
+    if (!isExplicitMockMode) return updateScheduleInApi(id, updates);
     const index = mockSchedules.findIndex((s) => s.id === id || s.code === id);
     if (index === -1) throw new Error('Programação de manutenção não encontrada.');
     mockSchedules[index] = { ...mockSchedules[index], ...updates, updatedAt: new Date().toISOString() };
@@ -180,7 +188,10 @@ export const maintenanceScheduleService = {
   },
 
   async rescheduleMaintenance(id: string, newDate: string, newTime?: string, reason?: string): Promise<MaintenanceSchedule> {
-    if (!isExplicitMockMode) throw new Error('Modo demo desabilitado.');
+    if (!isExplicitMockMode) {
+      if (!reason || reason.trim().length < 5) throw new Error('A justificativa de reagendamento / adiamento é obrigatória e deve conter pelo menos 5 caracteres.');
+      return rescheduleInApi(id, newDate, reason);
+    }
     if (!reason || reason.trim().length < 5) {
       throw new Error('A justificativa de reagendamento / adiamento é obrigatória e deve conter pelo menos 5 caracteres.');
     }
@@ -199,7 +210,10 @@ export const maintenanceScheduleService = {
   },
 
   async cancelMaintenanceSchedule(id: string, reason?: string): Promise<MaintenanceSchedule> {
-    if (!isExplicitMockMode) throw new Error('Modo demo desabilitado.');
+    if (!isExplicitMockMode) {
+      if (!reason || reason.trim().length < 5) throw new Error('A justificativa para o cancelamento é estritamente obrigatória no AgroGuard.');
+      return cancelScheduleInApi(id, reason);
+    }
     if (!reason || reason.trim().length < 5) {
       throw new Error('A justificativa para o cancelamento é estritamente obrigatória no AgroGuard.');
     }

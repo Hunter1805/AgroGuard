@@ -116,4 +116,15 @@ export type LinkEquipmentInput = z.infer<typeof linkEquipmentSchema>;
 export type CreateScheduleInput = z.infer<typeof createScheduleSchema>;
 export type UpdateScheduleInput = z.infer<typeof updateScheduleSchema>;
 export type UpdateScheduleStatusInput = z.infer<typeof updateScheduleStatusSchema>;
+export const listHistoryQuerySchema = z.object({
+  equipmentId: z.string().uuid().optional(),
+  maintenancePlanId: z.string().uuid().optional(),
+  startDate: z.coerce.date().optional(),
+  endDate: z.coerce.date().optional(),
+  page: z.coerce.number().int().positive().optional(),
+  pageSize: z.coerce.number().int().positive().optional(),
+  search: z.string().optional(),
+});
+
 export type ListSchedulesQueryInput = z.infer<typeof listSchedulesQuerySchema>;
+export type ListHistoryQueryInput = z.infer<typeof listHistoryQuerySchema>;

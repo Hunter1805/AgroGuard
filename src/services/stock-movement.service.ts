@@ -1,8 +1,11 @@
 import type { StockMovement, StockMovementFilter } from '../types/stock-movement';
 import { partsService } from './parts.service';
 import { stockCalculationService } from './stock-calculation.service';
+import { isExplicitMockMode } from '../config/data-source.config';
 
-let movementsStore: StockMovement[] = [
+// Dados de demonstração usados SOMENTE no modo demo explícito.
+// Contas reais sempre começam com histórico de movimentações 100% vazio.
+const demoMovements: StockMovement[] = [
   {
     id: 'MOV-001',
     code: 'ENT-2026-001',
@@ -48,6 +51,8 @@ let movementsStore: StockMovement[] = [
     createdAt: '2026-08-02T14:00:00Z',
   },
 ];
+
+let movementsStore: StockMovement[] = isExplicitMockMode ? [...demoMovements] : [];
 
 export const stockMovementService = {
   async getStockMovements(filters?: StockMovementFilter): Promise<StockMovement[]> {
