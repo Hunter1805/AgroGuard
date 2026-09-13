@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Download, FileText, Printer, Table } from 'lucide-react';
+import { Download, FileText, Printer, Table, FileSpreadsheet } from 'lucide-react';
 import type { ReportExportFormat } from '../../types/report-export';
 
 interface ReportExportMenuProps {
@@ -30,6 +30,12 @@ export const ReportExportMenu: React.FC<ReportExportMenuProps> = ({ onExport }) 
             className="w-full px-3 py-2 rounded-lg flex items-center gap-2 hover:bg-surface-container text-on-surface font-bold text-left"
           >
             <Table size={15} className="text-emerald-400" /> Exportar em CSV
+          </button>
+          <button
+            onClick={() => handleExport('excel')}
+            className="w-full px-3 py-2 rounded-lg flex items-center gap-2 hover:bg-surface-container text-on-surface font-bold text-left"
+          >
+            <FileSpreadsheet size={15} className="text-green-500" /> Salvar em Planilha (XLSX)
           </button>
           <button
             onClick={() => handleExport('pdf')}

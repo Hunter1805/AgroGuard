@@ -1,6 +1,8 @@
 import type { ReportExportLog, ReportExportFormat } from '../types/report-export';
 import type { ReportTableData } from '../types/reports';
 import { isExplicitMockMode } from '../config/data-source.config';
+import { generateReportPdf } from './pdf-report.service';
+import { generateReportXlsx } from './xlsx-report.service';
 
 const demoExportLogs: ReportExportLog[] = [
   {
@@ -48,7 +50,13 @@ export const reportExportService = {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-    } else if (format === 'print' || format === 'pdf') {
+    } else if (format === 'pdf') {
+      // PDF profissional gerado no cliente (jsPDF + autoTable, carregados sob demanda).
+      await generateReportPdf(tableData, { reportName, userName });
+    } else if (format === 'excel') {
+      // Planilha Excel nativa (.xlsx) gerada no cliente — lib carregada sob demanda.
+      await generateReportXlsx(tableData, { reportName, userName });
+    } else if (format === 'print') {
       window.print();
     }
 

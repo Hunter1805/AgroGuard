@@ -1,5 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
+// Code-splitting: cada tela vira um chunk carregado sob demanda (crucial p/ uso no celular/4G).
+const lazyView = (load: () => Promise<{ default: React.ComponentType<any> }>) =>
+  lazy(load);
 import { CheckCircle2, AlertTriangle } from 'lucide-react';
 import { ROUTES } from './types/routes';
 import type { ServiceOrder } from './types';
@@ -14,40 +17,41 @@ import { Header as HeaderLegacy } from './components/layout/Header';
 import { SidebarCorp } from './components/layout/SidebarCorp';
 import { HeaderCorp } from './components/layout/HeaderCorp';
 
-// Módulos existentes
-import { DashboardView } from './components/DashboardView';
-import { EquipamentosView } from './components/EquipamentosView';
-import { CadastroEquipamentoView } from './components/equipment/CadastroEquipamentoView';
-import { EquipmentDetailView } from './components/equipment/detail/EquipmentDetailView';
-import { EquipmentReadingsView } from './components/equipment/readings/EquipmentReadingsView';
-import { MaintenanceOverview } from './components/maintenance/MaintenanceOverview';
-import { MaintenancePlansView } from './components/maintenance/plans/MaintenancePlansView';
-import { MaintenanceHistoryView } from './components/maintenance/history/MaintenanceHistoryView';
-import { MaintenanceCalendarView } from './components/maintenance/schedule/MaintenanceCalendarView';
-import { RelatoriosView } from './components/reports/RelatoriosView';
-import { ChecklistsView } from './components/checklists/ChecklistsView';
-import { ChecklistExecutionView } from './components/checklists/executions/ChecklistExecutionView';
-import { ChecklistTemplateForm } from './components/checklists/templates/ChecklistTemplateForm';
-import { WorkOrdersView } from './components/orders/WorkOrdersView';
-import { WorkOrderOpeningForm } from './components/orders/form/WorkOrderOpeningForm';
-import { WorkOrderDetailView } from './components/orders/detail/WorkOrderDetailView';
-import { CentralAlertas } from './components/alerts/CentralAlertas';
-import { PneusView } from './components/tires/PneusView';
-import { CadastroPneuView } from './components/tires/CadastroPneuView';
-import { TireDetailView } from './components/tires/detail/TireDetailView';
-import { TireInspectionForm } from './components/tires/inspecoes/TireInspectionForm';
-import { FerramentasView } from './components/tools/FerramentasView';
-import { CadastroFerramentaView } from './components/tools/CadastroFerramentaView';
-import { ToolDetailView } from './components/tools/detail/ToolDetailView';
-import { PecasInsumosView } from './components/parts/PecasInsumosView';
-import { CadastroPecaInsumoView } from './components/parts/CadastroPecaInsumoView';
-import { StockItemDetailView } from './components/parts/detail/StockItemDetailView';
-import { CadastrosView } from './components/auxiliary/CadastrosView';
-import { MasterDataRouteHandler } from './components/master-data/MasterDataRouteHandler';
-import { ConfiguracoesView } from './components/settings/ConfiguracoesView';
-import { KpiDashboardView } from './components/indicators/KpiDashboardView';
+// Módulos existentes — carregados sob demanda (code-splitting p/ mobile/4G)
+const DashboardView = lazyView(() => import('./components/DashboardView').then(m => ({ default: m.DashboardView })));
+const EquipamentosView = lazyView(() => import('./components/EquipamentosView').then(m => ({ default: m.EquipamentosView })));
+const CadastroEquipamentoView = lazyView(() => import('./components/equipment/CadastroEquipamentoView').then(m => ({ default: m.CadastroEquipamentoView })));
+const EquipmentDetailView = lazyView(() => import('./components/equipment/detail/EquipmentDetailView').then(m => ({ default: m.EquipmentDetailView })));
+const EquipmentReadingsView = lazyView(() => import('./components/equipment/readings/EquipmentReadingsView').then(m => ({ default: m.EquipmentReadingsView })));
+const MaintenanceOverview = lazyView(() => import('./components/maintenance/MaintenanceOverview').then(m => ({ default: m.MaintenanceOverview })));
+const MaintenancePlansView = lazyView(() => import('./components/maintenance/plans/MaintenancePlansView').then(m => ({ default: m.MaintenancePlansView })));
+const MaintenanceHistoryView = lazyView(() => import('./components/maintenance/history/MaintenanceHistoryView').then(m => ({ default: m.MaintenanceHistoryView })));
+const MaintenanceCalendarView = lazyView(() => import('./components/maintenance/schedule/MaintenanceCalendarView').then(m => ({ default: m.MaintenanceCalendarView })));
+const RelatoriosView = lazyView(() => import('./components/reports/RelatoriosView').then(m => ({ default: m.RelatoriosView })));
+const ChecklistsView = lazyView(() => import('./components/checklists/ChecklistsView').then(m => ({ default: m.ChecklistsView })));
+const ChecklistExecutionView = lazyView(() => import('./components/checklists/executions/ChecklistExecutionView').then(m => ({ default: m.ChecklistExecutionView })));
+const ChecklistTemplateForm = lazyView(() => import('./components/checklists/templates/ChecklistTemplateForm').then(m => ({ default: m.ChecklistTemplateForm })));
+const WorkOrdersView = lazyView(() => import('./components/orders/WorkOrdersView').then(m => ({ default: m.WorkOrdersView })));
+const WorkOrderOpeningForm = lazyView(() => import('./components/orders/form/WorkOrderOpeningForm').then(m => ({ default: m.WorkOrderOpeningForm })));
+const WorkOrderDetailView = lazyView(() => import('./components/orders/detail/WorkOrderDetailView').then(m => ({ default: m.WorkOrderDetailView })));
+const CentralAlertas = lazyView(() => import('./components/alerts/CentralAlertas').then(m => ({ default: m.CentralAlertas })));
+const PneusView = lazyView(() => import('./components/tires/PneusView').then(m => ({ default: m.PneusView })));
+const CadastroPneuView = lazyView(() => import('./components/tires/CadastroPneuView').then(m => ({ default: m.CadastroPneuView })));
+const TireDetailView = lazyView(() => import('./components/tires/detail/TireDetailView').then(m => ({ default: m.TireDetailView })));
+const TireInspectionForm = lazyView(() => import('./components/tires/inspecoes/TireInspectionForm').then(m => ({ default: m.TireInspectionForm })));
+const FerramentasView = lazyView(() => import('./components/tools/FerramentasView').then(m => ({ default: m.FerramentasView })));
+const CadastroFerramentaView = lazyView(() => import('./components/tools/CadastroFerramentaView').then(m => ({ default: m.CadastroFerramentaView })));
+const ToolDetailView = lazyView(() => import('./components/tools/detail/ToolDetailView').then(m => ({ default: m.ToolDetailView })));
+const PecasInsumosView = lazyView(() => import('./components/parts/PecasInsumosView').then(m => ({ default: m.PecasInsumosView })));
+const CadastroPecaInsumoView = lazyView(() => import('./components/parts/CadastroPecaInsumoView').then(m => ({ default: m.CadastroPecaInsumoView })));
+const StockItemDetailView = lazyView(() => import('./components/parts/detail/StockItemDetailView').then(m => ({ default: m.StockItemDetailView })));
+const CadastrosView = lazyView(() => import('./components/auxiliary/CadastrosView').then(m => ({ default: m.CadastrosView })));
+const MasterDataRouteHandler = lazyView(() => import('./components/master-data/MasterDataRouteHandler').then(m => ({ default: m.MasterDataRouteHandler })));
+const ConfiguracoesView = lazyView(() => import('./components/settings/ConfiguracoesView').then(m => ({ default: m.ConfiguracoesView })));
+const KpiDashboardView = lazyView(() => import('./components/indicators/KpiDashboardView').then(m => ({ default: m.KpiDashboardView })));
+const UsersListView = lazyView(() => import('./components/users/UsersListView').then(m => ({ default: m.UsersListView })));
 
-// Modais globais
+// Modais globais (mantidos no bundle principal — abrem a partir de qualquer tela)
 import { NovaOrdemServicoModal } from './components/orders/NovaOrdemServicoModal';
 import { CommandPaletteModal } from './components/CommandPaletteModal';
 
@@ -72,7 +76,6 @@ import { AccessBlockedPage } from './components/auth/AccessBlockedPage';
 import { PreparingEnvironmentPage } from './components/auth/PreparingEnvironmentPage';
 import { AcceptInvitationPage } from './components/auth/AcceptInvitationPage';
 import { WelcomeOnboardingPage } from './components/onboarding/WelcomeOnboardingPage';
-import { UsersListView } from './components/users/UsersListView';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 
 export function App() {
@@ -287,6 +290,11 @@ export function App() {
                 {/* Área rolável principal */}
                 <main className="min-h-0 flex-1 overflow-y-auto">
                   <div className="mx-auto w-full max-w-[1600px] p-6">
+                    <Suspense fallback={
+                      <div className="flex items-center justify-center py-24">
+                        <div className="w-8 h-8 border-4 border-emerald-600/30 border-t-emerald-600 rounded-full animate-spin" />
+                      </div>
+                    }>
                     <Routes>
                       {/* Indicadores e KPIs */}
                       <Route path="indicadores" element={<KpiDashboardView />} />
@@ -446,6 +454,7 @@ export function App() {
                       {/* Fallback de redirecionamento interno */}
                       <Route path="*" element={<Navigate to="app/dashboard" replace />} />
                     </Routes>
+                    </Suspense>
                   </div>
                 </main>
               </div>
