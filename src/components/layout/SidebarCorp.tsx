@@ -20,8 +20,8 @@ import {
   History,
   PanelLeftClose,
   PanelLeftOpen,
-  Shield,
 } from 'lucide-react';
+import { AgroGuardIcon } from '../AgroGuardLogo';
 import { ROUTES } from '../../types/routes';
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
@@ -221,13 +221,8 @@ export const SidebarCorp: React.FC<SidebarCorpProps> = ({
         ].join(' ')}
       >
         {!collapsed && (
-          <div className="flex items-center gap-2 select-none min-w-0">
-            <div
-              className="w-7 h-7 rounded-md flex items-center justify-center shrink-0"
-              style={{ backgroundColor: 'var(--color-brand)' }}
-            >
-              <Shield size={14} className="text-white" />
-            </div>
+          <div className="flex items-center gap-2.5 select-none min-w-0">
+            <AgroGuardIcon className="w-7 h-7 shrink-0" />
             <span className="text-white font-semibold text-[14px] tracking-tight leading-none truncate">
               AgroGuard
             </span>

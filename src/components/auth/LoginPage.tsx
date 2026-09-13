@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Shield, Eye, EyeOff, Lock, Mail, AlertTriangle } from 'lucide-react';
+import { Eye, EyeOff, Lock, Mail, AlertTriangle } from 'lucide-react';
+import { AgroGuardIcon } from '../AgroGuardLogo';
 import { useAuth } from '../../context/AuthContext';
 
 export const LoginPage: React.FC = () => {
@@ -66,9 +67,7 @@ export const LoginPage: React.FC = () => {
 
         {/* Topo - Logo */}
         <div className="flex items-center gap-3 relative z-10">
-          <div className="bg-emerald-600 p-2.5 rounded-lg flex items-center justify-center text-white shadow-md">
-            <Shield size={24} className="stroke-[2]" />
-          </div>
+          <AgroGuardIcon className="w-11 h-11 shrink-0 drop-shadow-md" />
           <div>
             <span className="text-xl font-bold tracking-tight text-white">AgroGuard</span>
             <span className="block text-[10px] tracking-wider text-emerald-500 uppercase font-semibold">Operational Hub</span>

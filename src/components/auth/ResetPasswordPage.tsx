@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Lock, Shield, AlertTriangle, CheckCircle2, Eye, EyeOff, ArrowRight } from 'lucide-react';
+import { Lock, AlertTriangle, CheckCircle2, Eye, EyeOff, ArrowRight } from 'lucide-react';
+import { AgroGuardIcon } from '../AgroGuardLogo';
 import { supabase } from '../../lib/supabase/supabase-client';
 
 export const ResetPasswordPage: React.FC = () => {
@@ -16,7 +17,7 @@ export const ResetPasswordPage: React.FC = () => {
   const getPasswordStrength = () => {
     if (!password) return { label: '', color: 'bg-slate-200', textClass: 'text-slate-400', width: 'w-0' };
     if (password.length < 6) return { label: 'Fraca', color: 'bg-red-500', textClass: 'text-red-500', width: 'w-1/3' };
-    
+
     const hasLetters = /[a-zA-Z]/.test(password);
     const hasNumbers = /[0-9]/.test(password);
     const hasSpecial = /[^a-zA-Z0-9]/.test(password);
@@ -64,7 +65,7 @@ export const ResetPasswordPage: React.FC = () => {
         setSuccess('Senha redefinida com sucesso! Você já pode entrar com sua nova senha.');
         setPassword('');
         setConfirmPassword('');
-        
+
         // Redireciona para o login após 3 segundos
         setTimeout(() => navigate('/entrar'), 3000);
       }
@@ -80,9 +81,7 @@ export const ResetPasswordPage: React.FC = () => {
       <div className="w-full max-w-[440px] bg-white p-8 rounded-lg border border-slate-200 shadow-sm space-y-6">
         {/* Topo - Logo */}
         <div className="flex items-center gap-3 justify-center pb-2 border-b border-slate-100">
-          <div className="bg-emerald-600 p-2 rounded-lg text-white">
-            <Shield size={20} />
-          </div>
+          <AgroGuardIcon className="w-8 h-8 shrink-0 drop-shadow-sm" />
           <span className="text-lg font-bold text-slate-900">AgroGuard</span>
         </div>
 

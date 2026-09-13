@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Shield, AlertTriangle, RefreshCw, LogIn } from 'lucide-react';
+import { AlertTriangle, RefreshCw, LogIn } from 'lucide-react';
+import { AgroGuardIcon } from '../AgroGuardLogo';
 import { useAuth } from '../../context/AuthContext';
 import { AUTH_FLOW_TOTAL_TIMEOUT_MS, startAuthFlow } from '../../services/auth-flow.service';
 import { warmUpApi } from '../../lib/api/api-client';
@@ -344,9 +345,7 @@ export const AuthCallbackPage: React.FC = () => {
       <div className="w-full max-w-[400px] bg-white p-8 rounded-lg border border-slate-200 shadow-sm flex flex-col items-center text-center space-y-6">
         {/* Topo - Logo */}
         <div className="flex items-center gap-3">
-          <div className="bg-emerald-600 p-2.5 rounded-lg text-white shadow-md">
-            <Shield size={20} />
-          </div>
+          <AgroGuardIcon className="w-9 h-9 shrink-0 drop-shadow-sm" />
           <span className="text-xl font-bold tracking-tight text-slate-900">AgroGuard</span>
         </div>
 

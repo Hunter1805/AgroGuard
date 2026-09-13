@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Shield, CheckCircle2, ArrowRight, Building, Cpu, Users, Calendar, Play, ExternalLink, AlertCircle } from 'lucide-react';
+import { CheckCircle2, ArrowRight, Building, Cpu, Users, Calendar, Play, ExternalLink, AlertCircle } from 'lucide-react';
+import { AgroGuardIcon } from '../AgroGuardLogo';
 import { useAuth } from '../../context/AuthContext';
 import { useWelcomeOnboarding } from '../../hooks/useWelcomeOnboarding';
 import { Building2 } from 'lucide-react';
@@ -71,9 +72,7 @@ export const WelcomeOnboardingPage: React.FC = () => {
               <Play size={12} className="fill-current" />
               Entrar no AgroGuard
             </button>
-            <div className="bg-emerald-600 p-2 rounded-lg text-white">
-              <Shield size={20} />
-            </div>
+            <AgroGuardIcon className="w-9 h-9 shrink-0 drop-shadow-sm" />
           </div>
         </div>
 

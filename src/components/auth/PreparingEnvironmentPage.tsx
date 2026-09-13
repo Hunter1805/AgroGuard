@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Shield, AlertTriangle, RefreshCw } from 'lucide-react';
+import { AlertTriangle, RefreshCw } from 'lucide-react';
+import { AgroGuardIcon } from '../AgroGuardLogo';
 import { useAuth } from '../../context/AuthContext';
 import { ManualEnvironmentForm } from './ManualEnvironmentForm';
 
@@ -235,9 +236,7 @@ export const PreparingEnvironmentPage: React.FC = () => {
       <div className="w-full max-w-[440px] bg-white p-8 rounded-lg border border-slate-200 shadow-sm space-y-6">
         {/* Topo - Logo */}
         <div className="flex items-center gap-3 justify-center pb-2 border-b border-slate-100">
-          <div className="bg-emerald-600 p-2 rounded-lg text-white">
-            <Shield size={20} />
-          </div>
+          <AgroGuardIcon className="w-8 h-8 shrink-0 drop-shadow-sm" />
           <span className="text-lg font-bold text-slate-900">AgroGuard</span>
         </div>
 
