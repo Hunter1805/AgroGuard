@@ -7,6 +7,7 @@ import type {
 } from '../types/tools';
 import { mockStorage } from './mock-storage';
 import { isExplicitMockMode } from '../config/data-source.config';
+import { fetchToolsFromApi, fetchToolByIdFromApi, createToolInApi, updateToolInApi } from './api-gateways/tools.gateway';
 
 const defaultTools: Tool[] = [
   {
@@ -254,7 +255,15 @@ export const toolsService = {
   },
 
   async getTools(filter?: ToolFilter): Promise<Tool[]> {
-    if (!isExplicitMockMode) return [];
+    if (!isExplicitMockMode) {
+      const tools = await fetchToolsFromApi(filter?.search);
+      // Filtros aplicados localmente (a API retorna a lista completa da org)
+      let result = tools;
+      if (filter?.category && filter.category !== 'todas') result = result.filter(t => t.category === filter.category);
+      if (filter?.status && filter.status !== 'todos') result = result.filter(t => t.status === filter.status);
+      if (filter?.condition && filter.condition !== 'todas') result = result.filter(t => t.condition === filter.condition);
+      return result;
+    }
     const list = await mockStorage.get<Tool>('tools', defaultTools);
     let result = [...list];
 
@@ -300,14 +309,14 @@ export const toolsService = {
   },
 
   async getToolById(id: string): Promise<Tool | undefined> {
-    if (!isExplicitMockMode) return undefined;
+    if (!isExplicitMockMode) return fetchToolByIdFromApi(id);
     const list = await mockStorage.get<Tool>('tools', defaultTools);
     const tool = list.find(t => t.id === id || t.code === id);
     return tool ? { ...tool } : undefined;
   },
 
   async createTool(data: Partial<Tool>): Promise<Tool> {
-    if (!isExplicitMockMode) throw new Error('Cadastro de ferramentas requer o gateway da API.');
+    if (!isExplicitMockMode) return createToolInApi(data);
     const list = await mockStorage.get<Tool>('tools', defaultTools);
     const id = `TOOL-${String(list.length + 1).padStart(3, '0')}`;
     const code = data.code || `FER-${String(list.length + 1).padStart(3, '0')}`;
@@ -355,7 +364,7 @@ export const toolsService = {
   },
 
   async updateTool(id: string, data: Partial<Tool>): Promise<Tool> {
-    if (!isExplicitMockMode) throw new Error('Edição de ferramentas requer o gateway da API.');
+    if (!isExplicitMockMode) return updateToolInApi(id, data);
     const list = await mockStorage.get<Tool>('tools', defaultTools);
     const index = list.findIndex(t => t.id === id || t.code === id);
     if (index === -1) throw new Error('Ferramenta não encontrada.');

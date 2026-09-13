@@ -681,6 +681,9 @@ model Tool {
   name           String
   serialNumber   String?
   status         String   @default("disponivel")
+  // Campos adicionais da ficha da ferramenta (categoria, controlType, quantidades,
+  // localização, aquisição, calibração etc.) guardados como JSON flexível.
+  metadata       Json?
   createdAt      DateTime @default(now()) @db.Timestamptz(3)
   updatedAt      DateTime @updatedAt @db.Timestamptz(3)
 
