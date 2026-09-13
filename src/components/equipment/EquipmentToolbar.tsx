@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import React, { useState } from 'react';
 import { Search, SlidersHorizontal, LayoutGrid, Table, Download, X } from 'lucide-react';
 import type { EquipmentStatus, AssetType } from '../../types/equipment';
 
@@ -42,21 +41,9 @@ export const EquipmentToolbar: React.FC<EquipmentToolbarProps> = ({
   onViewModeChange,
   onClearFilters,
 }) => {
-  const [, setSearchParams] = useSearchParams();
   const [drawerOpen, setDrawerOpen] = useState(false);
 
-  // Sincronizar filtros com a URL (query parameters)
-  useEffect(() => {
-    const params = new URLSearchParams();
-    if (searchTerm) params.set('q', searchTerm);
-    if (status !== 'todos') params.set('status', status);
-    if (location !== 'todas') params.set('loc', location);
-    if (assetType !== 'todos') params.set('tipo', assetType);
-    if (hasPendingAlert) params.set('alert', 'true');
-    if (isReadingOverdue) params.set('readingOverdue', 'true');
-
-    setSearchParams(params, { replace: true });
-  }, [searchTerm, status, location, assetType, hasPendingAlert, isReadingOverdue, setSearchParams]);
+  // Removido useEffect concorrente de sincronização duplicada com a URL (centralizado no useEquipments)
 
   // Contagem de filtros ativos (além da busca e view)
   const activeCount = [

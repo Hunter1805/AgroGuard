@@ -9,41 +9,49 @@ export async function fetchEquipmentsFromApi(query?: string): Promise<Equipment[
   if (!query && equipmentRequest) return equipmentRequest;
 
   const q = query ? `?search=${encodeURIComponent(query)}` : '';
-  const request = apiClient<any[]>(`/equipment${q}`, { timeoutMs: 8_000 }).then((response) => response.data.map(eq => ({
-    id: eq.id,
-    assetId: eq.id,
-    assetType: 'Trator' as any,
-    code: eq.code,
-    plateOrCode: eq.code,
-    name: eq.name,
-    type: (eq.equipmentType?.name || 'Trator') as any,
-    model: eq.model?.name || 'Modelo Padrão',
-    brand: eq.model?.brand?.name || 'Marca Padrão',
-    manufactureYear: eq.manufactureYear ? String(eq.manufactureYear) : '2024',
-    modelYear: eq.manufactureYear ? String(eq.manufactureYear) : '2024',
-    year: eq.manufactureYear ? String(eq.manufactureYear) : '2024',
-    serialNumber: eq.serialNumber || 'SN-000000',
-    status: (eq.status || 'operante') as any,
-    currentMeter: Number(eq.meters?.[0]?.currentValue || 0),
-    currentHours: Number(eq.meters?.[0]?.currentValue || 0),
-    meterUnit: 'h',
-    meterType: 'horimetro' as any,
-    fuelLevel: 100,
-    lastMaintenanceDate: eq.updatedAt,
-    nextMaintenanceDate: eq.updatedAt,
-    meters: eq.meters?.map((m: any) => ({
-      id: m.id,
-      type: m.meterType || 'horimetro',
-      label: 'Medidor Principal',
-      currentValue: Number(m.currentValue),
-      unit: m.unit || 'h',
-      lastReadingDate: new Date().toLocaleDateString('pt-BR'),
-    })) || [],
-    lastReadingAt: eq.updatedAt,
-    location: 'Pátio Central',
-    unitId: eq.unitId,
-    farmId: eq.farmId || undefined,
-  })));
+  const request = apiClient<any>(`/equipment${q}`, { timeoutMs: 25_000 }).then((response) => {
+    const rawItems: any[] = Array.isArray(response.data)
+      ? response.data
+      : Array.isArray((response.data as any)?.items)
+      ? (response.data as any).items
+      : [];
+
+    return rawItems.map(eq => ({
+      id: eq.id,
+      assetId: eq.id,
+      assetType: 'Trator' as any,
+      code: eq.code,
+      plateOrCode: eq.code,
+      name: eq.name,
+      type: (eq.equipmentType?.name || 'Trator') as any,
+      model: eq.model?.name || 'Modelo Padrão',
+      brand: eq.model?.brand?.name || 'Marca Padrão',
+      manufactureYear: eq.manufactureYear ? String(eq.manufactureYear) : '2024',
+      modelYear: eq.manufactureYear ? String(eq.manufactureYear) : '2024',
+      year: eq.manufactureYear ? String(eq.manufactureYear) : '2024',
+      serialNumber: eq.serialNumber || 'SN-000000',
+      status: (eq.status || 'operante') as any,
+      currentMeter: Number(eq.meters?.[0]?.currentValue || 0),
+      currentHours: Number(eq.meters?.[0]?.currentValue || 0),
+      meterUnit: 'h',
+      meterType: 'horimetro' as any,
+      fuelLevel: 100,
+      lastMaintenanceDate: eq.updatedAt,
+      nextMaintenanceDate: eq.updatedAt,
+      meters: eq.meters?.map((m: any) => ({
+        id: m.id,
+        type: m.meterType || 'horimetro',
+        label: 'Medidor Principal',
+        currentValue: Number(m.currentValue),
+        unit: m.unit || 'h',
+        lastReadingDate: new Date().toLocaleDateString('pt-BR'),
+      })) || [],
+      lastReadingAt: eq.updatedAt,
+      location: 'Pátio Central',
+      unitId: eq.unitId,
+      farmId: eq.farmId || undefined,
+    }));
+  });
 
   if (!query) {
     equipmentRequest = request;

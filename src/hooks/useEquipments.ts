@@ -38,20 +38,24 @@ export function useEquipments() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Sincronizar estados com os parâmetros da URL
+  // Sincronizar estados com os parâmetros da URL apenas quando filtros forem alterados
   useEffect(() => {
-    const params: Record<string, string> = {};
+    const params = new URLSearchParams();
 
-    if (filterAssetType !== 'todos') params.tipo = filterAssetType;
-    if (filterStatus !== 'todos') params.status = filterStatus;
-    if (filterLocation !== 'todas') params.local = filterLocation;
-    if (filterMaintenanceStatus !== 'todas') params.manutencao = filterMaintenanceStatus;
-    if (filterAlertOnly) params.alerta = 'true';
-    if (filterReadingOverdueOnly) params.leituraAtrasada = 'true';
-    if (searchTerm.trim() !== '') params.busca = searchTerm;
-    if (viewMode !== 'table') params.view = viewMode;
+    if (filterAssetType !== 'todos') params.set('tipo', filterAssetType);
+    if (filterStatus !== 'todos') params.set('status', filterStatus);
+    if (filterLocation !== 'todas') params.set('local', filterLocation);
+    if (filterMaintenanceStatus !== 'todas') params.set('manutencao', filterMaintenanceStatus);
+    if (filterAlertOnly) params.set('alerta', 'true');
+    if (filterReadingOverdueOnly) params.set('leituraAtrasada', 'true');
+    if (searchTerm.trim() !== '') params.set('busca', searchTerm);
+    if (viewMode !== 'table') params.set('view', viewMode);
 
-    setSearchParams(params, { replace: true });
+    const newQuery = params.toString();
+    const currentQuery = searchParams.toString();
+    if (newQuery !== currentQuery) {
+      setSearchParams(params, { replace: true });
+    }
   }, [
     filterAssetType,
     filterStatus,
@@ -61,7 +65,6 @@ export function useEquipments() {
     filterReadingOverdueOnly,
     searchTerm,
     viewMode,
-    setSearchParams,
   ]);
 
   const loadEquipments = useCallback(async () => {
