@@ -65,6 +65,8 @@ export function useEquipments() {
     filterReadingOverdueOnly,
     searchTerm,
     viewMode,
+    searchParams,
+    setSearchParams,
   ]);
 
   const loadEquipments = useCallback(async () => {

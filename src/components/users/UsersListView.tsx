@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Users, Search, MoreVertical, Ban, RefreshCw, LogOut, CheckCircle, Clock, XSquare, Eye, Edit } from 'lucide-react';
 import { apiClient } from '../../lib/api/api-client';
 import { InviteUserDrawer } from './InviteUserDrawer';
@@ -34,7 +34,7 @@ export const UsersListView: React.FC = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
 
-  const fetchMembers = async () => {
+  const fetchMembers = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -47,16 +47,16 @@ export const UsersListView: React.FC = () => {
       if (res.data) {
         setMembers(res.data);
       }
-    } catch (err: any) {
-      setError(err.message || 'Erro ao carregar lista de equipe.');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao carregar lista de equipe.');
     } finally {
       setLoading(false);
     }
-  };
+  }, [search, statusFilter, roleFilter]);
 
   useEffect(() => {
     fetchMembers();
-  }, [search, statusFilter, roleFilter]);
+  }, [fetchMembers]);
 
   // Ações administrativas
   const handleBlockUser = async (userId: string, currentStatus: string) => {

@@ -23,6 +23,7 @@ export const ChecklistTemplateForm: React.FC = () => {
     applicableEquipmentTypes,
     setApplicableEquipmentTypes,
     sections,
+    setSections,
     addSection,
     removeSection,
     addItemToSection,
@@ -175,9 +176,7 @@ export const ChecklistTemplateForm: React.FC = () => {
           onAddSection={addSection}
           onRemoveSection={removeSection}
           onUpdateSectionTitle={(id, title) => {
-            sections.find((s) => s.id === id) && (sections.find((s) => s.id === id)!.title = title);
-            setName(`${name} `); // Forçar rerender simples ou usar setter no hook
-            setName(name.trim());
+            setSections((prev) => prev.map((s) => (s.id === id ? { ...s, title } : s)));
           }}
           onAddItem={addItemToSection}
           onUpdateItem={updateItem}

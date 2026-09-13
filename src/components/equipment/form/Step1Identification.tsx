@@ -76,6 +76,7 @@ export const Step1Identification: React.FC<StepProps> = ({ data, onChange }) => 
             value={data.brand}
             onChange={(val) => onChange('brand', val)}
             placeholder="Selecione ou digite a marca"
+            allowCustom
           />
         </div>
 

@@ -42,7 +42,7 @@ export const LoginPage: React.FC = () => {
         // ou redirecionamos para o callback/dashboard para que o roteamento geral resolva.
         navigate('/auth/callback');
       }
-    } catch (err: any) {
+    } catch {
       setError('Erro interno do sistema. Tente novamente mais tarde.');
     } finally {
       setLoading(false);

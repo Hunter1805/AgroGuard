@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { LocalFileStorageProvider } from '../src/shared/storage/local-storage.provider';
 import fs from 'fs';
-import path from 'path';
 
 describe('LocalFileStorageProvider Tests', () => {
   const testDir = './uploads-test';

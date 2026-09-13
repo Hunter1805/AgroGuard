@@ -459,7 +459,7 @@ describe('AgroGuard — Fluxo Completo de Autenticação e Onboarding (Cenários
 
     try {
       await sim.fetchUserProfile();
-    } catch (err) {
+    } catch {
       // espera erro
     }
 
@@ -477,7 +477,7 @@ describe('AgroGuard — Fluxo Completo de Autenticação e Onboarding (Cenários
 
     try {
       await sim.fetchUserProfile();
-    } catch (err) {
+    } catch {
       // espera erro
     }
 
@@ -495,7 +495,7 @@ describe('AgroGuard — Fluxo Completo de Autenticação e Onboarding (Cenários
 
     try {
       await sim.fetchUserProfile();
-    } catch (err) {
+    } catch {
       // espera erro
     }
 
@@ -556,7 +556,7 @@ describe('AgroGuard — Fluxo Completo de Autenticação e Onboarding (Cenários
 
     try {
       await sim.triggerAutoProvision({ signal: controller.signal });
-    } catch (e) {
+    } catch {
       // espera erro de abort
     }
 

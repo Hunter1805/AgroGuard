@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { usersService } from '../services/users.service';
 import type { SystemUser, UserStatus } from '../types/users';
 
@@ -8,16 +8,16 @@ export function useUsers() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<UserStatus | 'todos'>('todos');
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     setLoading(true);
     const data = await usersService.getUsers(searchQuery, { status: statusFilter });
     setUsers(data);
     setLoading(false);
-  };
+  }, [searchQuery, statusFilter]);
 
   useEffect(() => {
     fetchUsers();
-  }, [searchQuery, statusFilter]);
+  }, [fetchUsers]);
 
   const blockUser = async (id: string, reason: string) => {
     await usersService.blockUser(id, reason);

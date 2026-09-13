@@ -30,7 +30,7 @@ export function useWelcomeOnboarding() {
       step1Completed = companies.some(
         c => c.name?.trim() !== ''
       );
-    } catch (err: any) {
+    } catch {
       step1Error = 'Não foi possível verificar esta etapa.';
     }
 
@@ -40,7 +40,7 @@ export function useWelcomeOnboarding() {
     try {
       const equipments = await equipmentService.getAllEquipments();
       step2Completed = equipments.length > 0;
-    } catch (err: any) {
+    } catch {
       step2Error = 'Não foi possível verificar esta etapa.';
     }
 
@@ -51,7 +51,7 @@ export function useWelcomeOnboarding() {
       const res = await apiClient<any[]>('/users/org');
       const activeMembers = res.data?.filter(m => m.status === 'ativo').length || 0;
       step3Completed = activeMembers > 1;
-    } catch (err: any) {
+    } catch {
       step3Error = 'Não foi possível verificar esta etapa.';
     }
 
@@ -64,7 +64,7 @@ export function useWelcomeOnboarding() {
         checklistTemplateService.getChecklistTemplates({ active: true }),
       ]);
       step4Completed = plans.length > 0 || templates.length > 0;
-    } catch (err: any) {
+    } catch {
       step4Error = 'Não foi possível verificar esta etapa.';
     }
 

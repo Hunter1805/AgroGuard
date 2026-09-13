@@ -111,7 +111,11 @@ export const EquipmentDetailHeaderCorp: React.FC<EquipmentDetailHeaderCorpProps>
                 >
                   <button
                     type="button"
-                    onClick={() => { setMenuOpen(false); onEditEquipment ? onEditEquipment(equipment) : navigate(`/equipamentos/${equipment.id}/editar`); }}
+                    onClick={() => {
+                      setMenuOpen(false);
+                      if (onEditEquipment) onEditEquipment(equipment);
+                      else navigate(`/equipamentos/${equipment.id}/editar`);
+                    }}
                     className="w-full px-4 py-2 text-left hover:bg-[var(--color-surface-secondary)] flex items-center gap-2 text.primary cursor-pointer"
                   >
                     <Edit size={14} /> Editar equipamento
@@ -147,7 +151,10 @@ export const EquipmentDetailHeaderCorp: React.FC<EquipmentDetailHeaderCorpProps>
                   <div className="h-px bg-[var(--color-border)] my-1" />
                   <button
                     type="button"
-                    onClick={() => { setMenuOpen(false); onArchiveEquipment && onArchiveEquipment(equipment); }}
+                    onClick={() => {
+                      setMenuOpen(false);
+                      if (onArchiveEquipment) onArchiveEquipment(equipment);
+                    }}
                     className="w-full px-4 py-2 text-left hover:bg-[var(--color-danger-light)] text-[var(--color-danger)] flex items-center gap-2 cursor-pointer font-medium"
                   >
                     <Archive size={14} /> Arquivar equipamento

@@ -32,7 +32,7 @@ export const ForgotPasswordPage: React.FC = () => {
         setSuccess('Instruções de recuperação enviadas com sucesso! Verifique seu e-mail.');
         setEmail('');
       }
-    } catch (err) {
+    } catch {
       setError('Ocorreu um erro ao processar sua solicitação.');
     } finally {
       setLoading(false);

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { validateStatusTransition, type WorkOrderStatus } from '../src/modules/work-orders/work-order.state-machine';
+import { validateStatusTransition } from '../src/modules/work-orders/work-order.state-machine';
 import { AppError } from '../src/shared/errors/AppError';
 
 describe('WorkOrder StateMachine Tests', () => {

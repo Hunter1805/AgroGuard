@@ -38,7 +38,7 @@ export const EmailConfirmationPage: React.FC = () => {
       } else {
         setSuccess('E-mail de confirmação reenviado com sucesso! Verifique sua caixa de entrada.');
       }
-    } catch (err) {
+    } catch {
       setError('Erro ao processar solicitação.');
     } finally {
       setLoading(false);
@@ -82,7 +82,7 @@ export const EmailConfirmationPage: React.FC = () => {
           localStorage.setItem('agroguard_onboarding_pending', JSON.stringify(pendingData));
         }
       }
-    } catch (err) {
+    } catch {
       setError('Erro ao atualizar e-mail.');
     } finally {
       setLoading(false);

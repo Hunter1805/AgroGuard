@@ -19,7 +19,7 @@ export const ChecklistReportView: React.FC = () => {
     if (data?.columns && visibleColumns.length === 0) {
       setVisibleColumns(data.columns);
     }
-  }, [data?.columns]);
+  }, [data?.columns, visibleColumns.length]);
 
   const handleToggleColumn = (colId: string) => {
     setVisibleColumns(prev => prev.map(c => (c.id === colId ? { ...c, visible: !c.visible } : c)));

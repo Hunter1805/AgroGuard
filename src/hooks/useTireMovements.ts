@@ -13,12 +13,12 @@ export function useTireMovements(filters?: { tireId?: string; equipmentId?: stri
       setError(null);
       const data = await tireMovementService.getMovements(filters);
       setMovements(data);
-    } catch (err: any) {
-      setError(err.message || 'Erro ao carregar histórico de movimentações');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao carregar histórico de movimentações');
     } finally {
       setLoading(false);
     }
-  }, [filters?.tireId, filters?.equipmentId, filters?.action]);
+  }, [filters]);
 
   useEffect(() => {
     fetchMovements();

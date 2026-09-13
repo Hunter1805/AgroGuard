@@ -13,12 +13,12 @@ export function useTireRecommendations(filters?: { category?: string; size?: str
       setError(null);
       const data = await tireRecommendationService.getRecommendations(filters);
       setRecommendations(data);
-    } catch (err: any) {
-      setError(err.message || 'Erro ao carregar recomendações de pressão');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao carregar recomendações de pressão');
     } finally {
       setLoading(false);
     }
-  }, [filters?.category, filters?.size, filters?.activeOnly]);
+  }, [filters]);
 
   useEffect(() => {
     fetchRecommendations();

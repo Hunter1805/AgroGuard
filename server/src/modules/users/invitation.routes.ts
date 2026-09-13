@@ -426,7 +426,7 @@ export async function invitationRoutes(app: FastifyInstance) {
 
     // Atualiza a expiração e o token no banco
     const token = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-    const updated = await prisma.userInvitation.update({
+    await prisma.userInvitation.update({
       where: { id },
       data: { expiresAt, token },
     });

@@ -18,12 +18,12 @@ export function useTireInspections(filters?: { equipmentId?: string; tireId?: st
       ]);
       setInspections(inspData);
       setCalibrations(calibData);
-    } catch (err: any) {
-      setError(err.message || 'Erro ao carregar inspeções de pneus');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao carregar inspeções de pneus');
     } finally {
       setLoading(false);
     }
-  }, [filters?.equipmentId, filters?.tireId]);
+  }, [filters]);
 
   useEffect(() => {
     fetchInspections();

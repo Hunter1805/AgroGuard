@@ -195,7 +195,7 @@ export async function onboardingRoutes(app: FastifyInstance) {
         request.log.info({ authUserId, oldName: internalUser.name, newName: body.ownerName.trim() }, '[ONBOARDING_PROVISION] Sincronizando nome do usuário com o nome informado no cadastro');
         internalUser = await tx.user.update({
           where: { id: internalUser.id },
-          data: { name: body.ownerName.trim() },
+          data: { name: body.ownerName.trim(), ...(phone ? { phone } : {}) },
         });
       }
 
@@ -248,7 +248,7 @@ export async function onboardingRoutes(app: FastifyInstance) {
       request.log.info({ authUserId, companyMs: Date.now() - companyStart }, '[ONBOARDING_PROVISION] 4.5.2. Empresa criada');
 
       const unitStart = Date.now();
-      const unit = await tx.unit.create({
+      await tx.unit.create({
         data: {
           organizationId: organization.id,
           companyId: company.id,

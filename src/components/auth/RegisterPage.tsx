@@ -117,7 +117,7 @@ export const RegisterPage: React.FC = () => {
           navigate('/confirmar-email');
         }
       }
-    } catch (err: any) {
+    } catch {
       setError('Ocorreu um erro inesperado no cadastro.');
     } finally {
       setLoading(false);

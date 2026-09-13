@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { requireAuthentication, requirePermission, requireOrganizationScope, requireResourceAccess } from '../src/shared/middleware/authGuard';
+import { requireAuthentication, requirePermission, requireResourceAccess } from '../src/shared/middleware/authGuard';
 import { schedulerService } from '../src/shared/jobs/scheduler.service';
 import { ReadingsAutomationJob } from '../src/jobs/readings.job';
 

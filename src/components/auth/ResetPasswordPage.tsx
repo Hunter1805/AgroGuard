@@ -69,7 +69,7 @@ export const ResetPasswordPage: React.FC = () => {
         // Redireciona para o login após 3 segundos
         setTimeout(() => navigate('/entrar'), 3000);
       }
-    } catch (err) {
+    } catch {
       setError('Erro ao processar alteração de senha.');
     } finally {
       setLoading(false);

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { MasterDataListView } from './MasterDataListView';
 
 // Import dos Formulários
@@ -57,9 +57,9 @@ export const MasterDataRouteHandler: React.FC<RouteHandlerProps> = ({ type }) =>
 
   useEffect(() => {
     loadData();
-  }, [type]);
+  }, [loadData]);
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setLoading(true);
     let data: MasterDataBase[] = [];
 
@@ -111,7 +111,7 @@ export const MasterDataRouteHandler: React.FC<RouteHandlerProps> = ({ type }) =>
 
     setItems(data);
     setLoading(false);
-  };
+  }, [type]);
 
   if (type === 'fornecedores') {
     return <SupplierList />;

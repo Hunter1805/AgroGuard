@@ -69,7 +69,7 @@ export const WorkOrderOpeningForm: React.FC = () => {
       } as any);
 
       navigate(ROUTES.ORDEM_DETALHE.replace(':orderId', newOs.id));
-    } catch (err) {
+    } catch {
       alert('Erro ao abrir OS');
     } finally {
       setLoading(false);
