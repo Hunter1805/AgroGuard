@@ -1,6 +1,6 @@
 import type { StockItem, StockDashboardStats, StockItemFilter, StockHistoryLog } from '../types/parts';
 import { stockCalculationService } from './stock-calculation.service';
-import { dataSourceConfig } from '../config/data-source.config';
+import { dataSourceConfig, isExplicitMockMode } from '../config/data-source.config';
 import { fetchStockItemsFromApi, createStockItemInApi } from './api-gateways/stock.gateway';
 import { mockStorage } from './mock-storage';
 
