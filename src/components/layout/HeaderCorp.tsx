@@ -164,7 +164,7 @@ export const HeaderCorp: React.FC<HeaderCorpProps> = ({
   onMobileMenuOpen,
   pendingAlerts = 0,
 }) => {
-  const { profile, loading: authLoading, logout } = useAuth();
+  const { profile, authLoading, profileLoading, logout } = useAuth();
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState<Notification[]>(isExplicitMockMode ? MOCK_NOTIFICATIONS : []);
   const [showNotifications, setShowNotifications] = useState(false);
@@ -377,7 +377,7 @@ export const HeaderCorp: React.FC<HeaderCorpProps> = ({
           </div>
           <ChevronDown size={13} className="hidden sm:block" style={{ color: 'var(--color-text-muted)' }} />
         </button>
-        {showAccountMenu && <AccountMenu profile={profile} loading={authLoading} onClose={() => setShowAccountMenu(false)} onSignOut={async () => { await logout(); navigate('/entrar', { replace: true }); }} />}
+        {showAccountMenu && <AccountMenu profile={profile} loading={!profile && (authLoading || profileLoading)} onClose={() => setShowAccountMenu(false)} onSignOut={async () => { await logout(); navigate('/entrar', { replace: true }); }} />}
         </div>
       </div>
     </header>
