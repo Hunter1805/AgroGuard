@@ -113,10 +113,46 @@ export function mapToolToApiPayload(data: Partial<Tool>) {
   };
 }
 
+let toolsCache: Tool[] | null = null;
+let toolsRequest: Promise<Tool[]> | null = null;
+
+/** Descarta o cache local — chamado após create/update para forçar releitura. */
+export function toolsCacheInvalidation(): void {
+  toolsCache = null;
+  toolsRequest = null;
+}
+
+/**
+ * Insere/atualiza um item no cache sem esperar a rede. Após criar uma ferramenta,
+ * a lista já volta com o registro novo em vez de piscar desatualizada.
+ */
+export function primeToolsCache(tool: Tool): void {
+  if (!toolsCache) return;
+  const index = toolsCache.findIndex(t => t.id === tool.id);
+  toolsCache = index === -1 ? [tool, ...toolsCache] : toolsCache.map(t => (t.id === tool.id ? tool : t));
+}
+
 export async function fetchToolsFromApi(search?: string): Promise<Tool[]> {
+  // Sem busca: reaproveita cache e deduplica requisições concorrentes.
+  if (!search) {
+    if (toolsCache) return toolsCache;
+    if (toolsRequest) return toolsRequest;
+  }
+
   const q = search ? `?search=${encodeURIComponent(search)}` : '';
-  const res = await apiClient<ApiToolRow[]>(`/tools${q}`, { timeoutMs: 8_000 });
-  return res.data.map(mapApiToolToTool);
+  const request = apiClient<ApiToolRow[]>(`/tools${q}`, { timeoutMs: 8_000 })
+    .then(res => res.data.map(mapApiToolToTool));
+
+  if (search) return request;
+
+  toolsRequest = request;
+  try {
+    const list = await request;
+    toolsCache = list;
+    return list;
+  } finally {
+    toolsRequest = null;
+  }
 }
 
 export async function fetchToolByIdFromApi(id: string): Promise<Tool | undefined> {
@@ -129,7 +165,9 @@ export async function createToolInApi(data: Partial<Tool>): Promise<Tool> {
     method: 'POST',
     body: JSON.stringify(mapToolToApiPayload(data)),
   });
-  return mapApiToolToTool(res.data);
+  const created = mapApiToolToTool(res.data);
+  primeToolsCache(created);
+  return created;
 }
 
 export async function updateToolInApi(id: string, data: Partial<Tool>): Promise<Tool> {
@@ -137,5 +175,7 @@ export async function updateToolInApi(id: string, data: Partial<Tool>): Promise<
     method: 'PATCH',
     body: JSON.stringify(mapToolToApiPayload(data)),
   });
-  return mapApiToolToTool(res.data);
+  const updated = mapApiToolToTool(res.data);
+  primeToolsCache(updated);
+  return updated;
 }

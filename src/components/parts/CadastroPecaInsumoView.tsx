@@ -41,7 +41,7 @@ export const CadastroPecaInsumoView: React.FC = () => {
   const [requiresWorkOrderLink, setRequiresWorkOrderLink] = useState(true);
 
   const [initialItem, setInitialItem] = useState<any>(undefined);
-  const { loading, error, setError, saveItem } = useStockItemForm(initialItem, () => navigate(ROUTES.PECAS_INSUMOS));
+  const { loading, saving, error, setError, saveItem } = useStockItemForm(initialItem, () => navigate(ROUTES.PECAS_INSUMOS));
 
   useEffect(() => {
     if (isEditing && itemId) {
@@ -353,8 +353,15 @@ export const CadastroPecaInsumoView: React.FC = () => {
           <Button type="button" variant="outline" onClick={() => navigate(ROUTES.PECAS_INSUMOS)}>
             Cancelar
           </Button>
-          <Button type="submit" variant="primary" disabled={loading} className="flex items-center gap-2">
-            <Save size={16} /> {isEditing ? 'Salvar Alterações' : 'Cadastrar Item'}
+          <Button
+            type="submit"
+            variant="primary"
+            disabled={loading}
+            isLoading={saving}
+            className="flex items-center gap-2"
+          >
+            {!saving && <Save size={16} />}
+            {saving ? 'Salvando...' : isEditing ? 'Salvar Alterações' : 'Cadastrar Item'}
           </Button>
         </div>
       </form>
