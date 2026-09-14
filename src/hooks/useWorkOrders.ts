@@ -7,18 +7,25 @@ export function useWorkOrders() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Paginação servida pelo backend (page/pageSize; max 100 por página).
+  const PAGE_SIZE = 100;
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+
   const fetchOrders = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      const data = await workOrderService.getWorkOrders();
-      setOrders(data);
-    } catch (err: any) {
-      setError(err.message || 'Erro ao carregar Ordens de Serviço');
+      const result = await workOrderService.getWorkOrdersPaged({ page, pageSize: PAGE_SIZE });
+      setOrders(result.items);
+      setTotal(result.total);
+    } catch (err: unknown) {
+      setError(err instanceof Error && err.message ? err.message : 'Erro ao carregar Ordens de Serviço');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [page]);
 
   useEffect(() => {
     fetchOrders();
@@ -28,6 +35,11 @@ export function useWorkOrders() {
     orders,
     loading,
     error,
+    page,
+    setPage,
+    total,
+    totalPages,
+    pageSize: PAGE_SIZE,
     refetch: fetchOrders
   };
 }

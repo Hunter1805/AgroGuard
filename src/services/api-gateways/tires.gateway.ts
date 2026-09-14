@@ -122,7 +122,6 @@ export async function createTireInApi(data: Partial<Tire>): Promise<Tire> {
   const res = await apiClient<ApiTireRow>('/tires', {
     method: 'POST',
     body: JSON.stringify(mapTireToApiPayload(data)),
-    timeoutMs: 10_000,
   });
   return mapApiTireToTire(res.data);
 }
@@ -131,13 +130,12 @@ export async function updateTireInApi(id: string, data: Partial<Tire>): Promise<
   const res = await apiClient<ApiTireRow>(`/tires/${id}`, {
     method: 'PATCH',
     body: JSON.stringify(mapTireToApiPayload(data)),
-    timeoutMs: 10_000,
   });
   return mapApiTireToTire(res.data);
 }
 
 export async function archiveTireInApi(id: string): Promise<void> {
-  await apiClient(`/tires/${id}`, { method: 'DELETE', timeoutMs: 8_000 });
+  await apiClient(`/tires/${id}`, { method: 'DELETE' });
 }
 
 export interface TireMovementPayload {
@@ -155,7 +153,6 @@ export async function logTireMovementInApi(payload: TireMovementPayload): Promis
   const res = await apiClient<ApiTireRow>('/tires/movements', {
     method: 'POST',
     body: JSON.stringify(payload),
-    timeoutMs: 10_000,
   });
   return mapApiTireToTire(res.data);
 }

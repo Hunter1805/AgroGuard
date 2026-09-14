@@ -20,9 +20,14 @@ export function useToolForm(initialTool?: Tool, onSuccess?: (tool: Tool) => void
 
       if (onSuccess) onSuccess(saved);
       return saved;
-    } catch (err: any) {
-      setError(err.message || 'Erro ao salvar dados da ferramenta.');
-      throw err;
+    } catch (err: unknown) {
+      // Mostra a causa real na tela e SEMPRE libera o botão de salvar.
+      const message =
+        err instanceof Error && err.message
+          ? err.message
+          : 'Erro ao salvar dados da ferramenta. Tente novamente.';
+      setError(message);
+      return undefined;
     } finally {
       setLoading(false);
     }

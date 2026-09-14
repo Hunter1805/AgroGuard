@@ -1,11 +1,20 @@
 import { apiClient } from '../../lib/api/api-client';
 import type { SystemUser } from '../../types/users';
 
-export async function fetchUsersFromApi(search?: string): Promise<SystemUser[]> {
-  const query = search ? `?search=${encodeURIComponent(search)}` : '';
-  const response = await apiClient<any[]>(`/users${query}`);
+export interface UsersPage {
+  items: SystemUser[];
+  total: number;
+}
 
-  return response.data.map(u => ({
+export async function fetchUserPageFromApi(search?: string, page = 1, pageSize = 100): Promise<UsersPage> {
+  const params = new URLSearchParams();
+  params.set('page', String(page));
+  params.set('pageSize', String(pageSize));
+  if (search) params.set('search', search);
+  const response = await apiClient<any[]>(`/users?${params.toString()}`);
+  const total = Number((response.meta as any)?.total ?? response.data.length);
+
+  const items: SystemUser[] = response.data.map(u => ({
     id: u.id,
     name: u.name,
     email: u.email,
@@ -24,6 +33,14 @@ export async function fetchUsersFromApi(search?: string): Promise<SystemUser[]> 
     updatedAt: u.updatedAt,
     createdBy: 'Sistema API',
   }));
+
+  return { items, total };
+}
+
+/** Compatibilidade: retorna apenas os itens da página. */
+export async function fetchUsersFromApi(search?: string, page = 1, pageSize = 100): Promise<SystemUser[]> {
+  const pageResult = await fetchUserPageFromApi(search, page, pageSize);
+  return pageResult.items;
 }
 
 export async function createUserInApi(data: Partial<SystemUser>): Promise<SystemUser> {

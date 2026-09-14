@@ -128,7 +128,6 @@ export async function createToolInApi(data: Partial<Tool>): Promise<Tool> {
   const res = await apiClient<ApiToolRow>('/tools', {
     method: 'POST',
     body: JSON.stringify(mapToolToApiPayload(data)),
-    timeoutMs: 10_000,
   });
   return mapApiToolToTool(res.data);
 }
@@ -137,7 +136,6 @@ export async function updateToolInApi(id: string, data: Partial<Tool>): Promise<
   const res = await apiClient<ApiToolRow>(`/tools/${id}`, {
     method: 'PATCH',
     body: JSON.stringify(mapToolToApiPayload(data)),
-    timeoutMs: 10_000,
   });
   return mapApiToolToTool(res.data);
 }

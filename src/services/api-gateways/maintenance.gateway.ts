@@ -190,7 +190,6 @@ export async function createScheduleInApi(data: Partial<MaintenanceSchedule>): P
   const res = await apiClient<ApiScheduleRow>('/maintenance/schedules', {
     method: 'POST',
     body: JSON.stringify(payload),
-    timeoutMs: 10_000,
   });
   return mapApiScheduleToSchedule(res.data);
 }
@@ -211,7 +210,6 @@ export async function updateScheduleInApi(id: string, data: Partial<MaintenanceS
   const res = await apiClient<ApiScheduleRow>(`/maintenance/schedules/${id}`, {
     method: 'PATCH',
     body: JSON.stringify(payload),
-    timeoutMs: 10_000,
   });
   return mapApiScheduleToSchedule(res.data);
 }
@@ -220,7 +218,6 @@ export async function rescheduleInApi(id: string, newDate: string, reason: strin
   const res = await apiClient<ApiScheduleRow>(`/maintenance/schedules/${id}`, {
     method: 'PATCH',
     body: JSON.stringify({ scheduledDate: newDate, rescheduleReason: reason }),
-    timeoutMs: 10_000,
   });
   return mapApiScheduleToSchedule(res.data);
 }
@@ -229,7 +226,6 @@ export async function cancelScheduleInApi(id: string, reason: string): Promise<M
   const res = await apiClient<ApiScheduleRow>(`/maintenance/schedules/${id}/status`, {
     method: 'PATCH',
     body: JSON.stringify({ status: 'CANCELLED', canceledReason: reason }),
-    timeoutMs: 10_000,
   });
   return mapApiScheduleToSchedule(res.data);
 }
@@ -238,7 +234,6 @@ export async function completeScheduleInApi(id: string): Promise<MaintenanceSche
   const res = await apiClient<ApiScheduleRow>(`/maintenance/schedules/${id}/status`, {
     method: 'PATCH',
     body: JSON.stringify({ status: 'COMPLETED' }),
-    timeoutMs: 10_000,
   });
   return mapApiScheduleToSchedule(res.data);
 }

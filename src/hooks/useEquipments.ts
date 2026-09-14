@@ -38,6 +38,12 @@ export function useEquipments() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Paginação servida pelo backend (page/pageSize/search).
+  const PAGE_SIZE = 100;
+  const [page, setPage] = useState<number>(1);
+  const [total, setTotal] = useState<number>(0);
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+
   // Sincronizar estados com os parâmetros da URL apenas quando filtros forem alterados
   useEffect(() => {
     const params = new URLSearchParams();
@@ -73,22 +79,23 @@ export function useEquipments() {
     setLoading(true);
     setError(null);
     try {
-      const [data, statsData, locsData] = await Promise.all([
-        equipmentService.filterEquipments({
-          assetType: filterAssetType,
-          status: filterStatus,
-          location: filterLocation,
-          maintenanceStatus: filterMaintenanceStatus,
-          hasPendingAlert: filterAlertOnly ? true : undefined,
-          isReadingOverdue: filterReadingOverdueOnly ? true : undefined,
-          search: searchTerm,
-        }),
-        equipmentService.getEquipmentStats(),
-        equipmentService.getLocations(),
-      ]);
-      setEquipments(data);
-      setStats(statsData);
-      setLocations(locsData);
+      // Uma única busca paginada alimenta lista, estatísticas e localizações —
+      // antes eram 3 requisições idênticas disparadas em paralelo.
+      const result = await equipmentService.filterEquipmentsPaged({
+        assetType: filterAssetType,
+        status: filterStatus,
+        location: filterLocation,
+        maintenanceStatus: filterMaintenanceStatus,
+        hasPendingAlert: filterAlertOnly ? true : undefined,
+        isReadingOverdue: filterReadingOverdueOnly ? true : undefined,
+        search: searchTerm,
+        page,
+        pageSize: PAGE_SIZE,
+      });
+      setEquipments(result.items);
+      setStats(result.stats);
+      setLocations(result.locations);
+      setTotal(result.total);
     } catch {
       setError('Erro ao carregar lista de equipamentos.');
     } finally {
@@ -102,11 +109,25 @@ export function useEquipments() {
     filterAlertOnly,
     filterReadingOverdueOnly,
     searchTerm,
+    page,
   ]);
 
   useEffect(() => {
     loadEquipments();
   }, [loadEquipments]);
+
+  // Ao mudar qualquer filtro, volta para a primeira página.
+  useEffect(() => {
+    setPage(1);
+  }, [
+    filterAssetType,
+    filterStatus,
+    filterLocation,
+    filterMaintenanceStatus,
+    filterAlertOnly,
+    filterReadingOverdueOnly,
+    searchTerm,
+  ]);
 
   const archiveEquipment = async (id: string, reason: string) => {
     const success = await equipmentService.archiveEquipment(id, reason);
@@ -148,6 +169,11 @@ export function useEquipments() {
     setViewMode,
     loading,
     error,
+    page,
+    setPage,
+    total,
+    totalPages,
+    pageSize: PAGE_SIZE,
     refetch: loadEquipments,
     archiveEquipment,
     clearAllFilters,

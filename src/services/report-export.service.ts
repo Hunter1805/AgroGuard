@@ -1,5 +1,5 @@
 import type { ReportExportLog, ReportExportFormat } from '../types/report-export';
-import type { ReportTableData } from '../types/reports';
+import type { ReportCategory, ReportTableData } from '../types/reports';
 import { isExplicitMockMode } from '../config/data-source.config';
 import { generateReportPdf } from './pdf-report.service';
 import { generateReportXlsx } from './xlsx-report.service';
@@ -28,7 +28,7 @@ export const reportExportService = {
 
   async exportReport(
     reportName: string,
-    category: any,
+    category: ReportCategory,
     format: ReportExportFormat,
     tableData: ReportTableData,
     userName = ''

@@ -5,11 +5,12 @@ import { UserFilters } from './UserFilters';
 import { UserForm } from './UserForm';
 import { UserDetailView } from './UserDetailView';
 import { EffectivePermissionsDrawer } from '../permissions/EffectivePermissionsDrawer';
+import { Pagination } from '../../ui/Pagination';
 import type { SystemUser } from '../../../types/users';
 
 export const UserList: React.FC = () => {
-  const { users, loading, searchQuery, setSearchQuery, statusFilter, setStatusFilter, blockUser, unblockUser, refetchUsers } = useUsers();
-  
+  const { users, loading, searchQuery, setSearchQuery, statusFilter, setStatusFilter, blockUser, unblockUser, refetchUsers, page, setPage, total, totalPages, pageSize } = useUsers();
+
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<SystemUser | null>(null);
   const [selectedUserDetail, setSelectedUserDetail] = useState<SystemUser | null>(null);
@@ -144,6 +145,19 @@ export const UserList: React.FC = () => {
             </table>
           </div>
         )}
+
+        <div className="px-4 pb-4">
+          <Pagination
+            page={page}
+            totalPages={totalPages}
+            total={total}
+            shown={users.length}
+            pageSize={pageSize}
+            onPageChange={setPage}
+            disabled={loading}
+            itemLabel="usuários"
+          />
+        </div>
       </div>
 
       {/* Modais */}

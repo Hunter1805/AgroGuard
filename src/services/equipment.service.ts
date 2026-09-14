@@ -6,7 +6,7 @@ import type {
 } from '../types/equipment';
 import type { EquipmentFormData } from '../types/equipment-form';
 import { dataSourceConfig } from '../config/data-source.config';
-import { fetchEquipmentsFromApi, createEquipmentInApi, updateEquipmentInApi, archiveEquipmentInApi, equipmentCacheInvalidation, type CreateEquipmentPayload } from './api-gateways/equipment.gateway';
+import { fetchEquipmentsFromApi, fetchEquipmentPageFromApi, createEquipmentInApi, updateEquipmentInApi, archiveEquipmentInApi, equipmentCacheInvalidation, type CreateEquipmentPayload } from './api-gateways/equipment.gateway';
 import { mockStorage } from './mock-storage';
 
 const DRAFT_STORAGE_KEY = 'agroguard_equipment_draft';
@@ -288,6 +288,128 @@ export const equipmentService = {
       );
     }
 
+    return result;
+  },
+
+  /**
+   * Busca paginada que também devolve estatísticas e localizações a partir da
+   * MESMA resposta — evita as 3 requisições duplicadas que a tela disparava.
+   * Em modo API usa page/pageSize/search do backend; em mock pagina em memória.
+   */
+  async filterEquipmentsPaged(options: {
+    assetType?: string;
+    status?: string;
+    search?: string;
+    location?: string;
+    maintenanceStatus?: MaintenanceSituation;
+    hasPendingAlert?: boolean;
+    isReadingOverdue?: boolean;
+    page?: number;
+    pageSize?: number;
+  }): Promise<{
+    items: Equipment[];
+    total: number;
+    stats: EquipmentStats;
+    locations: string[];
+  }> {
+    const page = options.page ?? 1;
+    const pageSize = options.pageSize ?? 100;
+
+    if (dataSourceConfig.equipment === 'api') {
+      // Busca no servidor: envia page/pageSize/search e lê meta.total.
+      const response = await fetchEquipmentPageFromApi({
+        page,
+        pageSize,
+        search: options.search?.trim() || undefined,
+      });
+
+      const filtered = this.applyLocalFilters(response.items, options);
+      return {
+        items: filtered,
+        total: response.total,
+        stats: this.buildStats(filtered),
+        locations: this.buildLocations(filtered),
+      };
+    }
+
+    const list = await mockStorage.get<Equipment>('equipments', defaultEquipments);
+    const filtered = this.applyLocalFilters(list, options);
+    const start = (page - 1) * pageSize;
+    return {
+      items: filtered.slice(start, start + pageSize),
+      total: filtered.length,
+      stats: this.buildStats(filtered),
+      locations: this.buildLocations(filtered),
+    };
+  },
+
+  /** Estatísticas em uma única passada (antes eram 9 varreduras do array). */
+  buildStats(list: Equipment[]): EquipmentStats {
+    const stats: EquipmentStats = {
+      total: list.length,
+      operantes: 0,
+      emOperacao: 0,
+      emManutencao: 0,
+      parados: 0,
+      bloqueados: 0,
+      alertasPendentes: 0,
+      manutencoesVencidas: 0,
+      leiturasAtrasadas: 0,
+    };
+
+    for (const e of list) {
+      switch (e.status) {
+        case 'operante': stats.operantes += 1; break;
+        case 'em_operacao': stats.emOperacao += 1; break;
+        case 'manutencao': stats.emManutencao += 1; break;
+        case 'parado':
+        case 'inoperante': stats.parados += 1; break;
+        case 'bloqueado': stats.bloqueados += 1; break;
+        default: break;
+      }
+      if (e.hasPendingAlert) stats.alertasPendentes += 1;
+      if (e.maintenanceStatus === 'vencida') stats.manutencoesVencidas += 1;
+      if (e.isReadingOverdue) stats.leiturasAtrasadas += 1;
+    }
+
+    return stats;
+  },
+
+  buildLocations(list: Equipment[]): string[] {
+    return Array.from(
+      new Set(list.filter((e) => !e.isArchived).map((e) => e.location))
+    ).sort();
+  },
+
+  /** Filtros que o backend não cobre; aplicados sobre os itens recebidos. */
+  applyLocalFilters(list: Equipment[], options: {
+    assetType?: string;
+    status?: string;
+    search?: string;
+    location?: string;
+    maintenanceStatus?: MaintenanceSituation;
+    hasPendingAlert?: boolean;
+    isReadingOverdue?: boolean;
+  }): Equipment[] {
+    let result = [...list];
+    if (options.assetType && options.assetType !== 'todos') {
+      result = result.filter((e) => e.assetType === options.assetType);
+    }
+    if (options.status && options.status !== 'todos') {
+      result = result.filter((e) => e.status === options.status);
+    }
+    if (options.location && options.location !== 'todas') {
+      result = result.filter((e) => e.location === options.location);
+    }
+    if (options.maintenanceStatus && options.maintenanceStatus !== 'todas') {
+      result = result.filter((e) => e.maintenanceStatus === options.maintenanceStatus);
+    }
+    if (options.hasPendingAlert) {
+      result = result.filter((e) => e.hasPendingAlert);
+    }
+    if (options.isReadingOverdue) {
+      result = result.filter((e) => e.isReadingOverdue);
+    }
     return result;
   },
 

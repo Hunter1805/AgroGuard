@@ -17,6 +17,7 @@ import { LoadingState } from './ui/LoadingState';
 import { ErrorState } from './ui/ErrorState';
 import { EmptyState } from './ui/EmptyState';
 import { Button } from './ui/Button';
+import { Pagination } from './ui/Pagination';
 import type { Equipment } from '../types/equipment';
 
 export const EquipamentosView: React.FC = () => {
@@ -43,6 +44,11 @@ export const EquipamentosView: React.FC = () => {
     setViewMode,
     loading,
     error,
+    page,
+    setPage,
+    total,
+    totalPages,
+    pageSize,
     refetch,
     archiveEquipment,
     clearAllFilters,
@@ -212,6 +218,18 @@ export const EquipamentosView: React.FC = () => {
             ))}
           </div>
         )}
+
+        {/* Paginação — o backend entrega no máximo 100 por página */}
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          total={total}
+          shown={equipments.length}
+          pageSize={pageSize}
+          onPageChange={setPage}
+          disabled={loading}
+          itemLabel="equipamentos"
+        />
 
       {/* Modal de confirmação de arquivamento */}
       {archivingEquipment && (

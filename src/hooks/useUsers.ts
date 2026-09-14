@@ -8,16 +8,33 @@ export function useUsers() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<UserStatus | 'todos'>('todos');
 
+  // Paginação servida pelo backend (page/pageSize; max 100 por página).
+  const PAGE_SIZE = 100;
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+
   const fetchUsers = useCallback(async () => {
     setLoading(true);
-    const data = await usersService.getUsers(searchQuery, { status: statusFilter });
-    setUsers(data);
+    const result = await usersService.getUsersPaged({
+      search: searchQuery,
+      status: statusFilter,
+      page,
+      pageSize: PAGE_SIZE,
+    });
+    setUsers(result.items);
+    setTotal(result.total);
     setLoading(false);
-  }, [searchQuery, statusFilter]);
+  }, [searchQuery, statusFilter, page]);
 
   useEffect(() => {
     fetchUsers();
   }, [fetchUsers]);
+
+  // Ao mudar busca ou filtro, volta para a primeira página.
+  useEffect(() => {
+    setPage(1);
+  }, [searchQuery, statusFilter]);
 
   const blockUser = async (id: string, reason: string) => {
     await usersService.blockUser(id, reason);
@@ -44,6 +61,11 @@ export function useUsers() {
     blockUser,
     unblockUser,
     setStatus,
+    page,
+    setPage,
+    total,
+    totalPages,
+    pageSize: PAGE_SIZE,
     refetchUsers: fetchUsers,
   };
 }
