@@ -19,14 +19,6 @@ interface SummaryCard {
   value: string;
 }
 
-/** Contrato mínimo de página usado pelos helpers de layout. */
-interface PdfPage {
-  getWidth(): number;
-  getHeight(): number;
-}
-
-type ColumnFormat = ReportTableData['columns'][number]['format'];
-
 const ACCENT: [number, number, number] = [22, 163, 74]; // verde AgroGuard
 const DARK: [number, number, number] = [15, 23, 42]; // slate-900
 const GRAY_TEXT: [number, number, number] = [100, 116, 139]; // slate-500

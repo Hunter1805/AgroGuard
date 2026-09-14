@@ -55,10 +55,6 @@ export const MasterDataRouteHandler: React.FC<RouteHandlerProps> = ({ type }) =>
   const [items, setItems] = useState<MasterDataBase[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadData();
-  }, [loadData]);
-
   const loadData = useCallback(async () => {
     setLoading(true);
     let data: MasterDataBase[] = [];
@@ -112,6 +108,10 @@ export const MasterDataRouteHandler: React.FC<RouteHandlerProps> = ({ type }) =>
     setItems(data);
     setLoading(false);
   }, [type]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   if (type === 'fornecedores') {
     return <SupplierList />;
