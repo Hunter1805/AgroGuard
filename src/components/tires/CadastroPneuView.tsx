@@ -43,7 +43,7 @@ export const CadastroPneuView: React.FC = () => {
   const [notes, setNotes] = useState('');
 
   const [initialTire, setInitialTire] = useState<any>(undefined);
-  const { loading, saving, error, setError, saveTire } = useTireForm(initialTire, () => navigate(ROUTES.PNEUS));
+  const { saving, error, setError, saveTire } = useTireForm(initialTire, () => navigate(ROUTES.PNEUS));
 
   useEffect(() => {
     if (isEditing && tireId) {
@@ -399,11 +399,11 @@ export const CadastroPneuView: React.FC = () => {
           <Button
             type="submit"
             variant="primary"
-            disabled={loading}
+            disabled={saving}
             isLoading={saving}
+            icon={<Save size={16} />}
             className="flex items-center gap-2"
           >
-            {!saving && <Save size={16} />}
             {saving ? 'Salvando...' : isEditing ? 'Salvar Alterações' : 'Cadastrar Pneu'}
           </Button>
         </div>
