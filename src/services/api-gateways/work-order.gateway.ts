@@ -1,14 +1,20 @@
 import { apiClient } from '../../lib/api/api-client';
 import type { WorkOrder } from '../../types/work-order';
 
-export async function fetchWorkOrdersFromApi(search?: string, page = 1, pageSize = 100): Promise<WorkOrder[]> {
+export interface WorkOrderPage {
+  items: WorkOrder[];
+  total: number;
+}
+
+export async function fetchWorkOrderPageFromApi(search?: string, page = 1, pageSize = 100): Promise<WorkOrderPage> {
   const params = new URLSearchParams();
   params.set('page', String(page));
   params.set('pageSize', String(pageSize));
   if (search) params.set('search', search);
   const response = await apiClient<any[]>(`/work-orders?${params.toString()}`);
+  const total = Number((response.meta as any)?.total ?? response.data.length);
 
-  return response.data.map(wo => ({
+  const items: WorkOrder[] = response.data.map(wo => ({
     id: wo.id,
     code: wo.code,
     title: wo.description,
@@ -34,6 +40,14 @@ export async function fetchWorkOrdersFromApi(search?: string, page = 1, pageSize
     attachments: [],
     events: [],
   }));
+
+  return { items, total };
+}
+
+/** Compatibilidade: retorna apenas os itens da página. */
+export async function fetchWorkOrdersFromApi(search?: string, page = 1, pageSize = 100): Promise<WorkOrder[]> {
+  const pageResult = await fetchWorkOrderPageFromApi(search, page, pageSize);
+  return pageResult.items;
 }
 
 export async function createWorkOrderInApi(data: any): Promise<WorkOrder> {

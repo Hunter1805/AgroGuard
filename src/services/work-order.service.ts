@@ -1,7 +1,7 @@
 import type { WorkOrder, WorkOrderTimelineEvent, WorkOrderStatus } from '../types/work-order';
 import type { WorkOrderExecutionData } from '../types/work-order-execution';
 import { dataSourceConfig } from '../config/data-source.config';
-import { fetchWorkOrdersFromApi, createWorkOrderInApi } from './api-gateways/work-order.gateway';
+import { fetchWorkOrdersFromApi, fetchWorkOrderPageFromApi, createWorkOrderInApi } from './api-gateways/work-order.gateway';
 import { mockStorage } from './mock-storage';
 
 export function normalizeWorkOrder(data: any): WorkOrder {
@@ -84,12 +84,29 @@ export function normalizeWorkOrder(data: any): WorkOrder {
 export const workOrderService = {
   // ─── Consultas ─────────────────────────────────────────────────────────────
   async getWorkOrders(): Promise<WorkOrder[]> {
+    const { items } = await this.getWorkOrdersPaged({});
+    return items;
+  },
+
+  /** Busca paginada; devolve também o total real informado pelo backend. */
+  async getWorkOrdersPaged(options: { page?: number; pageSize?: number; search?: string }): Promise<{
+    items: WorkOrder[];
+    total: number;
+  }> {
+    const page = options.page ?? 1;
+    const pageSize = options.pageSize ?? 100;
+
     if (dataSourceConfig.workOrders === 'api') {
-      return fetchWorkOrdersFromApi();
+      return fetchWorkOrderPageFromApi(options.search, page, pageSize);
     }
+
     await new Promise(resolve => setTimeout(resolve, 300));
     const list = await mockStorage.get<any>('work_orders', []);
-    return list.map((wo: any) => normalizeWorkOrder(wo)).sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    const all = list
+      .map((wo: any) => normalizeWorkOrder(wo))
+      .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    const start = (page - 1) * pageSize;
+    return { items: all.slice(start, start + pageSize), total: all.length };
   },
 
   async getWorkOrderById(id: string): Promise<WorkOrder | undefined> {

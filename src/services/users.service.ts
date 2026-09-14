@@ -1,6 +1,6 @@
 import type { SystemUser, UserStatus } from '../types/users';
 import { dataSourceConfig } from '../config/data-source.config';
-import { fetchUsersFromApi, createUserInApi } from './api-gateways/user.gateway';
+import { fetchUsersFromApi, fetchUserPageFromApi, createUserInApi } from './api-gateways/user.gateway';
 
 let mockUsers: SystemUser[] = [
   {
@@ -121,20 +121,34 @@ let mockUsers: SystemUser[] = [
 
 export const usersService = {
   async getUsers(query?: string, filters?: any): Promise<SystemUser[]> {
+    const { items } = await this.getUsersPaged({ search: query, status: filters?.status });
+    return items;
+  },
+
+  /** Busca paginada; devolve também o total real informado pelo backend. */
+  async getUsersPaged(options: { search?: string; status?: string; page?: number; pageSize?: number }): Promise<{
+    items: SystemUser[];
+    total: number;
+  }> {
+    const page = options.page ?? 1;
+    const pageSize = options.pageSize ?? 100;
+
     if (dataSourceConfig.masterData === 'api') {
-      return fetchUsersFromApi(query);
+      return fetchUserPageFromApi(options.search, page, pageSize);
     }
+
     let result = [...mockUsers];
-    if (query) {
-      const q = query.toLowerCase();
+    if (options.search) {
+      const q = options.search.toLowerCase();
       result = result.filter(
         u => u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q) || (u.employeeCode && u.employeeCode.toLowerCase().includes(q))
       );
     }
-    if (filters?.status && filters.status !== 'todos') {
-      result = result.filter(u => u.status === filters.status);
+    if (options.status && options.status !== 'todos') {
+      result = result.filter(u => u.status === options.status);
     }
-    return result;
+    const start = (page - 1) * pageSize;
+    return { items: result.slice(start, start + pageSize), total: result.length };
   },
 
   async getUserById(id: string): Promise<SystemUser | undefined> {
