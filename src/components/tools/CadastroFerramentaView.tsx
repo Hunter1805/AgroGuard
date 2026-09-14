@@ -43,7 +43,7 @@ export const CadastroFerramentaView: React.FC = () => {
   const [calibrationFrequencyValue, setCalibrationFrequencyValue] = useState<number>(6);
 
   const [initialTool, setInitialTool] = useState<any>(undefined);
-  const { loading, error, setError, saveTool } = useToolForm(initialTool, () => navigate(ROUTES.FERRAMENTAS));
+  const { loading, saving, error, setError, saveTool } = useToolForm(initialTool, () => navigate(ROUTES.FERRAMENTAS));
 
   useEffect(() => {
     if (isEditing && toolId) {
@@ -366,8 +366,15 @@ export const CadastroFerramentaView: React.FC = () => {
           <Button type="button" variant="outline" onClick={() => navigate(ROUTES.FERRAMENTAS)}>
             Cancelar
           </Button>
-          <Button type="submit" variant="primary" disabled={loading} className="flex items-center gap-2">
-            <Save size={16} /> {isEditing ? 'Salvar Alterações' : 'Cadastrar Ferramenta'}
+          <Button
+            type="submit"
+            variant="primary"
+            disabled={loading}
+            isLoading={saving}
+            className="flex items-center gap-2"
+          >
+            {!saving && <Save size={16} />}
+            {saving ? 'Salvando...' : isEditing ? 'Salvar Alterações' : 'Cadastrar Ferramenta'}
           </Button>
         </div>
       </form>

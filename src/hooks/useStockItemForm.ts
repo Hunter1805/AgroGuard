@@ -4,11 +4,14 @@ import { partsService } from '../services/parts.service';
 
 export function useStockItemForm(initialItem?: StockItem, onSuccess?: () => void) {
   const [loading, setLoading] = useState(false);
+  /** True apenas durante o POST/PATCH — usado no rotulo "Salvando..." do botao. */
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const saveItem = async (data: Partial<StockItem>) => {
     try {
       setLoading(true);
+      setSaving(true);
       setError(null);
 
       if (initialItem) {
@@ -18,15 +21,21 @@ export function useStockItemForm(initialItem?: StockItem, onSuccess?: () => void
       }
 
       if (onSuccess) onSuccess();
-    } catch (err: any) {
-      setError(err.message || 'Erro ao salvar item de estoque.');
+    } catch (err: unknown) {
+      setError(
+        err instanceof Error && err.message
+          ? err.message
+          : 'Erro ao salvar item de estoque. Tente novamente.'
+      );
     } finally {
       setLoading(false);
+      setSaving(false);
     }
   };
 
   return {
     loading,
+    saving,
     error,
     setError,
     saveItem,

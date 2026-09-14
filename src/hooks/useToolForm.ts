@@ -4,11 +4,14 @@ import { toolsService } from '../services/tools.service';
 
 export function useToolForm(initialTool?: Tool, onSuccess?: (tool: Tool) => void) {
   const [loading, setLoading] = useState(false);
+  /** True apenas durante o POST/PATCH — usado no rotulo "Salvando..." do botao. */
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const saveTool = async (data: Partial<Tool>) => {
     try {
       setLoading(true);
+      setSaving(true);
       setError(null);
 
       let saved: Tool;
@@ -30,11 +33,13 @@ export function useToolForm(initialTool?: Tool, onSuccess?: (tool: Tool) => void
       return undefined;
     } finally {
       setLoading(false);
+      setSaving(false);
     }
   };
 
   return {
     loading,
+    saving,
     error,
     setError,
     saveTool,
