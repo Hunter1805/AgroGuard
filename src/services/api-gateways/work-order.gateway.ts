@@ -1,9 +1,12 @@
 import { apiClient } from '../../lib/api/api-client';
 import type { WorkOrder } from '../../types/work-order';
 
-export async function fetchWorkOrdersFromApi(search?: string): Promise<WorkOrder[]> {
-  const q = search ? `?search=${encodeURIComponent(search)}` : '';
-  const response = await apiClient<any[]>(`/work-orders${q}`);
+export async function fetchWorkOrdersFromApi(search?: string, page = 1, pageSize = 100): Promise<WorkOrder[]> {
+  const params = new URLSearchParams();
+  params.set('page', String(page));
+  params.set('pageSize', String(pageSize));
+  if (search) params.set('search', search);
+  const response = await apiClient<any[]>(`/work-orders?${params.toString()}`);
 
   return response.data.map(wo => ({
     id: wo.id,

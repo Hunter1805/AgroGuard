@@ -13,10 +13,8 @@ export function useStockItems(initialFilters?: StockItemFilter) {
     try {
       setLoading(true);
       setError(null);
-      const [itemList, dashboardStats] = await Promise.all([
-        partsService.getStockItems(filters),
-        partsService.getStockDashboardStats(),
-      ]);
+      // Uma busca só: as estatísticas derivam da mesma lista (antes eram 2 buscas).
+      const { items: itemList, stats: dashboardStats } = await partsService.getStockItemsWithStats(filters);
       setItems(itemList);
       setStats(dashboardStats);
     } catch (err: any) {

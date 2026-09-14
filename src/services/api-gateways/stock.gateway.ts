@@ -1,8 +1,11 @@
 import { apiClient } from '../../lib/api/api-client';
 
-export async function fetchStockItemsFromApi(search?: string): Promise<any[]> {
-  const q = search ? `?search=${encodeURIComponent(search)}` : '';
-  const response = await apiClient<any[]>(`/stock/items${q}`);
+export async function fetchStockItemsFromApi(search?: string, page = 1, pageSize = 100): Promise<any[]> {
+  const params = new URLSearchParams();
+  params.set('page', String(page));
+  params.set('pageSize', String(pageSize));
+  if (search) params.set('search', search);
+  const response = await apiClient<any[]>(`/stock/items?${params.toString()}`);
 
   return response.data.map(item => ({
     id: item.id,

@@ -1,9 +1,12 @@
 import { apiClient } from '../../lib/api/api-client';
 import type { SystemUser } from '../../types/users';
 
-export async function fetchUsersFromApi(search?: string): Promise<SystemUser[]> {
-  const query = search ? `?search=${encodeURIComponent(search)}` : '';
-  const response = await apiClient<any[]>(`/users${query}`);
+export async function fetchUsersFromApi(search?: string, page = 1, pageSize = 100): Promise<SystemUser[]> {
+  const params = new URLSearchParams();
+  params.set('page', String(page));
+  params.set('pageSize', String(pageSize));
+  if (search) params.set('search', search);
+  const response = await apiClient<any[]>(`/users?${params.toString()}`);
 
   return response.data.map(u => ({
     id: u.id,

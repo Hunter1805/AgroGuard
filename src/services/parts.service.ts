@@ -241,6 +241,52 @@ export const partsService = {
     };
   },
 
+  /**
+   * Busca itens e calcula o dashboard a partir da MESMA lista, em uma única
+   * passada — antes o hook disparava duas buscas completas em paralelo
+   * (getStockItems + getStockDashboardStats -> getStockItems de novo).
+   */
+  async getStockItemsWithStats(filters?: StockItemFilter): Promise<{
+    items: StockItem[];
+    stats: StockDashboardStats;
+  }> {
+    const items = await this.getStockItems(filters);
+    return { items, stats: this.buildDashboardStats(items) };
+  },
+
+  /** Calcula os indicadores do dashboard em uma única varredura. */
+  buildDashboardStats(list: StockItem[]): StockDashboardStats {
+    let totalItems = 0;
+    let totalStockValue = 0;
+    let itemsBelowMinimum = 0;
+    let itemsOutOfStock = 0;
+    let reservedItems = 0;
+
+    for (const i of list) {
+      if (i.status === 'arquivado') continue;
+      totalItems += 1;
+      totalStockValue += i.totalStockValue;
+      if (i.currentQuantity <= 0) itemsOutOfStock += 1;
+      else if (i.currentQuantity <= i.minimumQuantity) itemsBelowMinimum += 1;
+      if (i.reservedQuantity > 0) reservedItems += 1;
+    }
+
+    return {
+      totalItems,
+      totalStockValue,
+      itemsBelowMinimum,
+      itemsOutOfStock,
+      reservedItems,
+      pendingReservations: 0,
+      lotsExpiringSoon: 0,
+      expiredLots: 0,
+      movementsCountPeriod: 0,
+      monthlyConsumptionCost: 0,
+      periodLossCost: 0,
+      inventoryDivergencesCount: 0,
+    };
+  },
+
   async getStockItems(filters?: StockItemFilter): Promise<StockItem[]> {
     if (dataSourceConfig.stock === 'api') {
       const items = await fetchStockItemsFromApi(filters?.search);
