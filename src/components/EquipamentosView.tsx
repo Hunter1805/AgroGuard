@@ -43,6 +43,11 @@ export const EquipamentosView: React.FC = () => {
     setViewMode,
     loading,
     error,
+    page,
+    setPage,
+    total,
+    totalPages,
+    pageSize,
     refetch,
     archiveEquipment,
     clearAllFilters,
@@ -210,6 +215,37 @@ export const EquipamentosView: React.FC = () => {
                 onOpenQuickReading={handleQuickReading}
               />
             ))}
+          </div>
+        )}
+
+        {/* Paginação — o backend entrega no máximo 100 por página */}
+        {total > pageSize && (
+          <div className="flex flex-wrap items-center justify-between gap-3 pt-4 text-xs text-on-surface-variant">
+            <span>
+              Mostrando <strong className="text-on-surface">{equipments.length}</strong> de{' '}
+              <strong className="text-on-surface">{total.toLocaleString('pt-BR')}</strong> equipamentos
+            </span>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={page <= 1 || loading}
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+              >
+                Anterior
+              </Button>
+              <span className="font-mono-label">
+                Página <strong className="text-on-surface">{page}</strong> de {totalPages}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={page >= totalPages || loading}
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              >
+                Próxima
+              </Button>
+            </div>
           </div>
         )}
 
