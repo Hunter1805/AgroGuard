@@ -351,6 +351,10 @@ model User {
   maintenancePlanEquipmentsResponsible MaintenancePlanEquipment[]
   maintenanceSchedulesResponsible      MaintenanceSchedule[]
 
+  // User não tem organizationId direto (liga-se via OrganizationMembership);
+  // os filtros de listagem usam status/arquivamento e ordenação por nome.
+  @@index([status, archivedAt])
+  @@index([name])
   @@map("users")
 }
 
@@ -378,6 +382,8 @@ model UserRole {
   role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
 
   @@id([userId, roleId])
+  // A PK cobre userId, mas não a busca reversa por perfil (relatório de permissões).
+  @@index([roleId])
   @@map("user_roles")
 }
 
@@ -418,6 +424,11 @@ model Equipment {
   maintenanceSchedules MaintenanceSchedule[]
 
   @@unique([organizationId, code])
+  // Listagem padrão: filtra por organização + não-arquivados e ordena por code.
+  @@index([organizationId, archivedAt, code])
+  @@index([organizationId, status])
+  @@index([farmId])
+  @@index([equipmentTypeId])
   @@map("equipments")
 }
 
@@ -434,6 +445,7 @@ model EquipmentMeter {
   equipment     Equipment      @relation(fields: [equipmentId], references: [id], onDelete: Cascade)
   meterReadings MeterReading[]
 
+  @@index([equipmentId])
   @@map("equipment_meters")
 }
 
@@ -450,6 +462,9 @@ model MeterReading {
   meter      EquipmentMeter @relation(fields: [meterId], references: [id], onDelete: Restrict)
   readByUser User?          @relation(fields: [readByUserId], references: [id], onDelete: SetNull)
 
+  // Histórico do medidor: busca pela leitura mais recente de cada equipamento.
+  @@index([equipmentId, readingDate])
+  @@index([meterId, readingDate])
   @@map("meter_readings")
 }
 
@@ -491,6 +506,12 @@ model WorkOrder {
   timeline       WorkOrderTimeline[]
 
   @@unique([organizationId, code])
+  // Listagem de OS: organização + ordenação por abertura, e filtros por status/equipamento.
+  @@index([organizationId, openedAt])
+  @@index([organizationId, status])
+  @@index([organizationId, equipmentId])
+  @@index([organizationId, priority])
+  @@index([workshopId])
   @@map("work_orders")
 }
 
@@ -694,6 +715,9 @@ model Tool {
   workOrderUsages WorkOrderToolUsage[]
 
   @@unique([organizationId, code])
+  // Listagem de ferramentas por organização + ordenação por código/nome.
+  @@index([organizationId, name])
+  @@index([organizationId, status])
   @@map("tools")
 }
 
@@ -825,6 +849,10 @@ model OrganizationMembership {
   scope        OrganizationScope?
 
   @@unique([organizationId, userId])
+  // A unique cobre organizationId+userId; falta a busca reversa por usuário,
+  // usada para descobrir a quais organizações o usuário pertence.
+  @@index([userId])
+  @@index([organizationId, status])
   @@map("organization_memberships")
 }
 
