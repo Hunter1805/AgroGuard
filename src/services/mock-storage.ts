@@ -33,7 +33,9 @@ export const mockStorage = {
       try {
         return JSON.parse(raw);
       } catch {
-        // ignore
+        // Dados corrompidos: devolve o fallback em memória SEM sobrescrever o
+        // armazenamento, para não destruir um store existente do usuário.
+        return defaultData;
       }
     }
 

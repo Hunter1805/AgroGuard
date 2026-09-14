@@ -102,7 +102,6 @@ export async function createEquipmentInApi(payload: CreateEquipmentPayload): Pro
   const res = await apiClient<{ ok?: boolean }>('/equipment', {
     method: 'POST',
     body: JSON.stringify(payload),
-    timeoutMs: 10_000,
   });
   return res.data;
 }
@@ -111,7 +110,6 @@ export async function updateEquipmentInApi(id: string, payload: Record<string, u
   const res = await apiClient(`/equipment/${id}`, {
     method: 'PATCH',
     body: JSON.stringify(payload),
-    timeoutMs: 10_000,
   });
   return res.data;
 }
@@ -120,6 +118,5 @@ export async function archiveEquipmentInApi(id: string, reason?: string): Promis
   await apiClient(`/equipment/${id}`, {
     method: 'DELETE',
     body: JSON.stringify({ reason }),
-    timeoutMs: 8_000,
   });
 }

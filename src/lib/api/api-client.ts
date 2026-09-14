@@ -15,6 +15,16 @@ const BASE_URL = configuredBaseUrl || (
 /** Códigos HTTP que nunca devem ser retentados. */
 const NON_RETRYABLE_STATUS = new Set([400, 401, 403, 422]);
 
+/** Timeout padrão de leitura (GET) em ms. */
+export const READ_TIMEOUT_MS = 10_000;
+
+/**
+ * Timeout padrão de gravação (POST/PATCH/PUT/DELETE) em ms.
+ * Maior que o de leitura porque o backend no Render (plano free) tem cold start
+ * de ~25s e abortar a escrita cedo demais faz o formulário "não salvar".
+ */
+export const WRITE_TIMEOUT_MS = 45_000;
+
 export class ApiError extends Error {
   public readonly code: string;
   public readonly fieldErrors?: Record<string, string[]>;
@@ -102,14 +112,19 @@ export function warmUpApi(): Promise<void> {
   const base = BASE_URL.replace(/\/api\/v1\/?$/, '');
   return fetch(`${base}/api/health`, { method: 'GET' })
     .then(() => console.log('[AUTH_TRACE] warmUpApi: servidor acordado'))
-    .catch((err) => console.warn('[AUTH_TRACE] warmUpApi falhou (ignorado):', err?.message || err));
+    .catch((err: unknown) =>
+      console.warn('[AUTH_TRACE] warmUpApi falhou (ignorado):', err instanceof Error ? err.message : err)
+    );
 }
 
 export async function apiClient<T>(
   endpoint: string,
   options: ApiClientOptions = {}
 ): Promise<ApiResponse<T>> {
-  const { timeoutMs = 10_000, ...fetchOptions } = options;
+  const { timeoutMs: requestedTimeoutMs, ...fetchOptions } = options;
+  const method = (fetchOptions.method || 'GET').toUpperCase();
+  const isWriteMethod = method !== 'GET' && method !== 'HEAD';
+  const timeoutMs = requestedTimeoutMs ?? (isWriteMethod ? WRITE_TIMEOUT_MS : READ_TIMEOUT_MS);
   const url = endpoint.startsWith('http') ? endpoint : `${BASE_URL}${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
 
   const isMe = endpoint.includes('/users/me');
@@ -140,8 +155,9 @@ export async function apiClient<T>(
     );
     session = sessionRes.data.session;
     console.log(`[AUTH_TRACE] getSession END (${Math.round(performance.now() - sessionStart)}ms)`);
-  } catch (err: any) {
-    console.log(`[AUTH_TRACE] ERROR getSession (${Math.round(performance.now() - sessionStart)}ms):`, err.message || err);
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : err;
+    console.log(`[AUTH_TRACE] ERROR getSession (${Math.round(performance.now() - sessionStart)}ms):`, message || err);
     throw err;
   }
 
@@ -188,20 +204,21 @@ export async function apiClient<T>(
     }
 
     return data as ApiResponse<T>;
-  } catch (err: any) {
+  } catch (err: unknown) {
     clearTimeout(timeoutId);
     if (signalCleanup) signalCleanup();
 
     const reqMs = Math.round(performance.now() - reqStart);
+    const errorMessage = err instanceof Error ? err.message : err;
 
     if (isMe) {
-      console.log(`[AUTH_TRACE] ERROR GET /users/me (${reqMs}ms):`, err.message || err);
+      console.log(`[AUTH_TRACE] ERROR GET /users/me (${reqMs}ms):`, errorMessage || err);
     } else if (isProvision) {
-      console.log(`[AUTH_TRACE] ERROR POST /onboarding/provision (${reqMs}ms):`, err.message || err);
+      console.log(`[AUTH_TRACE] ERROR POST /onboarding/provision (${reqMs}ms):`, errorMessage || err);
     }
 
     if (err instanceof ApiError) throw err;
-    if (err.name === 'AbortError') {
+    if (err instanceof Error && err.name === 'AbortError') {
       if (import.meta.env.DEV) {
         console.warn(`[AUTH_PERF] TIMEOUT em ${reqMs}ms | endpoint: ${endpoint}`);
       }
@@ -211,6 +228,11 @@ export async function apiClient<T>(
         408
       );
     }
-    throw new ApiError(err.message || 'Erro de conexão com o servidor.', 'NETWORK_ERROR', 500);
+    const isAbort = err instanceof Error && err.name === 'AbortError';
+    throw new ApiError(
+      err instanceof Error && err.message ? err.message : 'Erro de conexão com o servidor.',
+      isAbort ? 'REQUEST_ABORTED' : 'NETWORK_ERROR',
+      isAbort ? 499 : 500
+    );
   }
 }

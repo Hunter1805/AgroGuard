@@ -38,7 +38,6 @@ export const tireCalculationService = {
       return 'novo';
     }
     if (remainingLifePercent <= 0) return 'inutilizavel';
-    if (remainingLifePercent < 10) return 'critico';
     if (remainingLifePercent < 30) return 'critico';
     if (remainingLifePercent < 60) return 'atencao';
     return 'bom';
