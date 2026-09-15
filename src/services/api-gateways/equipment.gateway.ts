@@ -1,10 +1,26 @@
-import { apiClient } from '../../lib/api/api-client';
+import { apiClient, isRetryableError } from '../../lib/api/api-client';
 import type { Equipment } from '../../types/equipment';
 
 let equipmentCache: Equipment[] | null = null;
 let equipmentCacheTotal: number | null = null;
 let equipmentRequest: Promise<EquipmentPage> | null = null;
 let equipmentCacheKey: string | null = null;
+
+/**
+ * Executa a requisição com 1 retry automático para falhas transitórias
+ * (cold start do Render, timeout de rede, 502/503/504). Não retenta erros de
+ * auth/validação. Evita que a lista caia em "Algo deu errado" por uma
+ * oscilação momentânea do backend.
+ */
+async function withOneRetry<T>(fn: () => Promise<T>): Promise<T> {
+  try {
+    return await fn();
+  } catch (err) {
+    if (!isRetryableError(err)) throw err;
+    await new Promise((r) => setTimeout(r, 800));
+    return fn();
+  }
+}
 
 /** Página de equipamentos: itens + total real informado pelo backend. */
 export interface EquipmentPage {
@@ -74,7 +90,7 @@ export async function fetchEquipmentPageFromApi(query: EquipmentQuery = {}): Pro
   if (equipmentRequest && equipmentCacheKey === cacheKey) return equipmentRequest;
 
   equipmentCacheKey = cacheKey;
-  const request = apiClient<any>(`/equipment${q}`, { timeoutMs: 25_000 }).then((response) => {
+  const request = withOneRetry(() => apiClient<any>(`/equipment${q}`, { timeoutMs: 25_000 })).then((response) => {
     const rawItems: any[] = Array.isArray(response.data)
       ? response.data
       : Array.isArray((response.data as any)?.items)

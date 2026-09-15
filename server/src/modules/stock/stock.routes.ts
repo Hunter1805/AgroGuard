@@ -4,12 +4,17 @@ import { StockService } from './stock.service';
 import { stockMovementSchema, createStockItemSchema } from './stock.schemas';
 import { AppError } from '../../shared/errors/AppError';
 import type { ApiResponse } from '../../shared/http/ApiResponse';
+import { requireAuthentication, requireOrganizationScope } from '../../shared/middleware/authGuard';
 import { prisma } from '../../shared/db/prisma';
 const repo = new StockRepository(prisma);
 const service = new StockService(repo);
 
+// Guarda de escopo organizacional (evita query com organizationId vazio -> 500).
+const guard = { preHandler: [requireAuthentication(), requireOrganizationScope()] };
+
 export async function stockRoutes(app: FastifyInstance) {
   app.get('/api/v1/stock/items', {
+    ...guard,
     schema: {
       description: 'Listar itens de estoque e saldos por almoxarifado',
       tags: ['Estoque'],
@@ -23,6 +28,7 @@ export async function stockRoutes(app: FastifyInstance) {
   });
 
   app.post('/api/v1/stock/items', {
+    ...guard,
     schema: {
       description: 'Cadastrar item de estoque',
       tags: ['Estoque'],
@@ -36,6 +42,7 @@ export async function stockRoutes(app: FastifyInstance) {
   });
 
   app.post('/api/v1/stock/movements', {
+    ...guard,
     schema: {
       description: 'Registrar entrada, saída ou ajuste de estoque com transação transacional',
       tags: ['Estoque'],

@@ -1,8 +1,12 @@
 import type { FastifyInstance } from 'fastify';
 import { AppError } from '../../shared/errors/AppError';
+import { requireAuthentication, requireOrganizationScope } from '../../shared/middleware/authGuard';
 import type { ApiResponse } from '../../shared/http/ApiResponse';
 import { prisma } from '../../shared/db/prisma';
 import { createTireSchema, updateTireSchema, tireMovementSchema } from './tires.schemas';
+
+// Guarda de escopo organizacional (evita query com organizationId vazio -> 500).
+const guard = { preHandler: [requireAuthentication(), requireOrganizationScope()] };
 
 interface Actor {
   organizationId: string;
@@ -37,6 +41,7 @@ function validateTireBusinessRules(metadata: Record<string, any>) {
 export async function tireRoutes(app: FastifyInstance) {
   // ─── Listar ───
   app.get('/api/v1/tires', {
+    ...guard,
     schema: { description: 'Listar pneus da frota', tags: ['Pneus'] },
   }, async (request, reply) => {
     if (!request.actor) throw new AppError('Contexto não informado.', 401, 'ACCESS_DENIED');
@@ -66,6 +71,7 @@ export async function tireRoutes(app: FastifyInstance) {
 
   // ─── Detalhe ───
   app.get('/api/v1/tires/:id', {
+    ...guard,
     schema: { description: 'Detalhe do pneu', tags: ['Pneus'] },
   }, async (request, reply) => {
     if (!request.actor) throw new AppError('Contexto não informado.', 401, 'ACCESS_DENIED');
@@ -76,6 +82,7 @@ export async function tireRoutes(app: FastifyInstance) {
 
   // ─── Cadastro ───
   app.post('/api/v1/tires', {
+    ...guard,
     schema: { description: 'Cadastrar pneu', tags: ['Pneus'] },
   }, async (request, reply) => {
     if (!request.actor) throw new AppError('Contexto não informado.', 401, 'ACCESS_DENIED');
@@ -110,6 +117,7 @@ export async function tireRoutes(app: FastifyInstance) {
 
   // ─── Edição ───
   app.patch('/api/v1/tires/:id', {
+    ...guard,
     schema: { description: 'Atualizar pneu', tags: ['Pneus'] },
   }, async (request, reply) => {
     if (!request.actor) throw new AppError('Contexto não informado.', 401, 'ACCESS_DENIED');
@@ -140,6 +148,7 @@ export async function tireRoutes(app: FastifyInstance) {
 
   // ─── Arquivar ───
   app.delete('/api/v1/tires/:id', {
+    ...guard,
     schema: { description: 'Arquivar pneu (soft delete)', tags: ['Pneus'] },
   }, async (request, reply) => {
     if (!request.actor) throw new AppError('Contexto não informado.', 401, 'ACCESS_DENIED');
@@ -152,6 +161,7 @@ export async function tireRoutes(app: FastifyInstance) {
 
   // ─── Movimentações (instalar / remover / rodizio / reparo / recapagem / descarte) ───
   app.post('/api/v1/tires/movements', {
+    ...guard,
     schema: { description: 'Registrar movimentação de pneu', tags: ['Pneus'] },
   }, async (request, reply) => {
     if (!request.actor) throw new AppError('Contexto não informado.', 401, 'ACCESS_DENIED');

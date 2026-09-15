@@ -3,13 +3,20 @@ import { EquipmentRepository } from './equipment.repository';
 import { EquipmentService } from './equipment.service';
 import { createReadingSchema, createEquipmentSchema, updateEquipmentSchema } from './equipment.schemas';
 import { AppError } from '../../shared/errors/AppError';
+import { requireOrganizationScope, requireAuthentication } from '../../shared/middleware/authGuard';
 import type { ApiResponse } from '../../shared/http/ApiResponse';
 import { prisma } from '../../shared/db/prisma';
 const repo = new EquipmentRepository(prisma);
 const service = new EquipmentService(repo);
 
+// Exige contexto autenticado e escopo organizacional válido em todas as rotas
+// do módulo. Sem isso, uma conta sem organização enviava organizationId vazio
+// ao Prisma (campo UUID) e a query lançava erro 500.
+const preHandler = [requireAuthentication(), requireOrganizationScope()];
+
 export async function equipmentRoutes(app: FastifyInstance) {
   app.get('/api/v1/equipment', {
+    preHandler,
     schema: {
       description: 'Listar equipamentos da frota',
       tags: ['Equipamentos'],
@@ -23,6 +30,7 @@ export async function equipmentRoutes(app: FastifyInstance) {
   });
 
   app.get('/api/v1/equipment/:id', {
+    preHandler,
     schema: {
       description: 'Ficha e medidores do equipamento',
       tags: ['Equipamentos'],
@@ -36,6 +44,7 @@ export async function equipmentRoutes(app: FastifyInstance) {
   });
 
   app.post('/api/v1/equipment', {
+    preHandler,
     schema: {
       description: 'Cadastrar equipamento na frota',
       tags: ['Equipamentos'],
@@ -123,6 +132,7 @@ export async function equipmentRoutes(app: FastifyInstance) {
   });
 
   app.patch('/api/v1/equipment/:id', {
+    preHandler,
     schema: {
       description: 'Atualizar equipamento',
       tags: ['Equipamentos'],
@@ -141,6 +151,7 @@ export async function equipmentRoutes(app: FastifyInstance) {
   });
 
   app.delete('/api/v1/equipment/:id', {
+    preHandler,
     schema: {
       description: 'Arquivar equipamento (soft delete)',
       tags: ['Equipamentos'],
@@ -159,6 +170,7 @@ export async function equipmentRoutes(app: FastifyInstance) {
   });
 
   app.post('/api/v1/readings', {
+    preHandler,
     schema: {
       description: 'Registrar nova leitura de medidor (horímetro/odômetro)',
       tags: ['Equipamentos'],

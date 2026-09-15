@@ -1,6 +1,7 @@
 /// <reference types="@fastify/swagger" />
 import type { FastifyInstance } from 'fastify';
 import { AppError } from '../../shared/errors/AppError';
+import { requireAuthentication, requireOrganizationScope } from '../../shared/middleware/authGuard';
 import type { ApiResponse } from '../../shared/http/ApiResponse';
 // Import de tipo que carrega a augmentação `FastifyRequest.actor`
 // (declare module 'fastify' em RequestActor.ts).
@@ -8,9 +9,14 @@ import type {} from '../../shared/http/RequestActor';
 import { prisma } from '../../shared/db/prisma';
 import { createToolSchema, updateToolSchema } from './tools.schemas';
 
+// Guarda de escopo organizacional: contas sem organização não podem consultar
+// o Prisma com organizationId vazio (campo UUID) — isso lançava erro 500.
+const guard = { preHandler: [requireAuthentication(), requireOrganizationScope()] };
+
 export async function toolRoutes(app: FastifyInstance) {
   // Lista ferramentas da organização
   app.get('/api/v1/tools', {
+    ...guard,
     schema: { description: 'Listar ferramentas', tags: ['Ferramentas'] },
   }, async (request, reply) => {
     if (!request.actor) throw new AppError('Contexto não informado.', 401, 'ACCESS_DENIED');
@@ -36,6 +42,7 @@ export async function toolRoutes(app: FastifyInstance) {
 
   // Detalhe da ferramenta
   app.get('/api/v1/tools/:id', {
+    ...guard,
     schema: { description: 'Detalhe da ferramenta', tags: ['Ferramentas'] },
   }, async (request, reply) => {
     if (!request.actor) throw new AppError('Contexto não informado.', 401, 'ACCESS_DENIED');
@@ -52,6 +59,7 @@ export async function toolRoutes(app: FastifyInstance) {
 
   // Cadastro
   app.post('/api/v1/tools', {
+    ...guard,
     schema: { description: 'Cadastrar ferramenta', tags: ['Ferramentas'] },
   }, async (request, reply) => {
     if (!request.actor) throw new AppError('Contexto não informado.', 401, 'ACCESS_DENIED');
@@ -88,6 +96,7 @@ export async function toolRoutes(app: FastifyInstance) {
 
   // Edição
   app.patch('/api/v1/tools/:id', {
+    ...guard,
     schema: { description: 'Atualizar ferramenta', tags: ['Ferramentas'] },
   }, async (request, reply) => {
     if (!request.actor) throw new AppError('Contexto não informado.', 401, 'ACCESS_DENIED');

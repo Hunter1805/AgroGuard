@@ -96,8 +96,9 @@ export function useEquipments() {
       setStats(result.stats);
       setLocations(result.locations);
       setTotal(result.total);
-    } catch {
-      setError('Erro ao carregar lista de equipamentos.');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Erro ao carregar lista de equipamentos.';
+      setError(msg);
     } finally {
       setLoading(false);
     }

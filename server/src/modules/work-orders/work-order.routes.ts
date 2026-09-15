@@ -5,12 +5,17 @@ import { createWorkOrderSchema, updateStatusSchema } from './work-order.schemas'
 import { AppError } from '../../shared/errors/AppError';
 import type { ApiResponse } from '../../shared/http/ApiResponse';
 import { AuditService } from '../../shared/services/audit.service';
+import { requireAuthentication, requireOrganizationScope } from '../../shared/middleware/authGuard';
 import { prisma } from '../../shared/db/prisma';
 const repo = new WorkOrderRepository(prisma);
 const service = new WorkOrderService(repo, new AuditService(prisma));
 
+// Guarda de escopo organizacional (evita query com organizationId vazio -> 500).
+const guard = { preHandler: [requireAuthentication(), requireOrganizationScope()] };
+
 export async function workOrderRoutes(app: FastifyInstance) {
   app.get('/api/v1/work-orders', {
+    ...guard,
     schema: {
       description: 'Listar Ordens de Serviço',
       tags: ['Ordens de Serviço'],
@@ -24,6 +29,7 @@ export async function workOrderRoutes(app: FastifyInstance) {
   });
 
   app.get('/api/v1/work-orders/:id', {
+    ...guard,
     schema: {
       description: 'Detalhes de uma Ordem de Serviço',
       tags: ['Ordens de Serviço'],
@@ -37,6 +43,7 @@ export async function workOrderRoutes(app: FastifyInstance) {
   });
 
   app.post('/api/v1/work-orders', {
+    ...guard,
     schema: {
       description: 'Abrir nova Ordem de Serviço',
       tags: ['Ordens de Serviço'],
@@ -50,6 +57,7 @@ export async function workOrderRoutes(app: FastifyInstance) {
   });
 
   app.patch('/api/v1/work-orders/:id/status', {
+    ...guard,
     schema: {
       description: 'Transição de status na Máquina de Estados da OS',
       tags: ['Ordens de Serviço'],
