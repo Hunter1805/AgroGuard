@@ -1,4 +1,4 @@
-import { FastifyInstance } from 'fastify';
+import type { FastifyInstance } from 'fastify';
 import { getFileStorageProvider } from '../../shared/storage/storage.factory';
 import { ALLOWED_MIME_TYPES } from './file.schemas';
 import { AppError } from '../../shared/errors/AppError';

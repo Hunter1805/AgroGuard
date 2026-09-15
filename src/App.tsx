@@ -65,7 +65,7 @@ import { useOrders } from './hooks/useOrders';
 import { useMaintenance } from './hooks/useMaintenance';
 
 // Fase 18 - Telas e Contexto de Autenticação / Onboarding
-import { useAuth } from './context/AuthContext';
+import { useAuth } from './hooks/useAuth';
 import { LoginPage } from './components/auth/LoginPage';
 import { RegisterPage } from './components/auth/RegisterPage';
 import { EmailConfirmationPage } from './components/auth/EmailConfirmationPage';

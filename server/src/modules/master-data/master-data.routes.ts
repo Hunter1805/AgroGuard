@@ -1,10 +1,8 @@
-import { FastifyInstance } from 'fastify';
-import { PrismaClient } from '@prisma/client';
+import type { FastifyInstance } from 'fastify';
 import { MasterDataRepository } from './master-data.repository';
 import { MasterDataService } from './master-data.service';
 import type { ApiResponse } from '../../shared/http/ApiResponse';
-
-const prisma = new PrismaClient();
+import { prisma } from '../../shared/db/prisma';
 const repo = new MasterDataRepository(prisma);
 const service = new MasterDataService(repo);
 

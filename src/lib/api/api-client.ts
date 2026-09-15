@@ -25,6 +25,30 @@ export const READ_TIMEOUT_MS = 10_000;
  */
 export const WRITE_TIMEOUT_MS = 45_000;
 
+/**
+ * Cache curto do access token em memória.
+ * `supabase.auth.getSession()` é chamado antes de cada fetch; em sequência de
+ * requisições (ex.: cadastrar vários itens) isso adiciona latência repetida.
+ * Reaproveitamos o token por um curto período; o supabase-js continua
+ * renovando o token em background, e erros 401 limpam o cache.
+ */
+const TOKEN_CACHE_TTL_MS = 60_000;
+let cachedToken: { value: string; expiresAt: number } | null = null;
+
+function getCachedToken(): string | null {
+  if (cachedToken && cachedToken.expiresAt > Date.now()) return cachedToken.value;
+  cachedToken = null;
+  return null;
+}
+
+function setCachedToken(value: string): void {
+  cachedToken = { value, expiresAt: Date.now() + TOKEN_CACHE_TTL_MS };
+}
+
+export function invalidateTokenCache(): void {
+  cachedToken = null;
+}
+
 export class ApiError extends Error {
   public readonly code: string;
   public readonly fieldErrors?: Record<string, string[]>;
@@ -141,28 +165,34 @@ export async function apiClient<T>(
     ...(fetchOptions.headers as Record<string, string>),
   };
 
-  const sessionStart = performance.now();
-  console.log('[AUTH_TRACE] getSession START');
-  let session = null;
+  // Reaproveita o token em cache para evitar `getSession` a cada request.
+  let accessToken = getCachedToken();
 
-  try {
-    // Timeout para obter a sessão para evitar deadlock antes do fetch de fato
-    const sessionPromise = supabase.auth.getSession();
-    const sessionRes = await withTimeout(
-      sessionPromise,
-      Math.min(5000, timeoutMs),
-      'Erro ao obter sessão (Timeout)'
-    );
-    session = sessionRes.data.session;
-    console.log(`[AUTH_TRACE] getSession END (${Math.round(performance.now() - sessionStart)}ms)`);
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : err;
-    console.log(`[AUTH_TRACE] ERROR getSession (${Math.round(performance.now() - sessionStart)}ms):`, message || err);
-    throw err;
+  if (!accessToken) {
+    const sessionStart = performance.now();
+    try {
+      // Timeout para obter a sessão para evitar deadlock antes do fetch de fato
+      const sessionPromise = supabase.auth.getSession();
+      const sessionRes = await withTimeout(
+        sessionPromise,
+        Math.min(5000, timeoutMs),
+        'Erro ao obter sessão (Timeout)'
+      );
+      accessToken = sessionRes.data.session?.access_token ?? null;
+      if (accessToken) setCachedToken(accessToken);
+      if (import.meta.env.DEV) {
+        console.debug(`[AUTH_PERF] getSession: ${Math.round(performance.now() - sessionStart)}ms`);
+      }
+    } catch (err: any) {
+      if (isProvision || isMe) {
+        console.log(`[AUTH_TRACE] ERROR getSession (${Math.round(performance.now() - sessionStart)}ms):`, err.message || err);
+      }
+      throw err;
+    }
   }
 
-  if (session?.access_token) {
-    headers['Authorization'] = `Bearer ${session.access_token}`;
+  if (accessToken) {
+    headers['Authorization'] = `Bearer ${accessToken}`;
   }
 
   const controller = new AbortController();
@@ -197,6 +227,8 @@ export async function apiClient<T>(
     const data = await response.json().catch(() => ({}));
 
     if (!response.ok) {
+      // Token expirado/ inválido: descarta o cache para forçar nova sessão no próximo request.
+      if (response.status === 401) invalidateTokenCache();
       const errorPayload = data as ApiErrorResponse;
       const msg = errorPayload.error?.message || 'Erro inesperado na comunicação com o servidor.';
       const code = errorPayload.error?.code || 'INTERNAL_ERROR';

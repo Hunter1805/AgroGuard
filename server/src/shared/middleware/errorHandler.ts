@@ -1,4 +1,4 @@
-import { FastifyError, FastifyReply, FastifyRequest } from 'fastify';
+import type { FastifyError, FastifyReply, FastifyRequest } from 'fastify';
 import { ZodError } from 'zod';
 import { AppError } from '../errors/AppError';
 import type { ApiErrorResponse } from '../http/ApiResponse';

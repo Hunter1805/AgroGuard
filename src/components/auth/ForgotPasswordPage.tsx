@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Mail, AlertTriangle, CheckCircle2, ArrowLeft } from 'lucide-react';
 import { AgroGuardIcon } from '../AgroGuardLogo';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 
 export const ForgotPasswordPage: React.FC = () => {
   const { resetPassword } = useAuth();

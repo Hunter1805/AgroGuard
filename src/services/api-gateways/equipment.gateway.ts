@@ -12,6 +12,45 @@ export interface EquipmentPage {
   total: number;
 }
 
+/**
+ * O backend usa valores próprios (ex.: 'operacional', 'em_manutencao', 'inativo').
+ * O front trabalha com o tipo `EquipmentStatus` ('operante' | 'em_operacao' |
+ * 'manutencao' | 'parado' | 'bloqueado' | 'inoperante'). Sem esta normalização,
+ * indicadores como Disponibilidade/Utilização ficavam zerados.
+ */
+function normalizeEquipmentStatus(raw: string | null | undefined): Equipment['status'] {
+  const s = (raw || '').toLowerCase().trim();
+  switch (s) {
+    case 'operacional':
+    case 'operante':
+    case 'ativo':
+    case 'active':
+    case 'disponivel':
+      return 'operante';
+    case 'em_operacao':
+    case 'operando':
+    case 'in_operation':
+      return 'em_operacao';
+    case 'manutencao':
+    case 'em_manutencao':
+    case 'maintenance':
+      return 'manutencao';
+    case 'parado':
+    case 'parada':
+    case 'stopped':
+      return 'parado';
+    case 'bloqueado':
+    case 'blocked':
+      return 'bloqueado';
+    case 'inoperante':
+    case 'inativo':
+    case 'inactive':
+      return 'inoperante';
+    default:
+      return (raw as Equipment['status']) || 'operante';
+  }
+}
+
 export interface EquipmentQuery {
   search?: string;
   page?: number;
@@ -58,7 +97,7 @@ export async function fetchEquipmentPageFromApi(query: EquipmentQuery = {}): Pro
       modelYear: eq.manufactureYear ? String(eq.manufactureYear) : '2024',
       year: eq.manufactureYear ? String(eq.manufactureYear) : '2024',
       serialNumber: eq.serialNumber || 'SN-000000',
-      status: (eq.status || 'operante') as any,
+      status: normalizeEquipmentStatus(eq.status),
       currentMeter: Number(eq.meters?.[0]?.currentValue || 0),
       currentHours: Number(eq.meters?.[0]?.currentValue || 0),
       meterUnit: 'h',

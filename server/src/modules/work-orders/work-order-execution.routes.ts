@@ -1,12 +1,11 @@
-import { FastifyInstance } from 'fastify';
-import { PrismaClient } from '@prisma/client';
+import type { FastifyInstance } from 'fastify';
 import { requireAuthentication, requirePermission } from '../../shared/middleware/authGuard';
 import { AuditService } from '../../shared/services/audit.service';
 import type { ApiResponse } from '../../shared/http/ApiResponse';
 import { WorkOrderExecutionRepository } from './work-order-execution.repository';
 import { WorkOrderExecutionService } from './work-order-execution.service';
 import { executionPatchSchema, laborCreateSchema, laborPatchSchema, materialCreateSchema, materialPatchSchema, toolCreateSchema, toolPatchSchema, noteSchema, timelineQuerySchema } from './work-order-execution.schemas';
-const prisma = new PrismaClient();
+import { prisma } from '../../shared/db/prisma';
 const service = new WorkOrderExecutionService(new WorkOrderExecutionRepository(prisma), new AuditService(prisma));
 export async function workOrderExecutionRoutes(app: FastifyInstance) {
   const read = { preHandler: [requireAuthentication(), requirePermission('work-orders', 'read')] };

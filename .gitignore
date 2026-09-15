@@ -19,6 +19,9 @@ server/.env
 uploads/
 postgres_data/
 
+# Scripts temporários de QA local (contêm credenciais de teste)
+qa-*.mjs
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

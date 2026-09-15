@@ -1,12 +1,10 @@
-import { FastifyInstance } from 'fastify';
-import { PrismaClient } from '@prisma/client';
+import type { FastifyInstance } from 'fastify';
 import { EquipmentRepository } from './equipment.repository';
 import { EquipmentService } from './equipment.service';
 import { createReadingSchema, createEquipmentSchema, updateEquipmentSchema } from './equipment.schemas';
 import { AppError } from '../../shared/errors/AppError';
 import type { ApiResponse } from '../../shared/http/ApiResponse';
-
-const prisma = new PrismaClient();
+import { prisma } from '../../shared/db/prisma';
 const repo = new EquipmentRepository(prisma);
 const service = new EquipmentService(repo);
 

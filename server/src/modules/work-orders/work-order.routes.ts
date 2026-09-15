@@ -1,13 +1,11 @@
-import { FastifyInstance } from 'fastify';
-import { PrismaClient } from '@prisma/client';
+import type { FastifyInstance } from 'fastify';
 import { WorkOrderRepository } from './work-order.repository';
 import { WorkOrderService } from './work-order.service';
 import { createWorkOrderSchema, updateStatusSchema } from './work-order.schemas';
 import { AppError } from '../../shared/errors/AppError';
 import type { ApiResponse } from '../../shared/http/ApiResponse';
 import { AuditService } from '../../shared/services/audit.service';
-
-const prisma = new PrismaClient();
+import { prisma } from '../../shared/db/prisma';
 const repo = new WorkOrderRepository(prisma);
 const service = new WorkOrderService(repo, new AuditService(prisma));
 

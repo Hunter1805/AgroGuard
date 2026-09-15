@@ -1,7 +1,5 @@
 import type { ScheduledJob, JobContext, JobResult } from '../shared/jobs/scheduler.service';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '../shared/db/prisma';
 
 export class StockAutomationJob implements ScheduledJob {
   name = 'stock-check';

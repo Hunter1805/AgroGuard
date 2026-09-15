@@ -1,12 +1,10 @@
-import { FastifyInstance } from 'fastify';
-import { PrismaClient } from '@prisma/client';
+import type { FastifyInstance } from 'fastify';
 import { createClient } from '@supabase/supabase-js';
 import { env } from '../../config/env';
 import { AppError } from '../../shared/errors/AppError';
 import { requireAuthentication, requirePermission } from '../../shared/middleware/authGuard';
 import type { ApiResponse } from '../../shared/http/ApiResponse';
-
-const prisma = new PrismaClient();
+import { prisma } from '../../shared/db/prisma';
 
 interface InvitationPayload {
   email: string;

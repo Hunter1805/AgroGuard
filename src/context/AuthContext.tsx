@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { AuthContext } from './authContext.instance';
 import type { Session, User as SupabaseUser } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase/supabase-client';
 import {
@@ -56,32 +57,6 @@ export interface UserProfileData {
   onboardingStep: number;
 }
 
-interface AuthContextType {
-  session: Session | null;
-  user: SupabaseUser | null;
-  profile: UserProfileData | null;
-  /** true apenas durante a verificação inicial de sessão */
-  authLoading: boolean;
-  /** true durante qualquer fetch/refresh de perfil */
-  profileLoading: boolean;
-  /** erro do último fetch de perfil — null se ok */
-  profileError: Error | null;
-  /** compat com código legado: authLoading || profileLoading */
-  loading: boolean;
-  login: (email: string, password: string) => Promise<{ error: any }>;
-  logout: () => Promise<void>;
-  resetPassword: (email: string) => Promise<{ error: any }>;
-  registerUser: (email: string, password: string, name: string, metadata?: Record<string, any>) => Promise<{ user: SupabaseUser | null; session: Session | null; error: any }>;
-  provisionOrganization: (payload: any, options?: { signal?: AbortSignal; timeoutMs?: number }) => Promise<{ data: any; error: any }>;
-  updateOnboardingStep: (step: number) => Promise<{ data: any; error: any }>;
-  /**
-   * Recarrega o perfil do usuário.
-   * IMPORTANTE: retorna o perfil carregado diretamente para evitar stale state.
-   * Use o valor retornado para decisões de rota — nunca leia `profile` do closure.
-   */
-  refreshProfile: (options?: { signal?: AbortSignal; timeoutMs?: number }) => Promise<UserProfileData | null>;
-  updateProfile: (data: { name: string; phone?: string }) => Promise<{ data: UserProfileData | null; error: any }>;
-}
 
 function getCachedProfile(authUser: SupabaseUser): UserProfileData | null {
   const cached = localStorage.getItem(`agroguard_user_profile_${authUser.id}`);
@@ -141,8 +116,6 @@ function getFallbackProfile(authUser: SupabaseUser, overrideData?: Partial<UserP
   localStorage.setItem('agroguard_user_profile', JSON.stringify(finalProfile));
   return finalProfile;
 }
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [session, setSession] = useState<Session | null>(null);
@@ -502,14 +475,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const registerUser = async (email: string, password: string, name: string, metadata?: Record<string, any>) => {
+    const normalizedEmail = email.trim().toLowerCase();
     const { data, error } = await supabase.auth.signUp({
-      email,
+      email: normalizedEmail,
       password,
       options: {
         data: { name, ...metadata },
         emailRedirectTo: `${window.location.origin}/auth/callback`,
       },
     });
+
+    // O cadastro pode ter sido concluído antes de uma falha de rede ou de
+    // provisionamento. Nesse caso, uma nova tentativa retorna "usuário já
+    // cadastrado". Como a pessoa acabou de informar a senha, tentamos entrar
+    // automaticamente em vez de obrigá-la a voltar para a tela de login.
+    if (error && /already registered|already exists|já.*cadastrad/i.test(error.message || '')) {
+      const loginResult = await supabase.auth.signInWithPassword({
+        email: normalizedEmail,
+        password,
+      });
+
+      if (!loginResult.error) {
+        return {
+          user: loginResult.data.user,
+          session: loginResult.data.session,
+          error: null,
+        };
+      }
+    }
+
+    // Quando a confirmação de e-mail está habilitada, o Supabase retorna o
+    // usuário sem sessão. A tela de cadastro encaminha para a confirmação;
+    // após o link, o callback conclui o provisionamento e abre o dashboard.
     return { user: data.user, session: data.session, error };
   };
 
@@ -593,12 +590,4 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       {children}
     </AuthContext.Provider>
   );
-};
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth deve ser utilizado dentro de um AuthProvider');
-  }
-  return context;
 };

@@ -1,12 +1,10 @@
-import { FastifyInstance } from 'fastify';
-import { PrismaClient } from '@prisma/client';
+import type { FastifyInstance } from 'fastify';
 import { StockRepository } from './stock.repository';
 import { StockService } from './stock.service';
 import { stockMovementSchema, createStockItemSchema } from './stock.schemas';
 import { AppError } from '../../shared/errors/AppError';
 import type { ApiResponse } from '../../shared/http/ApiResponse';
-
-const prisma = new PrismaClient();
+import { prisma } from '../../shared/db/prisma';
 const repo = new StockRepository(prisma);
 const service = new StockService(repo);
 

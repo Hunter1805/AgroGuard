@@ -1,4 +1,4 @@
-import { FastifyRequest, FastifyReply } from 'fastify';
+import type { FastifyRequest, FastifyReply } from 'fastify';
 import { createClient } from '@supabase/supabase-js';
 import { env } from '../../config/env';
 import { prisma } from '../db/prisma';
@@ -28,6 +28,33 @@ declare module 'fastify' {
   }
 }
 
+// Cache curto do actor já resolvido, chaveado pelo Bearer token.
+// Evita repetir `supabase.auth.getUser` (rede) + queries Prisma a cada requisição
+// do mesmo usuário — o que dominava a latência de operações em sequência.
+const ACTOR_CACHE_TTL_MS = 45_000;
+const ACTOR_CACHE_MAX_ENTRIES = 5_000;
+interface CachedActor { actor: RequestActor; expiresAt: number }
+const actorCache = new Map<string, CachedActor>();
+
+function readActorCache(token: string): RequestActor | null {
+  const entry = actorCache.get(token);
+  if (!entry) return null;
+  if (entry.expiresAt <= Date.now()) {
+    actorCache.delete(token);
+    return null;
+  }
+  return entry.actor;
+}
+
+function writeActorCache(token: string, actor: RequestActor): void {
+  if (actorCache.size >= ACTOR_CACHE_MAX_ENTRIES) {
+    // Remove o mais antigo (primeira chave inserida no Map).
+    const oldest = actorCache.keys().next().value;
+    if (oldest) actorCache.delete(oldest);
+  }
+  actorCache.set(token, { actor, expiresAt: Date.now() + ACTOR_CACHE_TTL_MS });
+}
+
 export async function requestActorMiddleware(request: FastifyRequest, _reply: FastifyReply) {
   const actorStart = performance.now();
   perf(request, 'request_received', actorStart);
@@ -37,6 +64,14 @@ export async function requestActorMiddleware(request: FastifyRequest, _reply: Fa
   const token = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : null;
 
   if (token && env.SUPABASE_URL && env.SUPABASE_SERVICE_ROLE_KEY) {
+    // Atalho: actor já resolvido recentemente para este token.
+    const cached = readActorCache(token);
+    if (cached) {
+      request.actor = cached;
+      perf(request, 'request_actor_end', actorStart, { cacheHit: true });
+      return;
+    }
+
     const authActorStart = performance.now();
     try {
       const supabaseStart = performance.now();
@@ -205,7 +240,7 @@ export async function requestActorMiddleware(request: FastifyRequest, _reply: Fa
             request.log.warn(requestActorReport, '[PERF] requestActor: middleware lento');
           }
 
-          request.actor = {
+          const resolvedActor: RequestActor = {
             authUserId: authUser.id,
             userId: user.id,
             organizationId,
@@ -220,6 +255,8 @@ export async function requestActorMiddleware(request: FastifyRequest, _reply: Fa
             profile: { id: user.id, authUserId: user.authUserId, name: user.name, email: user.email, phone: user.phone, status: user.status },
             membership: membership ? { organizationId: membership.organizationId, role: membership.role, status: membership.status } : undefined,
           };
+          request.actor = resolvedActor;
+          writeActorCache(token, resolvedActor);
           perf(request, 'request_actor_end', actorStart);
           return;
         } else {

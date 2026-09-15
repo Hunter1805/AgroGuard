@@ -1,14 +1,15 @@
-import { PrismaClient } from '@prisma/client';
+import type { PrismaClient } from '@prisma/client';
 import { StockRepository } from './stock.repository';
 import { AppError } from '../../shared/errors/AppError';
 import { createPaginationMeta } from '../../shared/utils/pagination';
 import type { RequestActor } from '../../shared/http/RequestActor';
+import { prisma as defaultPrisma } from '../../shared/db/prisma';
 
 export class StockService {
   private prisma: PrismaClient;
 
   constructor(private repo: StockRepository, prisma?: PrismaClient) {
-    this.prisma = prisma ?? new PrismaClient();
+    this.prisma = prisma ?? defaultPrisma;
   }
 
   async listStockItems(actor: RequestActor, page?: number, pageSize?: number, query?: string) {

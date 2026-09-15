@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AlertTriangle, RefreshCw, LogIn } from 'lucide-react';
 import { AgroGuardIcon } from '../AgroGuardLogo';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 import { AUTH_FLOW_TOTAL_TIMEOUT_MS, startAuthFlow } from '../../services/auth-flow.service';
 import { warmUpApi } from '../../lib/api/api-client';
 

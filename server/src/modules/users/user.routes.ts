@@ -1,4 +1,4 @@
-import { FastifyInstance } from 'fastify';
+import type { FastifyInstance } from 'fastify';
 import { prisma } from '../../shared/db/prisma';
 import { UserRepository } from './user.repository';
 import { UserService } from './user.service';

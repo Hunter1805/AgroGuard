@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
 import { AgroGuardIcon } from '../AgroGuardLogo';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 import { ManualEnvironmentForm } from './ManualEnvironmentForm';
 
 export const PreparingEnvironmentPage: React.FC = () => {

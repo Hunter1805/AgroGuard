@@ -126,10 +126,9 @@ export const CadastroEquipamentoView: React.FC = () => {
       }
     }
     if (currentStep === 2) {
-      if (!formData.farm.trim() || !formData.sector.trim() || !formData.location.trim()) {
-        setErrorMsg('Preencha a fazenda, setor e localização.');
-        return false;
-      }
+      // Fazenda, setor e localização são dados auxiliares opcionais no backend.
+      // Quando o catálogo ainda não foi carregado, não devemos bloquear o cadastro;
+      // a API cria a empresa/unidade padrão e permite concluir sem esses vínculos.
     }
     setErrorMsg(null);
     return true;

@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Bell, HelpCircle, Sun, Moon, Menu, Search, ChevronDown, X } from 'lucide-react';
 import { ROUTES } from '../../types/routes';
 import { isExplicitMockMode } from '../../config/data-source.config';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 import { AccountMenu } from './AccountMenu';
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
@@ -213,7 +213,7 @@ export const HeaderCorp: React.FC<HeaderCorpProps> = ({
 
   const unread = pendingAlerts > 0 ? pendingAlerts : notifications.length;
   const userName = profile?.name || (authLoading ? 'Carregando...' : '');
-  const initials = userName ? userName.split(' ').filter(Boolean).slice(0, 2).map((part) => part[0]).join('').toUpperCase() : '—';
+  const initials = userName ? userName.split(' ').filter(Boolean).slice(0, 2).map((part: string) => part[0]).join('').toUpperCase() : '—';
 
   return (
     <header
@@ -372,7 +372,7 @@ export const HeaderCorp: React.FC<HeaderCorpProps> = ({
               {userName}
             </span>
             <span className="text-[11px]" style={{ color: 'var(--color-text-muted)' }}>
-              {profile?.role ? ({ ADMIN: 'Administrador', ADMIN_ORGANIZACAO: 'Administrador', GESTOR: 'Gestor', OPERADOR: 'Operador', proprietario: 'Proprietário', administrador: 'Administrador', tecnico: 'Técnico', supervisor: 'Supervisor' }[profile.role] || profile.role) : 'Função não disponível'}
+              {profile?.role ? (({ ADMIN: 'Administrador', ADMIN_ORGANIZACAO: 'Administrador', GESTOR: 'Gestor', OPERADOR: 'Operador', proprietario: 'Proprietário', administrador: 'Administrador', tecnico: 'Técnico', supervisor: 'Supervisor' } as Record<string, string>)[profile.role] || profile.role) : 'Função não disponível'}
             </span>
           </div>
           <ChevronDown size={13} className="hidden sm:block" style={{ color: 'var(--color-text-muted)' }} />

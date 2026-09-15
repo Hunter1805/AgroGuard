@@ -1,13 +1,11 @@
-import { FastifyInstance } from 'fastify';
-import { PrismaClient } from '@prisma/client';
+import type { FastifyInstance } from 'fastify';
 import { MaintenanceRepository } from './maintenance.repository';
 import { MaintenanceService } from './maintenance.service';
 import { AuditService } from '../../shared/services/audit.service';
 import { requirePermission, requireAuthentication, requireOrganizationScope } from '../../shared/middleware/authGuard';
 import { AppError } from '../../shared/errors/AppError';
 import { createPlanSchema, updatePlanSchema, createIntervalSchema, linkEquipmentSchema, createScheduleSchema, updateScheduleSchema, updateScheduleStatusSchema, listSchedulesQuerySchema, listHistoryQuerySchema } from './maintenance.schema';
-
-const prisma = new PrismaClient();
+import { prisma } from '../../shared/db/prisma';
 const service = new MaintenanceService(new MaintenanceRepository(prisma), new AuditService(prisma));
 const guard = (action: string) => ({ preHandler: [requireAuthentication(), requireOrganizationScope(), requirePermission('maintenance', action)] });
 const actor = (request: any) => { if (!request.actor) throw new AppError('Contexto não informado.', 401, 'ACCESS_DENIED'); return request.actor; };

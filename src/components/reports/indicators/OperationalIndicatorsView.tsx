@@ -149,6 +149,7 @@ export const OperationalIndicatorsView: React.FC = () => {
             description="Distribuição das ordens de serviço no período filtrado."
             series={distributionSeries}
             unit="OS"
+            variant="donut"
           />
           <ReportChart
             title="Horas de parada por tipo"

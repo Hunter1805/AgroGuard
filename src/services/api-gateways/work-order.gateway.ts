@@ -11,10 +11,16 @@ export async function fetchWorkOrderPageFromApi(search?: string, page = 1, pageS
   params.set('page', String(page));
   params.set('pageSize', String(pageSize));
   if (search) params.set('search', search);
-  const response = await apiClient<any[]>(`/work-orders?${params.toString()}`);
-  const total = Number((response.meta as any)?.total ?? response.data.length);
+  const response = await apiClient<any>(`/work-orders?${params.toString()}`);
 
-  const items: WorkOrder[] = response.data.map(wo => ({
+  const rawItems: any[] = Array.isArray(response.data)
+    ? response.data
+    : Array.isArray((response.data as any)?.items)
+    ? (response.data as any).items
+    : [];
+  const total = Number((response.meta as any)?.total ?? rawItems.length);
+
+  const items: WorkOrder[] = rawItems.map(wo => ({
     id: wo.id,
     code: wo.code,
     title: wo.description,
@@ -29,11 +35,16 @@ export async function fetchWorkOrderPageFromApi(search?: string, page = 1, pageS
     status: (wo.status as any) || 'aberta',
     description: wo.description,
     openedAt: wo.openedAt,
+    // closedAt é essencial para MTTR real (tempo efetivo de reparo).
+    closedAt: wo.closedAt || undefined,
+    totalCost: wo.totalCost != null ? Number(wo.totalCost) : undefined,
     requesterId: wo.openedByUserId || 'sys',
     requesterName: wo.openedByUser?.name || 'Sistema',
     impact: 'sem_impacto' as any,
     equipmentCanOperate: true,
-    requiresBlock: false,
+    // requiresBlock indica parada do equipamento e alimenta as horas de parada.
+    requiresBlock: Boolean(wo.requiresBlock),
+    totalDowntimeHours: wo.totalDowntimeHours != null ? Number(wo.totalDowntimeHours) : undefined,
     requiresApproval: false,
     createdAt: wo.createdAt,
     updatedAt: wo.updatedAt,

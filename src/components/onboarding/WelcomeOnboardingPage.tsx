@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CheckCircle2, ArrowRight, Building, Cpu, Users, Calendar, Play, ExternalLink, AlertCircle } from 'lucide-react';
 import { AgroGuardIcon } from '../AgroGuardLogo';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 import { useWelcomeOnboarding } from '../../hooks/useWelcomeOnboarding';
 import { Building2 } from 'lucide-react';
 

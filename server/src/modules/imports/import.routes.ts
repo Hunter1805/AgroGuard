@@ -1,11 +1,9 @@
-import { FastifyInstance } from 'fastify';
-import { PrismaClient } from '@prisma/client';
+import type { FastifyInstance } from 'fastify';
 import { ImportService } from './import.service';
 import { importBatchSchema } from './import.schemas';
 import { AppError } from '../../shared/errors/AppError';
 import type { ApiResponse } from '../../shared/http/ApiResponse';
-
-const prisma = new PrismaClient();
+import { prisma } from '../../shared/db/prisma';
 const service = new ImportService(prisma);
 
 export async function importRoutes(app: FastifyInstance) {

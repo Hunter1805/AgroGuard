@@ -83,6 +83,12 @@ export interface WorkOrder {
 
   // Abertura / Referências
   openedAt: string;
+  /** Data de encerramento da OS (usada para cálculo de MTTR). */
+  closedAt?: string;
+  /** Custo total registrado na OS. */
+  totalCost?: number;
+  /** Horas totais de parada associadas à OS. */
+  totalDowntimeHours?: number;
   requesterId: string;
   requesterName: string;
   

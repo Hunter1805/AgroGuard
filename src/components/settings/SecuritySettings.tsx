@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { LockKeyhole, Mail } from 'lucide-react';
 import { supabase } from '../../lib/supabase/supabase-client';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 
 export const SecuritySettings: React.FC = () => {
   const { profile, logout } = useAuth();

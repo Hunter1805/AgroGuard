@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Save, UserRound } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 
 export const ProfileSettings: React.FC = () => {
   const { profile, profileLoading, updateProfile } = useAuth();

@@ -1,4 +1,4 @@
-import { FastifyInstance } from 'fastify';
+import type { FastifyInstance } from 'fastify';
 import { schedulerService } from '../../shared/jobs/scheduler.service';
 import { ReadingsAutomationJob } from '../../jobs/readings.job';
 import { MaintenanceAutomationJob } from '../../jobs/maintenance.job';

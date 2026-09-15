@@ -1,10 +1,8 @@
-import { FastifyInstance } from 'fastify';
-import { PrismaClient } from '@prisma/client';
+import type { FastifyInstance } from 'fastify';
 import { AppError } from '../../shared/errors/AppError';
 import type { ApiResponse } from '../../shared/http/ApiResponse';
+import { prisma } from '../../shared/db/prisma';
 import { createTireSchema, updateTireSchema, tireMovementSchema } from './tires.schemas';
-
-const prisma = new PrismaClient();
 
 interface Actor {
   organizationId: string;

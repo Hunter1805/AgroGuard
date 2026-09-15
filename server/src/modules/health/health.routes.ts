@@ -1,4 +1,4 @@
-import { FastifyInstance } from 'fastify';
+import type { FastifyInstance } from 'fastify';
 import { prisma } from '../../shared/db/prisma';
 
 export async function healthRoutes(app: FastifyInstance) {

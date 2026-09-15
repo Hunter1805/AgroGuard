@@ -83,8 +83,17 @@ export const reportIndicatorsService = {
     const preventiveComplianceInsufficient = preventiveOrders.length <= 0;
 
     // 5. Taxa de Conformidade (%) = Itens conformes / Itens avaliados * 100
-    const totalChecklistItems = checklistsList.reduce((acc: number, c: any) => acc + (c.itemsEvaluatedCount || 10), 0);
-    const nonConformitiesCount = checklistsList.reduce((acc: number, c: any) => acc + (c.nonConformitiesCount || 0), 0);
+    // Prefere contagens explícitas; senão deriva das respostas reais do checklist.
+    const totalChecklistItems = checklistsList.reduce((acc: number, c: any) => {
+      if (typeof c.itemsEvaluatedCount === 'number') return acc + c.itemsEvaluatedCount;
+      if (Array.isArray(c.answers)) return acc + c.answers.length;
+      return acc + 10;
+    }, 0);
+    const nonConformitiesCount = checklistsList.reduce((acc: number, c: any) => {
+      if (typeof c.nonConformitiesCount === 'number') return acc + c.nonConformitiesCount;
+      if (Array.isArray(c.answers)) return acc + c.answers.filter((a: any) => a.result === 'nao_conforme' || a.result === 'não conforme').length;
+      return acc;
+    }, 0);
     const conformItemsCount = Math.max(0, totalChecklistItems - nonConformitiesCount);
     const complianceRateVal = totalChecklistItems > 0 ? (conformItemsCount / totalChecklistItems) * 100 : 0;
     const complianceRateInsufficient = totalChecklistItems <= 0;

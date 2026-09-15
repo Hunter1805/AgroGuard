@@ -1,10 +1,12 @@
-import { FastifyInstance } from 'fastify';
-import { PrismaClient } from '@prisma/client';
+/// <reference types="@fastify/swagger" />
+import type { FastifyInstance } from 'fastify';
 import { AppError } from '../../shared/errors/AppError';
 import type { ApiResponse } from '../../shared/http/ApiResponse';
+// Import de tipo que carrega a augmentação `FastifyRequest.actor`
+// (declare module 'fastify' em RequestActor.ts).
+import type {} from '../../shared/http/RequestActor';
+import { prisma } from '../../shared/db/prisma';
 import { createToolSchema, updateToolSchema } from './tools.schemas';
-
-const prisma = new PrismaClient();
 
 export async function toolRoutes(app: FastifyInstance) {
   // Lista ferramentas da organização

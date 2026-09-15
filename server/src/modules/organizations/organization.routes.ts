@@ -1,10 +1,8 @@
-import { FastifyInstance } from 'fastify';
-import { PrismaClient } from '@prisma/client';
+import type { FastifyInstance } from 'fastify';
 import { OrganizationRepository } from './organization.repository';
 import { OrganizationService } from './organization.service';
 import type { ApiResponse } from '../../shared/http/ApiResponse';
-
-const prisma = new PrismaClient();
+import { prisma } from '../../shared/db/prisma';
 const repo = new OrganizationRepository(prisma);
 const service = new OrganizationService(repo);
 
