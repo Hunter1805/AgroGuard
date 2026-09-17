@@ -10,6 +10,7 @@
     "test": "npm --prefix server run test",
     "test:routing": "vitest run --config vitest.config.ts",
     "lint": "oxlint",
+    "verify:bundle": "node scripts/verify-bundle-secrets.mjs",
     "preview": "vite preview"
   },
   "dependencies": {
