@@ -2,6 +2,20 @@
 
 Todas as alterações notáveis deste projeto estão registradas neste arquivo.
 
+## [Fase 17S] — Contenção de Credencial e Proteção de Arquivos
+### Segurança
+- **Credencial administrativa**: removido o fallback hardcoded de `SUPABASE_SERVICE_ROLE_KEY` em `server/src/config/env.ts`. Removidos os fallbacks para `VITE_SUPABASE_ANON_KEY` e `SUPABASE_ANON_KEY` (chave anon não concede privilégio de service_role).
+- **Fail-fast**: nova verificação `assertAdminSupabaseConfig()` identifica apenas os **nomes** das variáveis ausentes/inválidas — nunca os valores. Provider de storage Supabase falha com mensagem equivalente.
+- **Frontend**: removida a chave anon hardcoded de `src/lib/supabase/supabase-client.ts`; a configuração é obrigatória no build, sem valores versionados.
+- **Proteção de upload/download**: as rotas de arquivos agora exigem autenticação, escopo organizacional e permissão (`attachments`), seguindo o padrão `preHandler` existente.
+- **Isolamento por tenant**: organização derivada exclusivamente do `RequestActor`; eliminado o fallback `default-org`.
+- **Validação de propriedade**: `storageKey` validado contra o namespace do tenant antes de qualquer chamada ao provider. Rejeita caminhos absolutos, traversal, separadores alternativos e codificações malformadas. Arquivos legados sem namespace verificável são negados.
+- **Auditoria**: operações de upload/download registradas em `audit_logs`, sem tokens, URLs assinadas ou conteúdo de arquivos.
+- **Operacional**: documentado o procedimento de rotação/revogação em `docs/security-credential-rotation.md` (a revogação da credencial exposta permanece pendente de ação manual no Supabase).
+
+### Testes
+- Nova suíte `server/tests/security/file-access.test.ts` (19 casos): rejeição de upload/download anônimo, sem organização e sem permissão; bloqueio cross-tenant; provider não chamado em rejeições; upload/download autorizado; chaves malformadas/traversal; limites de MIME; ausência de valores sensíveis nas respostas.
+
 ## [v1.0.0] - 2026-08-05 (Lançamento Oficial em Produção)
 
 ### Adicionado

@@ -14,6 +14,9 @@ dist-ssr
 .env
 .env.*
 server/.env
+# Fase 17S: manter os exemplos versionados SOMENTE com placeholders.
+!.env.example
+!server/.env.example
 
 # Uploads e DB local
 uploads/

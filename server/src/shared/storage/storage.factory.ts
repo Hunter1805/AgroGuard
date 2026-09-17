@@ -1,18 +1,24 @@
 import type { FileStorageProvider } from './storage.provider';
 import { LocalFileStorageProvider } from './local-storage.provider';
 import { SupabaseStorageProvider } from './supabase-storage.provider';
+import { env } from '../../config/env';
 
 export function getFileStorageProvider(): FileStorageProvider {
   const provider = process.env.UPLOAD_PROVIDER || 'local';
 
   if (provider === 'supabase') {
-    const supabaseUrl = process.env.SUPABASE_URL;
-    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    const supabaseUrl = env.SUPABASE_URL;
+    const serviceRoleKey = env.SUPABASE_SERVICE_ROLE_KEY;
     const bucket = process.env.SUPABASE_STORAGE_BUCKET || 'agroguard-files';
 
+    // Fail-fast: apenas os NOMES das variáveis ausentes são reportados — nunca valores.
     if (!supabaseUrl || !serviceRoleKey) {
+      const missing: string[] = [];
+      if (!supabaseUrl) missing.push('SUPABASE_URL');
+      if (!serviceRoleKey) missing.push('SUPABASE_SERVICE_ROLE_KEY');
       throw new Error(
-        'Configuração obrigatória para o provider Supabase Storage ausente: SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY devem ser configuradas.'
+        `CRITICAL CONFIGURATION ERROR: provider de storage 'supabase' requer as variáveis: ${missing.join(', ')}. ` +
+          'Nenhum fallback para chaves anon é aplicado.'
       );
     }
 

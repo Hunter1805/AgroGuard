@@ -18,6 +18,8 @@ const envSchema = z.object({
   LOG_LEVEL: z.string().default('info'),
   UPLOAD_PROVIDER: z.enum(['local', 'supabase']).default('local'),
   SUPABASE_URL: z.string().optional(),
+  // Fase 17S: nunca preencher por fallback. Obrigatória apenas quando operações
+  // administrativas (Auth Admin / Storage privado) são realmente solicitadas.
   SUPABASE_SERVICE_ROLE_KEY: z.string().optional(),
   SUPABASE_JWT_ISSUER: z.string().optional(),
   SUPABASE_JWKS_URL: z.string().optional(),
@@ -27,7 +29,9 @@ const envSchema = z.object({
 const _env = envSchema.safeParse(process.env);
 
 if (!_env.success) {
-  console.error('❌ Variáveis de ambiente inválidas:', _env.error.format());
+  // Não imprimir valores recebidos — apenas os nomes dos campos inválidos.
+  const invalidKeys = Object.keys(_env.error.format()).filter((k) => k !== '_errors');
+  console.error('❌ Variáveis de ambiente inválidas (campos):', invalidKeys.join(', '));
   throw new Error('Configuração de ambiente incorreta.');
 }
 
@@ -35,15 +39,42 @@ if (_env.data.NODE_ENV === 'production' && _env.data.MOCK_ACTOR_ENABLED) {
   throw new Error('CRITICAL SECURITY ERROR: MOCK_ACTOR_ENABLED não pode estar ativado em ambiente de PRODUÇÃO.');
 }
 
+// Fase 17S — Postura fail-closed para a credencial administrativa:
+//  * NÃO existe mais nenhum valor hardcoded.
+//  * NÃO existe fallback para chaves anon (VITE_SUPABASE_ANON_KEY / SUPABASE_ANON_KEY).
+//    Chave anon não concede privilégios de service_role e mascara má configuração.
+//  * O valor é lido APENAS de SUPABASE_SERVICE_ROLE_KEY.
+const serviceRoleKey = _env.data.SUPABASE_SERVICE_ROLE_KEY;
+
 export const env = {
   ..._env.data,
-  SUPABASE_URL:
-    _env.data.SUPABASE_URL ||
-    process.env.VITE_SUPABASE_URL ||
-    'https://poihrnbinlgehvrbrkwu.supabase.co',
-  SUPABASE_SERVICE_ROLE_KEY:
-    _env.data.SUPABASE_SERVICE_ROLE_KEY ||
-    process.env.VITE_SUPABASE_ANON_KEY ||
-    process.env.SUPABASE_ANON_KEY ||
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBvaWhybmJpbmxnZWh2cmJya3d1Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4NTkzOTc4OSwiZXhwIjoyMTAxNTE1Nzg5fQ.p8pNlxpLNm047aTmsjaJmf5MH5lbcEjOUBVYgj-heEI',
+  SUPABASE_URL: _env.data.SUPABASE_URL, // sem default hardcoded
+  SUPABASE_SERVICE_ROLE_KEY: serviceRoleKey, // sem fallback para chaves anon
 };
+
+/**
+ * Indica se operações administrativas no Supabase (Auth Admin / Storage privado)
+ * estão habilitadas — ou seja, URL e service_role foram explicitamente configuradas.
+ *
+ * Nunca lança nem imprime valores; apenas reflete a presença da configuração.
+ */
+export function hasAdminSupabaseConfig(): boolean {
+  return Boolean(env.SUPABASE_URL && env.SUPABASE_SERVICE_ROLE_KEY);
+}
+
+/**
+ * Fail-fast: verifica a presença das variáveis exigidas para operações administrativas
+ * ANTES de executar a operação. Identifica apenas os NOMES ausentes — nunca os valores.
+ */
+export function assertAdminSupabaseConfig(context: string): void {
+  const missing: string[] = [];
+  if (!env.SUPABASE_URL) missing.push('SUPABASE_URL');
+  if (!env.SUPABASE_SERVICE_ROLE_KEY) missing.push('SUPABASE_SERVICE_ROLE_KEY');
+
+  if (missing.length > 0) {
+    throw new Error(
+      `CRITICAL CONFIGURATION ERROR: operação administrativa do Supabase em '${context}' requer as variáveis: ${missing.join(', ')}. ` +
+        'Configure-as no ambiente do servidor backend (nunca no bundle web do frontend).'
+    );
+  }
+}
